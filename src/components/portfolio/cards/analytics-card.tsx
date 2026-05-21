@@ -52,13 +52,19 @@ export function buildAnalytics(github: GithubData) {
   return { years, langPct, recent, total, joinedYear };
 }
 
+const MONTHS = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+
+function parseMonthYear(str: string): number | null {
+  const m = str.trim().match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (!m) return null;
+  const mi = MONTHS.indexOf(m[1].slice(0, 3).toLowerCase());
+  if (mi < 0) return null;
+  return new Date(parseInt(m[2], 10), mi, 1).getTime();
+}
+
 export function computeExperienceYears() {
   const starts = experiences
-    .map((e) => {
-      const startStr = e.period.split(/\s*[-–]\s*/)[0];
-      const t = new Date(startStr).getTime();
-      return Number.isFinite(t) ? t : null;
-    })
+    .map((e) => parseMonthYear(e.period.split(/\s*[-–]\s*/)[0]))
     .filter((t): t is number => t !== null);
   if (starts.length === 0) return 1;
   const earliest = Math.min(...starts);

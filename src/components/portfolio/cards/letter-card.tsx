@@ -21,55 +21,89 @@ export function LetterCollapsed() {
   const reduce = useReducedMotion();
   return (
     <>
-      {/* Desktop / lg+ — full editorial layout */}
-      <div className="hidden lg:flex flex-col justify-between w-full h-full gap-3 min-w-0 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]">
-        <div className="flex flex-col gap-3">
-          <p
-            className="t-mono-xs text-right"
-            style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
+      {/* Desktop / lg+ — 2x2 editorial grid */}
+      <div className="hidden lg:grid grid-cols-2 grid-rows-2 w-full h-full gap-2 min-w-0 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]">
+        {/* Top-left: soft serif invite, words stair-stepped left → right within the cell */}
+        <div
+          className="t-serif self-start justify-self-stretch flex flex-col w-full min-w-0"
+          style={{
+            color: LETTER_INK_SOFT,
+            fontSize: "clamp(20px, 2.4vw, 38px)",
+            fontWeight: 700,
+            letterSpacing: "-0.01em",
+            wordSpacing: "0.4em",
+            lineHeight: 1.25,
+          }}
+        >
+          <motion.div
+            className="text-left whitespace-nowrap"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.55 }}
           >
-            note
-          </p>
-          <h3
-            className="t-display min-w-0"
-            style={{
-              fontSize: "clamp(26px, 3vw, 52px)",
-              lineHeight: 0.95,
-              letterSpacing: "-0.01em",
-            }}
+            if
+          </motion.div>
+          <motion.div
+            className="text-left whitespace-nowrap"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
           >
-            <SplitText delay={CONTENT_BASE_DELAY + 0.25}>Less résumé.</SplitText>
-            <br />
-            <SplitText
-              className="t-serif"
-              style={{ color: LETTER_INK_SOFT }}
-              delay={CONTENT_BASE_DELAY + 0.55}
-            >
-              More hello.
-            </SplitText>
-          </h3>
+            you
+          </motion.div>
+          <motion.div
+            className="text-left whitespace-nowrap"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
+          >
+            have a
+          </motion.div>
+          <motion.div
+            className="text-left whitespace-nowrap"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 1.0 }}
+          >
+            moment
+          </motion.div>
         </div>
 
-        <motion.div
-          className="flex items-baseline justify-between gap-2 pt-2"
-          style={{ borderTop: `1px solid ${LETTER_INK_SOFT}` }}
+        {/* Top-right: section label */}
+        <p
+          className="t-mono-xs self-start justify-self-end text-right"
+          style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
+        >
+          note
+        </p>
+
+        {/* Bottom-left: click hint */}
+        <motion.p
+          className="t-mono self-end justify-self-start"
+          style={{
+            letterSpacing: "0.08em",
+            fontSize: "clamp(10px,0.78vw,13px)",
+            opacity: 0.85,
+          }}
           initial={reduce ? false : { opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 0.85, y: 0 }}
           transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 1.0 }}
         >
-          <p
-            className="t-mono opacity-85"
-            style={{ letterSpacing: "0.08em", fontSize: "clamp(10px,0.78vw,13px)" }}
-          >
-            click to read →
-          </p>
-          <p
-            className="t-mono-xs opacity-70 shrink-0"
-            style={{ letterSpacing: "0.08em" }}
-          >
-            kochi · {new Date().getFullYear()}
-          </p>
-        </motion.div>
+          click to read →
+        </motion.p>
+
+        {/* Bottom-right: main headline */}
+        <h3
+          className="t-display min-w-0 self-end justify-self-end text-right"
+          style={{
+            fontSize: "clamp(18px, 2vw, 34px)",
+            lineHeight: 1.05,
+            letterSpacing: "-0.01em",
+            overflowWrap: "break-word",
+          }}
+        >
+          <SplitText delay={CONTENT_BASE_DELAY + 0.25}>A small letter.</SplitText>
+        </h3>
       </div>
 
       {/* Mobile — compact square: a quiet hello */}
@@ -262,12 +296,7 @@ export function LetterExpanded() {
           gap: "clamp(14px,1.6vw,28px)",
         }}
       >
-        <div aria-hidden />
-
-        <div
-          className="self-start flex flex-col gap-[clamp(10px,1.2svh,16px)] min-w-0 text-left items-start"
-          style={{ color: LETTER_INK }}
-        >
+        <div className="self-start min-w-0" style={{ color: LETTER_INK }}>
           <h2
             className="t-display"
             style={{
@@ -277,9 +306,14 @@ export function LetterExpanded() {
               color: LETTER_INK,
             }}
           >
-            <SplitText delay={0.1}>A note</SplitText>
+            <SplitText delay={0.1}>From my desk to yours.</SplitText>
           </h2>
+        </div>
 
+        <div
+          className="self-start flex flex-col gap-[clamp(10px,1.2svh,16px)] min-w-0 text-left items-start"
+          style={{ color: LETTER_INK, marginTop: "clamp(72px,11svh,160px)" }}
+        >
           <div
             className="flex flex-col gap-[clamp(6px,0.9svh,12px)] t-body"
             style={{
@@ -290,7 +324,21 @@ export function LetterExpanded() {
               maxWidth: "52ch",
             }}
           >
-            <p>Hello, and thanks for clicking around.</p>
+            <p>
+              <span
+                className="t-display"
+                style={{
+                  fontSize: "clamp(22px,2.3vw,36px)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1,
+                  marginRight: "0.18em",
+                }}
+              >
+                Hello
+              </span>
+              , and thanks for clicking around.
+            </p>
             <p>
               I&apos;m Ajas — a software developer in kochi, the kind of
               afternoon where the clouds take their time. I write backends
@@ -300,13 +348,18 @@ export function LetterExpanded() {
             </p>
             <p>
               I like systems that age well, codebases that don&apos;t need a
-              tour, and reviews that just say lgtm. nothing flashy — just
+              tour, and reviews that just say looks good to me. nothing flashy — just
               quiet, careful work.
             </p>
             <p>
-              If you&apos;re building something patient and useful, I&apos;d
-              love to hear about it. the bio card has every door — email,
-              github, linkedin.
+              I&apos;m also still learning, and I expect I always will be.
+              I&apos;ll get things wrong from time to time — small things,
+              sometimes less small — and when I do, I&apos;d much rather
+              hear about it than not.
+            </p>
+            <p>
+              So if you&apos;ve got feedback, a correction, an idea, or
+              just something to say, please reach out.
             </p>
           </div>
 
