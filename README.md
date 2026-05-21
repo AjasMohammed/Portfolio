@@ -1,33 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ajas Mohammed Portfolio
+
+A personal portfolio site for Ajas Mohammed, built with Next.js App Router, TypeScript, and Tailwind CSS.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies and run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app` - App Router entry files, metadata, and global styles.
+- `src/components` - Reusable portfolio sections and layout components.
+- `src/data/profile.ts` - Resume-derived profile, experience, project, and skill content.
+- `public/resume-ajas-mohammed.pdf` - Downloadable resume asset.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` - Start the local development server.
+- `npm run lint` - Run ESLint.
+- `npm run build` - Create a production build.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Content Updates
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Most portfolio text lives in `src/data/profile.ts`, so you can update your experience, projects, skills, email, phone, and resume link without changing the section components.
 
 ## Deploy on Vercel
 

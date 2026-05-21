@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Two-tone palette extracted from portrait.jpeg, anchored on warm ink */
+  --orange: #ea5a1a;
+  --orange-deep: #c0440f;
+  --orange-soft: #f08047;
+  --cream: #f4ebd8;
+  --cream-soft: #fbf6e9;
+  --cream-deep: #e6d8b8;
+  --ink: #231510;
+
+  --background: var(--ink);
+  --foreground: var(--cream);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-orange: var(--orange);
+  --color-orange-deep: var(--orange-deep);
+  --color-orange-soft: var(--orange-soft);
+  --color-cream: var(--cream);
+  --color-cream-soft: var(--cream-soft);
+  --color-cream-deep: var(--cream-deep);
+  --color-ink: var(--ink);
+
+  --font-sans: var(--font-roketto);
+  --font-display: var(--font-roketto);
+  --font-serif: var(--font-instrument-serif);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-secondary: var(--font-francy);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
+  background: var(--ink);
+  color: var(--cream);
+  overflow: hidden;
+  overscroll-behavior: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--cream);
+  color: var(--orange-deep);
+}
+
+/* Hairline divider used across the grid */
+.rule {
+  background: var(--cream);
+  opacity: 0.35;
+}
+
+/* ── Typographic system — Roketto-led ─────────────────────────── */
+/* Display — Roketto, the brand voice (single weight, all-caps designed) */
+.t-display {
+  font-family: var(--font-roketto), var(--font-gunterz), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+/* Display medium — same family, slightly tighter */
+.t-display-med {
+  font-family: var(--font-roketto), var(--font-gunterz), sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Serif — for italic accents inside display lines */
+.t-serif {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  letter-spacing: -0.018em;
+  line-height: 0.92;
+}
+
+/* Mono small-caps labels — Francy as the secondary face for small UI text */
+.t-mono {
+  font-family: var(--font-francy), var(--font-roketto), var(--font-mono), monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: clamp(10px, 0.72vw, 12px);
+}
+
+.t-mono-xs {
+  font-family: var(--font-francy), var(--font-roketto), var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: clamp(9px, 0.65vw, 11px);
+}
+
+/* Pure monospaced — for code-like content (still JetBrains Mono) */
+.t-code {
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 0;
+  font-size: clamp(10px, 0.72vw, 12px);
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Body — Francy as the secondary face for descriptive copy */
+.t-body {
+  font-family: var(--font-francy), var(--font-roketto), var(--font-gunterz), system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(12px, 0.92vw, 15px);
+  line-height: 1.55;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+/* Numerals for stats */
+.t-num {
+  font-family: var(--font-gunterz), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-feature-settings: "tnum" 1;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+/* Retro chunky display — Gunterz Black for huge stat numbers */
+.t-retro {
+  font-family: var(--font-gunterz), sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-feature-settings: "tnum" 1;
+  line-height: 0.82;
+  text-transform: uppercase;
+  font-style: italic;
+  -webkit-text-stroke: 0;
+}
+
+/* Interactive utilities */
+.spot {
+  position: relative;
+}
+
+/* Animated marquee track */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+/* SplitText container — clips each line so chars can slide in */
+.split-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em; /* descender room */
+}
+.split-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Text-rotate cursor blink */
+@keyframes caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret::after {
+  content: "_";
+  margin-left: 0.06em;
+  animation: caret 0.9s steps(1) infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.55; }
+}
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+/* Underline-on-hover for links */
+.link-line {
+  position: relative;
+}
+.link-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-line:hover::after,
+.link-line:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* A faint warm grain so the orange field doesn't read flat */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.07;
 }
