@@ -118,7 +118,7 @@ export function ExpandedCard({
 }) {
   const variant: Variant =
     id === "image"
-      ? "image"
+      ? "cream"
       : id === "letter"
         ? "sky"
         : id === "analytics"

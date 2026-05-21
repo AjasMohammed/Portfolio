@@ -1,10 +1,61 @@
 "use client";
 
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { certificates } from "@/data/profile";
-import { ease, CONTENT_BASE_DELAY } from "../constants";
+import { ease, CONTENT_BASE_DELAY, LETTER_INK } from "../constants";
 import { SplitText } from "../split-text";
+
+/* Keywords highlighted in the cover letter — companies, projects, and
+   marquee tools. Order in the list doesn't matter; the highlighter sorts
+   by length so phrases like "Django REST Framework" win over "Django". */
+const COVER_LETTER_KEYWORDS = [
+  // Companies
+  "Neumeral Technologies", "Neumeral",
+  "Allwin Technologies",
+  "Imiot TechnoLabs",
+  // Projects
+  "Learnabble", "Neusler", "GitAI",
+  // Frameworks & libraries
+  "Django REST Framework", "Django ORM", "Django",
+  "FastAPI", "Wagtail", "React", "Next.js",
+  "Celery", "Redis", "Docker", "Ansible",
+  "LangChain", "GitPython",
+  // Languages
+  "Python", "SQL",
+  // Other
+  "HackerRank", "YouTube API", "Odoo",
+  "REST APIs", "RESTful APIs",
+];
+
+const KEYWORD_HIGHLIGHT_STYLE: CSSProperties = {
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+};
+
+function buildKeywordHighlighter(keywords: string[]) {
+  const sorted = [...keywords].sort((a, b) => b.length - a.length);
+  const pattern = sorted
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const regex = new RegExp(`(?<![A-Za-z])(${pattern})(?![A-Za-z])`, "gi");
+  const seen = new Set<string>();
+  return (text: string): ReactNode[] => {
+    const parts = text.split(regex);
+    return parts.map((part, i) => {
+      if (i % 2 === 0) return part;
+      const key = part.toLowerCase();
+      if (seen.has(key)) return part;
+      seen.add(key);
+      return (
+        <span key={i} style={KEYWORD_HIGHLIGHT_STYLE}>
+          {part}
+        </span>
+      );
+    });
+  };
+}
 
 /* ───────────────────────── IMAGE ───────────────────────── */
 
@@ -78,6 +129,8 @@ export const coverLetterParagraphsMobile = [
 ];
 
 export function ImageExpanded() {
+  const highlightDesktop = buildKeywordHighlighter(COVER_LETTER_KEYWORDS);
+  const highlightMobile = buildKeywordHighlighter(COVER_LETTER_KEYWORDS);
   return (
     <div
       className="flex flex-col h-full overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[1fr_clamp(220px,20vw,320px)]"
@@ -101,13 +154,16 @@ export function ImageExpanded() {
               width: "clamp(64px, 18vw, 96px)",
               height: "clamp(64px, 18vw, 96px)",
               borderRadius: 9999,
-              border: "1px solid rgba(244,235,216,0.35)",
+              border: "1px solid rgba(192,68,15,0.32)",
             }}
           />
         </div>
 
         <div className="min-w-0">
-          <div className="flex flex-col gap-[clamp(8px,1.2svh,16px)]">
+          <div
+            className="flex flex-col gap-[clamp(8px,1.2svh,16px)]"
+            style={{ color: LETTER_INK }}
+          >
             <p
               className="t-body"
               style={{
@@ -131,7 +187,7 @@ export function ImageExpanded() {
                     opacity: 0.92,
                   }}
                 >
-                  {p}
+                  {highlightDesktop(p)}
                 </p>
               ))}
             </div>
@@ -148,7 +204,7 @@ export function ImageExpanded() {
                     opacity: 0.92,
                   }}
                 >
-                  {p}
+                  {highlightMobile(p)}
                 </p>
               ))}
             </div>
@@ -223,9 +279,9 @@ export function ImageExpanded() {
                     className="flex items-center justify-between gap-3 transition-transform hover:-translate-y-0.5"
                     style={{
                       padding: "clamp(8px,2vw,12px) clamp(10px,2.4vw,14px)",
-                      border: "1px solid rgba(244,235,216,0.28)",
+                      border: "1px solid rgba(192,68,15,0.28)",
                       borderRadius: "clamp(8px,2vw,12px)",
-                      background: "rgba(244,235,216,0.04)",
+                      background: "rgba(192,68,15,0.04)",
                     }}
                   >
                     <div className="min-w-0">
@@ -243,7 +299,7 @@ export function ImageExpanded() {
                       <p
                         className="t-serif truncate"
                         style={{
-                          color: "rgba(244,235,216,0.7)",
+                          color: "rgba(192,68,15,0.78)",
                           fontSize: "clamp(10px,2.4vw,13px)",
                           lineHeight: 1.2,
                         }}

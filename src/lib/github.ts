@@ -92,14 +92,24 @@ async function ghRaw(path: string): Promise<string | null> {
   }
 }
 
+const HIDDEN_REPO_SLUGS = new Set(["ajasmohammed/portfolio"]);
+
+function isHiddenRepo(repo: GithubRepo): boolean {
+  return HIDDEN_REPO_SLUGS.has(repo.full_name.toLowerCase());
+}
+
 export async function getGithubData(username: string): Promise<GithubData> {
-  const [user, repos, profileReadme] = await Promise.all([
+  const [rawUser, repos, profileReadme] = await Promise.all([
     gh<GithubUser>(`/users/${username}`),
     gh<GithubRepo[]>(`/users/${username}/repos?per_page=100&sort=updated`),
     ghRaw(`/repos/${username}/${username}/readme`),
   ]);
 
-  const allRepos = repos ?? [];
+  const allRepos = (repos ?? []).filter((r) => !isHiddenRepo(r));
+  const hiddenCount = (repos ?? []).length - allRepos.length;
+  const user = rawUser
+    ? { ...rawUser, public_repos: Math.max(0, rawUser.public_repos - hiddenCount) }
+    : null;
   const ownedRepos = allRepos
     .filter((r) => !r.fork)
     .sort(
