@@ -102,7 +102,7 @@ export function LetterCollapsed() {
             overflowWrap: "break-word",
           }}
         >
-          <SplitText delay={CONTENT_BASE_DELAY + 0.25}>A small letter.</SplitText>
+          <SplitText delay={CONTENT_BASE_DELAY + 0.25}>For you, then.</SplitText>
         </h3>
       </div>
 
