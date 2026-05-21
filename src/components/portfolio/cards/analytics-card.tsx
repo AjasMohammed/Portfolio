@@ -24,14 +24,27 @@ import { formatRelative } from "./projects-card";
 
 export function buildAnalytics(github: GithubData) {
   const repos = github.ownedRepos;
-  // Year buckets from pushed_at
-  const yearCounts = new Map<number, number>();
+  // Year buckets from pushed_at, with per-language breakdown
+  const yearMap = new Map<number, { count: number; langs: Map<string, number> }>();
   for (const r of repos) {
     const y = new Date(r.pushed_at).getFullYear();
-    yearCounts.set(y, (yearCounts.get(y) ?? 0) + 1);
+    let entry = yearMap.get(y);
+    if (!entry) {
+      entry = { count: 0, langs: new Map() };
+      yearMap.set(y, entry);
+    }
+    entry.count += 1;
+    const lang = r.language ?? "other";
+    entry.langs.set(lang, (entry.langs.get(lang) ?? 0) + 1);
   }
-  const years = [...yearCounts.entries()]
-    .map(([y, n]) => ({ year: y, count: n }))
+  const years = [...yearMap.entries()]
+    .map(([y, e]) => ({
+      year: y,
+      count: e.count,
+      byLang: [...e.langs.entries()]
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count),
+    }))
     .sort((a, b) => a.year - b.year);
 
   // Languages with percentages
@@ -259,13 +272,17 @@ export function LanguageDonut({
   );
 }
 
-/* Activity histogram — vertical bars with hover tooltip */
+/* Activity histogram — vertical bars stacked by language, with hover tooltip */
 export function ActivityBars({
   years,
   maxYear,
   height,
 }: {
-  years: { year: number; count: number }[];
+  years: {
+    year: number;
+    count: number;
+    byLang: { name: string; count: number }[];
+  }[];
   maxYear: number;
   height?: string;
 }) {
@@ -297,35 +314,57 @@ export function ActivityBars({
                 delay: CONTENT_BASE_DELAY + 0.35 + i * 0.05,
                 ease,
               }}
+              className="flex flex-col-reverse w-full overflow-hidden"
               style={{
-                width: "100%",
-                background: "var(--cream)",
                 borderRadius: "2px 2px 0 0",
                 opacity: isDimmed ? 0.35 : isActive ? 1 : 0.85,
                 transition: "opacity 0.2s ease",
               }}
-            />
+            >
+              {y.byLang.map((l) => (
+                <div
+                  key={l.name}
+                  style={{
+                    height: `${(l.count / y.count) * 100}%`,
+                    background: langDots[l.name] ?? "var(--cream-soft)",
+                  }}
+                />
+              ))}
+            </motion.div>
             <AnimatePresence>
               {isActive && (
-                <motion.span
+                <motion.div
                   key="tip"
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.18, ease }}
-                  className="t-mono pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap z-10"
+                  className="t-mono pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap z-10 flex flex-col gap-0.5"
                   style={{
                     bottom: "calc(100% + 4px)",
                     fontSize: "clamp(10px,0.72vw,12px)",
                     color: "var(--cream)",
-                    padding: "2px 6px",
-                    background: "rgba(35,21,16,0.9)",
+                    padding: "4px 7px",
+                    background: "rgba(35,21,16,0.92)",
                     border: "1px solid rgba(244,235,216,0.3)",
                     borderRadius: 4,
                   }}
                 >
-                  {y.year}: {y.count}
-                </motion.span>
+                  <span style={{ fontWeight: 600 }}>
+                    {y.year} · {y.count} {y.count === 1 ? "repo" : "repos"}
+                  </span>
+                  {y.byLang.slice(0, 4).map((l) => (
+                    <span key={l.name} className="inline-flex items-center gap-1.5">
+                      <span
+                        className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ background: langDots[l.name] ?? "var(--cream-soft)" }}
+                      />
+                      <span style={{ opacity: 0.9 }}>
+                        {l.name} · {l.count}
+                      </span>
+                    </span>
+                  ))}
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
