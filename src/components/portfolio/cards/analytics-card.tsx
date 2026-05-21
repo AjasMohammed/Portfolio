@@ -12,7 +12,7 @@ import {
 } from "framer-motion";
 import { experiences, profile, projects } from "@/data/profile";
 import type { GithubData } from "@/lib/github";
-import { ease, CONTENT_BASE_DELAY, langDots } from "../constants";
+import { ease, CONTENT_BASE_DELAY, langDots, langFallbackPalette } from "../constants";
 import { SplitText } from "../split-text";
 import { fadeUp, stagger } from "../animations";
 import { SocialIcon } from "../social-icon";
@@ -126,12 +126,18 @@ export function LanguageDonut({
     const dash = Math.max(0, len - gap);
     const offset = -cumulative;
     cumulative += len;
-    return { d, i, dash, offset, color: langDots[d.name] ?? (i % 2 === 0 ? "var(--cream)" : "var(--orange-soft)") };
+    return {
+      d,
+      i,
+      dash,
+      offset,
+      color: langDots[d.name] ?? langFallbackPalette[i % langFallbackPalette.length],
+    };
   });
 
   const active = hovered !== null ? data[hovered] : null;
   const activeColor = active
-    ? langDots[active.name] ?? "var(--cream)"
+    ? langDots[active.name] ?? langFallbackPalette[hovered! % langFallbackPalette.length]
     : "var(--cream)";
 
   const handleMove = (e: ReactMouseEvent<SVGCircleElement>) => {

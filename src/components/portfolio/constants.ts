@@ -10,10 +10,22 @@ export const LETTER_INK = "#0f1f3a";
 export const LETTER_INK_SOFT = "rgba(15,31,58,0.78)";
 
 export const langDots: Record<string, string> = {
-  Python: "#f4ebd8",
-  Rust: "#f08047",
-  JavaScript: "#f4ebd8",
-  TypeScript: "#f08047",
-  HTML: "#f4ebd8",
-  CSS: "#f08047",
+  Python: "#f4d35e",
+  Rust: "#fbe3a0",
+  JavaScript: "#f0a35c",
+  TypeScript: "#d97e44",
+  HTML: "#ea5a1a",
+  CSS: "#8d4e2a",
 };
+
+/* Cycled when a language isn't in langDots — kept warm to match the palette. */
+export const langFallbackPalette: string[] = [
+  "#f4ebd8",
+  "#f08047",
+  "#e6d8b8",
+  "#c0440f",
+  "#f4d35e",
+  "#8d4e2a",
+  "#fbf6e9",
+  "#ea5a1a",
+];

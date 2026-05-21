@@ -33,11 +33,6 @@ export function ImageInner() {
         className="absolute inset-x-0 top-0 h-[22%] pointer-events-none"
         style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32), transparent)" }}
       />
-      {/* Bottom fade for the name plate — desktop only */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none hidden lg:block"
-        style={{ background: "linear-gradient(180deg, transparent, rgba(192,68,15,0.78))" }}
-      />
       <div className="absolute left-3 right-3 bottom-3 hidden lg:flex items-end justify-between gap-2 text-cream">
         <div className="min-w-0">
           <p className="t-display text-[clamp(18px,1.8vw,30px)] leading-none overflow-hidden flex flex-col py-2">
