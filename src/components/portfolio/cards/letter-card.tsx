@@ -108,16 +108,6 @@ export function LetterCollapsed() {
 
       {/* Mobile — compact square: a quiet hello */}
       <div className="flex lg:hidden flex-col items-center justify-center w-full h-full gap-1 px-2 py-2">
-        <h3
-          className="t-display text-center"
-          style={{
-            fontSize: "clamp(22px, 8vw, 38px)",
-            lineHeight: 0.9,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          <SplitText delay={CONTENT_BASE_DELAY + 0.2}>hello.</SplitText>
-        </h3>
         <motion.p
           className="t-serif text-center"
           style={{
@@ -127,10 +117,20 @@ export function LetterCollapsed() {
           }}
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.1 }}
         >
-          a note inside
+          I left a note
         </motion.p>
+        <h3
+          className="t-display text-center"
+          style={{
+            fontSize: "clamp(22px, 8vw, 38px)",
+            lineHeight: 0.9,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          <SplitText delay={CONTENT_BASE_DELAY + 0.3}>for you.</SplitText>
+        </h3>
       </div>
     </>
   );
@@ -289,9 +289,8 @@ export function LetterExpanded() {
         className="object-cover"
       />
       <div
-        className="relative z-10 h-full grid min-h-0 overflow-hidden"
+        className="relative z-10 h-full grid min-h-0 overflow-auto lg:overflow-hidden grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(320px,46%,560px))]"
         style={{
-          gridTemplateColumns: "minmax(0, 1fr) minmax(0, clamp(320px, 46%, 560px))",
           ...innerPadding,
           gap: "clamp(14px,1.6vw,28px)",
         }}
@@ -311,8 +310,8 @@ export function LetterExpanded() {
         </div>
 
         <div
-          className="self-start flex flex-col gap-[clamp(10px,1.2svh,16px)] min-w-0 text-left items-start"
-          style={{ color: LETTER_INK, marginTop: "clamp(72px,11svh,160px)" }}
+          className="self-start flex flex-col gap-[clamp(10px,1.2svh,16px)] min-w-0 text-left items-start lg:mt-[clamp(72px,11svh,160px)]"
+          style={{ color: LETTER_INK }}
         >
           <div
             className="flex flex-col gap-[clamp(6px,0.9svh,12px)] t-body"
