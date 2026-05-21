@@ -145,6 +145,54 @@ body {
   position: relative;
 }
 
+/* Styled scrollbar — thin, cream thumb on transparent track */
+.scrollbar-styled {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244, 235, 216, 0.35) transparent;
+}
+.scrollbar-styled::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-styled::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-styled::-webkit-scrollbar-thumb {
+  background: rgba(244, 235, 216, 0.35);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.scrollbar-styled::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 235, 216, 0.6);
+}
+.scrollbar-styled::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Inked variant — for cream-surfaced cards (bio) */
+.scrollbar-styled-ink {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 68, 15, 0.35) transparent;
+}
+.scrollbar-styled-ink::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-styled-ink::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-styled-ink::-webkit-scrollbar-thumb {
+  background: rgba(192, 68, 15, 0.35);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.scrollbar-styled-ink::-webkit-scrollbar-thumb:hover {
+  background: rgba(192, 68, 15, 0.6);
+}
+.scrollbar-styled-ink::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* Animated marquee track */
 @keyframes marquee {
   from { transform: translateX(0); }
@@ -165,6 +213,7 @@ body {
 }
 .split-char {
   display: inline-block;
+  padding-block: 0.025em;
   will-change: transform, opacity;
 }
 

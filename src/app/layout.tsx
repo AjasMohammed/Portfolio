@@ -35,14 +35,8 @@ const gunterz = localFont({
   variable: "--font-gunterz",
   display: "swap",
   src: [
-    { path: "../../public/fonts/Gunterz/Gunterz-Regular.otf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/Gunterz/Gunterz-Italic.otf", weight: "400", style: "italic" },
-    { path: "../../public/fonts/Gunterz/Gunterz-Medium.otf", weight: "500", style: "normal" },
-    { path: "../../public/fonts/Gunterz/Gunterz-MediumItalic.otf", weight: "500", style: "italic" },
-    { path: "../../public/fonts/Gunterz/Gunterz-Bold.otf", weight: "700", style: "normal" },
-    { path: "../../public/fonts/Gunterz/Gunterz-BoldItalic.otf", weight: "700", style: "italic" },
-    { path: "../../public/fonts/Gunterz/Gunterz-Black.otf", weight: "900", style: "normal" },
-    { path: "../../public/fonts/Gunterz/Gunterz-BlackItalic.otf", weight: "900", style: "italic" },
+    { path: "../../public/fonts/gunterz/Gunterz-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/gunterz/Gunterz-BlackItalic.woff2", weight: "900", style: "italic" },
   ],
 });
 
@@ -50,7 +44,7 @@ const roketto = localFont({
   variable: "--font-roketto",
   display: "swap",
   src: [
-    { path: "../../public/fonts/roketto/Roketto.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/roketto/Roketto.woff2", weight: "400", style: "normal" },
   ],
 });
 
