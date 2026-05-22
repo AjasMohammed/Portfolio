@@ -286,7 +286,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
         variants={fadeUp}
         className="flex flex-col gap-4 min-w-0 scrollbar-styled-ink lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden lg:justify-between"
       >
-        <div className="flex flex-col gap-[clamp(10px,1.2svh,18px)] min-w-0">
+        <div className="flex flex-col gap-[clamp(8px,0.9svh,14px)] min-w-0">
           <p
             className="t-mono-xs"
             style={{ opacity: 0.65, fontSize: "clamp(10px,2.6vw,14px)", letterSpacing: "0.22em" }}
@@ -362,6 +362,81 @@ export function BioExpanded({ github }: { github: GithubData }) {
           >
             {profile.summary}
           </p>
+
+          <div className="flex flex-col gap-2 min-w-0" style={{ marginTop: "clamp(8px,1svh,12px)" }}>
+            <p
+              className="t-mono opacity-70"
+              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
+            >
+              <span style={{ opacity: 0.55 }}>$ </span>
+              i can build
+            </p>
+            <ul
+              className="grid min-w-0 gap-x-[clamp(10px,1.6vw,20px)]"
+              style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
+            >
+              {profile.capabilities.map((item, i) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-[clamp(6px,1vw,12px)] min-w-0"
+                  style={{
+                    borderTop: "1px solid rgba(192,68,15,0.22)",
+                    paddingBlock: "clamp(3px,0.45svh,6px)",
+                  }}
+                >
+                  <span
+                    className="t-retro shrink-0"
+                    style={{
+                      color: "var(--orange)",
+                      fontSize: "clamp(14px,1.9vw,22px)",
+                      lineHeight: 0.85,
+                      textShadow:
+                        "1.5px 1.5px 0 rgba(192,68,15,0.18), 3px 3px 0 rgba(192,68,15,0.06)",
+                      minWidth: "1.6em",
+                    }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className="t-display min-w-0"
+                    style={{
+                      fontSize: "clamp(11px,1.35vw,15px)",
+                      letterSpacing: "-0.012em",
+                      lineHeight: 1.05,
+                      overflowWrap: "break-word",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p
+              className="max-w-prose"
+              style={{
+                opacity: 0.8,
+                fontFamily: "var(--font-francy), serif",
+                fontSize: "clamp(11px,2.4vw,14px)",
+                lineHeight: 1.45,
+                letterSpacing: "0.025em",
+                marginTop: "clamp(4px,0.5svh,8px)",
+              }}
+            >
+              <span
+                className="t-mono-xs"
+                style={{
+                  color: "var(--orange)",
+                  opacity: 0.85,
+                  marginRight: "0.5em",
+                  letterSpacing: "0.18em",
+                }}
+              >
+                psst —
+              </span>
+              secretly a vibe coder too. cursor and claude code in the loop, so things ship faster without the patience tax.
+            </p>
+          </div>
         </div>
       </motion.div>
 

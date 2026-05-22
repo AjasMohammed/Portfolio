@@ -66,6 +66,15 @@ export const profile = {
     "Two years writing python that ages well — django, fastapi, async pipelines under the hood, react and next.js on the surface. Small careful changes over heroic rewrites.",
   headline:
     "Patient backends, honest interfaces. Python by trade, react by curiosity.",
+  capabilities: [
+    "Full-stack web apps",
+    "REST APIs & backends",
+    "Static sites",
+    "Desktop apps",
+    "LLM-powered tools",
+    "Automation & agentic workflows",
+    "Containerized deploys",
+  ],
   education: [
     {
       degree: "Diploma in Electrical and Electronic Engineering",
