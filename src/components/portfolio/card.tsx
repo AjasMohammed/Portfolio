@@ -27,6 +27,7 @@ export function BentoCard({
   bleed = false,
   extraStyle,
   className,
+  layoutKey,
 }: {
   id: CardId;
   expanded: CardId | null;
@@ -36,6 +37,7 @@ export function BentoCard({
   bleed?: boolean;
   extraStyle?: React.CSSProperties;
   className?: string;
+  layoutKey?: string;
 }) {
   const isHidden = expanded === id;
   const otherOpen = expanded !== null && expanded !== id;
@@ -51,7 +53,7 @@ export function BentoCard({
 
   return (
     <motion.div
-      layoutId={`card-${id}`}
+      layoutId={layoutKey ?? `card-${id}`}
       animate={{ opacity: otherOpen ? 0.25 : 1, scale: otherOpen ? 0.985 : 1 }}
       whileHover={
         interactive && id !== "bio" && id !== "letter" && id !== "analytics" && id !== "image"
@@ -111,10 +113,12 @@ export function ExpandedCard({
   id,
   github,
   onClose,
+  layoutKey,
 }: {
   id: CardId;
   github: GithubData;
   onClose: () => void;
+  layoutKey?: string;
 }) {
   const variant: Variant =
     id === "image"
@@ -129,7 +133,7 @@ export function ExpandedCard({
 
   return (
     <motion.div
-      layoutId={`card-${id}`}
+      layoutId={layoutKey ?? `card-${id}`}
       className="absolute inset-0 z-30 overflow-hidden"
       style={{
         borderRadius: RADIUS,

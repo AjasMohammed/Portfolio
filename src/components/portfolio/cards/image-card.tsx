@@ -76,7 +76,7 @@ export function ImageInner() {
           fill
           sizes="(max-width: 1024px) 100vw, 34vw"
           priority
-          className="object-cover scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
+          className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
         />
       </motion.div>
       {/* Top fade so the chrome overlay text stays legible */}

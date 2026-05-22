@@ -209,11 +209,11 @@ body {
 .split-line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.04em; /* descender room */
+  padding-top: 0.06em; /* ascender room */
 }
 .split-char {
   display: inline-block;
-  padding-block: 0.025em;
+  padding-top: 0.06em;
   will-change: transform, opacity;
 }
 

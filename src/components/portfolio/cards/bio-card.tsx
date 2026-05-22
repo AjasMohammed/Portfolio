@@ -112,7 +112,7 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
             <p
               className="t-retro"
               style={{
-                fontSize: "clamp(44px, 13vw, 72px)",
+                fontSize: "clamp(44px, 10vw, 130px)",
                 color: "var(--orange)",
                 lineHeight: 0.82,
                 textShadow:
@@ -125,7 +125,7 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
               className="t-mono pt-2"
               style={{
                 opacity: 0.7,
-                fontSize: "10px",
+                fontSize: "clamp(10px, 1.4vw, 16px)",
                 letterSpacing: "0.08em",
                 lineHeight: 1.15,
               }}
@@ -147,7 +147,7 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
             <h1
               className="t-display"
               style={{
-                fontSize: "clamp(20px, 6vw, 30px)",
+                fontSize: "clamp(20px, 3.4vw, 38px)",
                 lineHeight: 0.95,
                 letterSpacing: "-0.015em",
               }}
@@ -159,7 +159,7 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
               className="t-serif mt-1"
               style={{
                 color: "var(--orange)",
-                fontSize: "clamp(11px, 3.2vw, 14px)",
+                fontSize: "clamp(11px, 2vw, 22px)",
                 lineHeight: 1.15,
                 fontStyle: "italic",
               }}
@@ -184,13 +184,13 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
         >
           <p
             className="t-mono-xs truncate"
-            style={{ opacity: 0.75, fontSize: "10px", letterSpacing: "0.16em" }}
+            style={{ opacity: 0.75, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}
           >
             @ neumeral · kochi
           </p>
           <p
             className="t-mono-xs shrink-0"
-            style={{ opacity: 0.55, fontSize: "10px", letterSpacing: "0.16em" }}
+            style={{ opacity: 0.55, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}
           >
             since 2024
           </p>

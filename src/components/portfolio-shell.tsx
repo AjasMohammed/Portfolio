@@ -21,12 +21,14 @@ import { BackgroundField } from "@/components/portfolio/background-field";
 import { BentoCard, ExpandedCard } from "@/components/portfolio/card";
 import { ImageInner } from "@/components/portfolio/cards/image-card";
 import { BioCollapsed } from "@/components/portfolio/cards/bio-card";
-import { LetterCollapsed, SocialCard } from "@/components/portfolio/cards/letter-card";
+import { LetterCollapsed, SocialCard, SocialMobileCells } from "@/components/portfolio/cards/letter-card";
 import { AnalyticsCollapsed } from "@/components/portfolio/cards/analytics-card";
+import { RingChartCard } from "@/components/portfolio/cards/ring-chart-card";
 
 export function PortfolioShell({ github }: { github: GithubData }) {
   const [expanded, setExpanded] = useState<CardId | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
   const reduce = useReducedMotion();
   const letterOpen = expanded === "letter";
 
@@ -38,6 +40,14 @@ export function PortfolioShell({ github }: { github: GithubData }) {
     const t = setTimeout(() => setIsLoaded(true), 1200);
     return () => clearTimeout(t);
   }, [reduce]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -94,58 +104,82 @@ export function PortfolioShell({ github }: { github: GithubData }) {
 
         {/* ─── BENTO ─── */}
         <section
-          className="col-span-12 relative grid grid-cols-2 grid-rows-[clamp(140px,42vw,200px)_clamp(140px,42vw,200px)_auto_auto] min-h-0 overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible"
+          className="col-span-12 relative grid grid-cols-2 grid-rows-[7fr_4fr_7fr] min-h-0 overflow-hidden max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)] max-[463px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible"
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
         >
           <LayoutGroup>
-            {/* IMAGE — tall right (mobile) / tall left (desktop) */}
+            {/* IMAGE — top-right (tablet) / col 2 rows 1–2 (mobile <464) / tall left (desktop) */}
             <BentoCard
               id="image"
               expanded={expanded}
               onOpen={setExpanded}
               variant="image"
               bleed
-              className="col-start-2 col-end-3 row-start-1 row-end-3 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-7"
+              className="col-start-2 col-end-3 row-start-1 row-end-2 max-[463px]:row-end-3 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-7"
             >
               <ImageInner />
             </BentoCard>
 
-            {/* BIO — second row on mobile (full width) / top middle on desktop */}
+            {/* RING CHART — mobile <464 only — col 1 rows 1–2 (alongside image) */}
+            <RingChartCard
+              github={github}
+              className="hidden max-[463px]:block col-start-1 col-end-2 row-start-1 row-end-3"
+            />
+
+            {/* BIO — tall left col 1 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
             <BentoCard
               id="bio"
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
-              className="col-start-1 col-end-3 row-start-3 row-end-4 min-h-[26svh] lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4 lg:min-h-0"
+              className="col-start-1 col-end-2 row-start-1 row-end-3 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
             >
               <BioCollapsed github={github} />
             </BentoCard>
 
-            {/* LETTER — top-left square on mobile / top-right corner on desktop */}
+            {/* LETTER — desktop top-right corner */}
             <BentoCard
               id="letter"
               expanded={expanded}
               onOpen={setExpanded}
               variant="sky"
-              className="col-start-1 col-end-2 row-start-1 row-end-2 lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-3"
+              className="hidden lg:block lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-3"
             >
               <LetterCollapsed />
             </BentoCard>
 
-            {/* SOCIAL — left square below letter (mobile) / strip under letter (desktop) */}
+            {/* SOCIAL — desktop single strip under letter */}
             <SocialCard
-              className="col-start-1 col-end-2 row-start-2 row-end-3 lg:col-start-10 lg:col-end-13 lg:row-start-3 lg:row-end-4"
+              className="lg:col-start-10 lg:col-end-13 lg:row-start-3 lg:row-end-4"
             />
 
-            {/* ANALYTICS — bottom row (full width on mobile, wide bottom on desktop) */}
+            {/* MOBILE/TABLET — note card + 5 social mini-cards
+                (tablet ≥464: col 1 row 3 as 2×3) / (mobile <464: full-width row 5 as 3×2) */}
+            <div
+              className="col-start-1 col-end-2 row-start-3 row-end-4 grid grid-cols-2 grid-rows-3 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 max-[463px]:grid-cols-3 max-[463px]:grid-rows-2 lg:hidden"
+              style={{ gap: "clamp(6px, 1.6vw, 10px)", minWidth: 0, minHeight: 0 }}
+            >
+              <BentoCard
+                id="letter"
+                expanded={expanded}
+                onOpen={setExpanded}
+                variant="sky"
+                layoutKey="card-letter-mobile"
+              >
+                <LetterCollapsed />
+              </BentoCard>
+              <SocialMobileCells />
+            </div>
+
+            {/* ANALYTICS — tall right col 2 (tablet) / full-width row 4 (mobile <464) / wide bottom (desktop) */}
             <BentoCard
               id="analytics"
               expanded={expanded}
               onOpen={setExpanded}
               variant="accent"
-              className="col-start-1 col-end-3 row-start-4 row-end-5 min-h-[40svh] lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7 lg:min-h-0"
+              className="col-start-2 col-end-3 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <AnalyticsCollapsed github={github} />
             </BentoCard>
@@ -175,6 +209,11 @@ export function PortfolioShell({ github }: { github: GithubData }) {
                   id={expanded}
                   github={github}
                   onClose={() => setExpanded(null)}
+                  layoutKey={
+                    expanded === "letter" && !isDesktop
+                      ? "card-letter-mobile"
+                      : undefined
+                  }
                 />
               )}
             </AnimatePresence>
@@ -186,7 +225,7 @@ export function PortfolioShell({ github }: { github: GithubData }) {
           className="col-span-12 grid items-center"
           style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))" }}
         >
-          <div className="col-span-12 t-mono-xs opacity-70">
+          <div className="hidden lg:block col-span-12 t-mono-xs opacity-70">
             click any tile to expand · esc to close · github synced every 10m
           </div>
         </footer>

@@ -394,7 +394,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
             style={{
               fontFamily: "var(--font-gunterz), sans-serif",
               fontWeight: 900,
-              fontSize: "clamp(20px, 6vw, 30px)",
+              fontSize: "clamp(20px, 3.4vw, 38px)",
               lineHeight: 0.95,
               letterSpacing: "-0.015em",
             }}
@@ -408,7 +408,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
             className="t-display min-w-0 text-right"
             style={{
               fontWeight: 900,
-              fontSize: "clamp(20px, 6vw, 30px)",
+              fontSize: "clamp(20px, 3.4vw, 38px)",
               lineHeight: 0.95,
               letterSpacing: "-0.015em",
             }}
@@ -419,40 +419,6 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           </h2>
         </div>
 
-        {/* Mini language bar with top-3 legend */}
-        <motion.div
-          className="flex flex-col gap-1.5"
-          initial={reduce ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
-        >
-          <div className="flex items-baseline justify-between">
-            <p className="t-mono-xs" style={{ opacity: 0.75, fontSize: "10px", letterSpacing: "0.16em" }}>
-              languages
-            </p>
-            <p className="t-mono-xs" style={{ opacity: 0.55, fontSize: "10px", letterSpacing: "0.16em" }}>
-              {langPct.length} tracked
-            </p>
-          </div>
-          <LanguageBar data={langPct} height={6} />
-          <ul className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
-            {langPct.slice(0, 3).map((l) => (
-              <li
-                key={l.name}
-                className="inline-flex items-center gap-1 t-mono-xs"
-                style={{ fontSize: "9px", letterSpacing: "0.1em", opacity: 0.85 }}
-              >
-                <span
-                  className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: langDots[l.name] ?? "var(--cream-soft)" }}
-                />
-                <span>{l.name}</span>
-                <span style={{ opacity: 0.65 }}>{l.pct}%</span>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-
         {/* Mini activity chart */}
         <motion.div
           className="flex flex-col gap-1"
@@ -461,14 +427,14 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
         >
           <div className="flex items-baseline justify-between">
-            <p className="t-mono-xs" style={{ opacity: 0.75, fontSize: "10px", letterSpacing: "0.16em" }}>
+            <p className="t-mono-xs" style={{ opacity: 0.75, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}>
               pushed · activity
             </p>
-            <p className="t-mono-xs" style={{ opacity: 0.55, fontSize: "10px", letterSpacing: "0.16em" }}>
+            <p className="t-mono-xs" style={{ opacity: 0.55, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}>
               ★ {github.totalStars}
             </p>
           </div>
-          <ActivityBars years={years} maxYear={maxYear} height="42px" />
+          <ActivityBars years={years} maxYear={maxYear} height="clamp(42px, 7vw, 90px)" />
           <div
             className="grid"
             style={{
@@ -480,7 +446,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               <span
                 key={y.year}
                 className="t-mono text-center"
-                style={{ fontSize: "9px", letterSpacing: "0.06em" }}
+                style={{ fontSize: "clamp(9px, 1.1vw, 13px)", letterSpacing: "0.06em" }}
               >
                 &apos;{String(y.year).slice(2)}
               </span>
