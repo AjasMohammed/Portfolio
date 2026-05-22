@@ -172,28 +172,52 @@ export function BioCollapsed({ github: _github }: { github: GithubData }) {
           </div>
         </div>
 
+        {/* Key details — highest education + current role */}
         <motion.div
-          className="flex items-baseline justify-between gap-2"
-          style={{
-            borderTop: "1px solid rgba(35,21,16,0.18)",
-            paddingTop: 8,
-          }}
-          initial={reduce ? false : { opacity: 0, y: 6 }}
+          className="flex flex-col gap-2 min-w-0"
+          initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 1.0 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
         >
-          <p
-            className="t-mono-xs truncate"
-            style={{ opacity: 0.75, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}
+          <div
+            className="min-w-0 pt-1.5"
+            style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
           >
-            @ neumeral · kochi
-          </p>
-          <p
-            className="t-mono-xs shrink-0"
-            style={{ opacity: 0.55, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}
-          >
-            since 2024
-          </p>
+            <p
+              className="t-mono mb-1"
+              style={{ opacity: 0.85, fontSize: "clamp(10px,1.2vw,13px)", letterSpacing: "0.08em" }}
+            >
+              <span style={{ opacity: 0.55 }}>$ </span>
+              details
+            </p>
+            <dl
+              className="t-code grid gap-x-[clamp(8px,1.4vw,16px)] gap-y-0.5 min-w-0"
+              style={{
+                gridTemplateColumns: "auto 1fr",
+                fontSize: "clamp(10px,1.05vw,13px)",
+                lineHeight: 1.5,
+                paddingLeft: "1em",
+                letterSpacing: 0,
+              }}
+            >
+              {[
+                { k: "Education", v: profile.education[0]?.degree ?? "" },
+                { k: "Company", v: experiences[0]?.company ?? "" },
+                { k: "Role", v: experiences[0]?.role ?? "" },
+                { k: "Location", v: experiences[0]?.location ?? profile.location },
+              ].map((row) => (
+                <div key={row.k} className="contents">
+                  <dt style={{ opacity: 0.55 }}>{row.k}</dt>
+                  <dd
+                    className="min-w-0"
+                    style={{ opacity: 0.9, overflowWrap: "break-word", wordBreak: "break-word" }}
+                  >
+                    {row.v}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </motion.div>
       </div>
     </>

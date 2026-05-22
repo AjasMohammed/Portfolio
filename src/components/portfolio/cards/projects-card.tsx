@@ -140,7 +140,7 @@ export function RepoTile({ repo }: { repo: GithubRepo }) {
         className="flex flex-col min-h-0 min-w-0 justify-between px-2.5 py-1.5 transition-transform hover:-translate-y-0.5"
         style={{
           border: "1px solid rgba(192,68,15,0.2)",
-          borderRadius: "clamp(8px,0.7vw,12px)",
+          borderRadius: "clamp(4px,0.35vw,6px)",
         }}
       >
         <div className="flex items-baseline justify-between gap-2 min-w-0">

@@ -1,5 +1,5 @@
 export const ease = [0.22, 1, 0.36, 1] as const;
-export const RADIUS = "clamp(18px, 1.9vw, 30px)";
+export const RADIUS = "clamp(8px, 0.9vw, 14px)";
 export const WHATSAPP_IMG = "/images/rooftop-kochi.webp";
 
 export const CONTENT_BASE_DELAY = 1.3;

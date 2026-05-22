@@ -246,7 +246,7 @@ export function ImageExpanded() {
           height={1280}
           sizes="320px"
           className="hidden lg:block h-auto w-full self-start"
-          style={{ borderRadius: "clamp(12px,1.2vw,20px)" }}
+          style={{ borderRadius: "clamp(5px,0.5vw,9px)" }}
         />
 
         {certificates.length > 0 && (
@@ -280,7 +280,7 @@ export function ImageExpanded() {
                     style={{
                       padding: "clamp(8px,2vw,12px) clamp(10px,2.4vw,14px)",
                       border: "1px solid rgba(192,68,15,0.28)",
-                      borderRadius: "clamp(8px,2vw,12px)",
+                      borderRadius: "clamp(4px,1vw,6px)",
                       background: "rgba(192,68,15,0.04)",
                     }}
                   >

@@ -419,6 +419,70 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           </h2>
         </div>
 
+        {/* Tablet-only: tools & skills, terminal listing to match expanded view */}
+        <motion.div
+          className="hidden min-[464px]:flex flex-col gap-2 min-w-0"
+          initial={reduce ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.55 }}
+        >
+          <div className="flex items-baseline justify-between">
+            <p
+              className="t-mono"
+              style={{ opacity: 0.75, fontSize: "clamp(11px,1.3vw,14px)", letterSpacing: "0.08em" }}
+            >
+              skills
+            </p>
+            <p
+              className="t-mono-xs"
+              style={{ opacity: 0.55, fontSize: "clamp(9px,1vw,12px)" }}
+            >
+              {skillGroups().reduce((n, g) => n + g.items.length, 0)} total
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 min-w-0">
+            {skillGroups().map((g) => (
+              <div
+                key={g.key}
+                className="min-w-0 pt-1.5"
+                style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}
+              >
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <p
+                    className="t-mono"
+                    style={{
+                      opacity: 0.85,
+                      fontSize: "clamp(10px,1.2vw,13px)",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    <span style={{ opacity: 0.55 }}>$ </span>
+                    {g.key.toLowerCase()}
+                  </p>
+                  <p
+                    className="t-mono-xs"
+                    style={{ opacity: 0.5, fontSize: "clamp(9px,1vw,12px)" }}
+                  >
+                    {String(g.items.length).padStart(2, "0")}
+                  </p>
+                </div>
+                <p
+                  className="t-code wrap-break-word"
+                  style={{
+                    fontSize: "clamp(10px,1.05vw,13px)",
+                    lineHeight: 1.5,
+                    opacity: 0.85,
+                    paddingLeft: "1em",
+                    letterSpacing: 0,
+                  }}
+                >
+                  {g.items.map((it) => it.toLowerCase()).join(" · ")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Mini activity chart */}
         <motion.div
           className="flex flex-col gap-1"
