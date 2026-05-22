@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useMemo,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -120,6 +121,35 @@ export function LanguageBar({
   );
 }
 
+type DonutSegment = {
+  d: { name: string; pct: number };
+  i: number;
+  dash: number;
+  offset: number;
+  color: string;
+};
+
+function buildDonutSegments(
+  data: { name: string; pct: number }[],
+  circumference: number,
+  gap: number,
+): DonutSegment[] {
+  let cumulative = 0;
+  return data.map((d, i) => {
+    const len = (d.pct / 100) * circumference;
+    const dash = Math.max(0, len - gap);
+    const offset = -cumulative;
+    cumulative += len;
+    return {
+      d,
+      i,
+      dash,
+      offset,
+      color: langDots[d.name] ?? langFallbackPalette[i % langFallbackPalette.length],
+    };
+  });
+}
+
 /* Donut chart — hollow-center ring of language percentages */
 export function LanguageDonut({
   data,
@@ -144,20 +174,10 @@ export function LanguageDonut({
   const [tip, setTip] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  let cumulative = 0;
-  const segments = data.map((d, i) => {
-    const len = (d.pct / 100) * circumference;
-    const dash = Math.max(0, len - gap);
-    const offset = -cumulative;
-    cumulative += len;
-    return {
-      d,
-      i,
-      dash,
-      offset,
-      color: langDots[d.name] ?? langFallbackPalette[i % langFallbackPalette.length],
-    };
-  });
+  const segments = useMemo(
+    () => buildDonutSegments(data, circumference, gap),
+    [data, circumference, gap],
+  );
 
   const active = hovered !== null ? data[hovered] : null;
   const activeColor = active

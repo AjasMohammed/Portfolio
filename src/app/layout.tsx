@@ -56,10 +56,46 @@ const francy = localFont({
   ],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Ajas Mohammed — Python Developer",
   description:
     "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+  applicationName: "Ajas Mohammed — Portfolio",
+  authors: [{ name: "Ajas Mohammed" }],
+  keywords: [
+    "Ajas Mohammed",
+    "Python developer",
+    "backend developer",
+    "Django",
+    "FastAPI",
+    "portfolio",
+    "Kochi",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Ajas Mohammed",
+    title: "Ajas Mohammed — Python Developer",
+    description:
+      "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ajas Mohammed — Python Developer",
+    description:
+      "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 };
 
 export default function RootLayout({

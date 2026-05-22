@@ -10,7 +10,7 @@ import { SocialIcon } from "../social-icon";
 import { Counter } from "../stat";
 import { computeExperienceYears } from "./analytics-card";
 
-export function BioCollapsed({ github: _github }: { github: GithubData }) {
+export function BioCollapsed() {
   const experienceYears = computeExperienceYears();
   const reduce = useReducedMotion();
 

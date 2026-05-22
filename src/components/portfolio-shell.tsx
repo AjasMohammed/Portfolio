@@ -40,11 +40,7 @@ export function PortfolioShell({ github }: { github: GithubData }) {
   }, [expanded]);
 
   useEffect(() => {
-    if (reduce) {
-      setIsLoaded(true);
-      return;
-    }
-    const t = setTimeout(() => setIsLoaded(true), 1200);
+    const t = setTimeout(() => setIsLoaded(true), reduce ? 0 : 1200);
     return () => clearTimeout(t);
   }, [reduce]);
 
@@ -144,7 +140,7 @@ export function PortfolioShell({ github }: { github: GithubData }) {
               variant="cream"
               className="col-start-1 col-end-2 row-start-1 row-end-3 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
             >
-              <BioCollapsed github={github} />
+              <BioCollapsed />
             </BentoCard>
 
             {/* LETTER — desktop top-right corner */}

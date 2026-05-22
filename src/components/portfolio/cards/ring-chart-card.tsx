@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useEffect,
+  useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -27,6 +27,35 @@ type Segment = {
   endDeg: number;
   color: string;
 };
+
+function buildRingSegments(
+  langs: { name: string; count: number; pct: number }[],
+  circumference: number,
+  gapPx: number,
+): Segment[] {
+  let acc = 0;
+  return langs.map((l, i) => {
+    const len = (l.pct / 100) * circumference;
+    const dash = Math.max(0, len - gapPx);
+    const offset = -acc;
+    const startDeg = (acc / circumference) * 360;
+    acc += len;
+    const endDeg = (acc / circumference) * 360;
+    return {
+      i,
+      name: l.name,
+      count: l.count,
+      pct: l.pct,
+      dash,
+      offset,
+      startDeg,
+      endDeg,
+      color:
+        langDots[l.name] ??
+        langFallbackPalette[i % langFallbackPalette.length],
+    };
+  });
+}
 
 export function RingChartCard({
   github,
@@ -55,28 +84,10 @@ export function RingChartCard({
   const circumference = 2 * Math.PI * radius;
   const gapPx = 1.5;
 
-  let acc = 0;
-  const segments: Segment[] = langs.map((l, i) => {
-    const len = (l.pct / 100) * circumference;
-    const dash = Math.max(0, len - gapPx);
-    const offset = -acc;
-    const startDeg = (acc / circumference) * 360;
-    acc += len;
-    const endDeg = (acc / circumference) * 360;
-    return {
-      i,
-      name: l.name,
-      count: l.count,
-      pct: l.pct,
-      dash,
-      offset,
-      startDeg,
-      endDeg,
-      color:
-        langDots[l.name] ??
-        langFallbackPalette[i % langFallbackPalette.length],
-    };
-  });
+  const segments: Segment[] = useMemo(
+    () => buildRingSegments(langs, circumference, gapPx),
+    [langs, circumference, gapPx],
+  );
 
   // ── interaction state ────────────────────────────────
   // locked = click/tap selection that persists. hover = transient pointer track.
@@ -94,11 +105,9 @@ export function RingChartCard({
   const centerName = focus ? focus.name.toLowerCase() : "languages";
   const centerColor = focus?.color ?? "var(--cream)";
 
-  // pulse the center text whenever the displayed selection changes
-  const [pulse, setPulse] = useState(0);
-  useEffect(() => {
-    setPulse((p) => p + 1);
-  }, [activeIdx]);
+  // pulse the center text whenever the displayed selection changes —
+  // keying the motion.g on activeIdx forces a remount + replay on change.
+  const pulseKey = activeIdx ?? "none";
 
   // ── polar hit detection ──────────────────────────────
   const pickIndex = (e: ReactPointerEvent<HTMLDivElement>): number | null => {
@@ -266,7 +275,7 @@ export function RingChartCard({
 
               {/* center label — pulses on active change */}
               <motion.g
-                key={pulse}
+                key={pulseKey}
                 initial={reduce ? false : { opacity: 0.35, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.28, ease }}
