@@ -196,6 +196,65 @@ export function ImageExpanded() {
             </li>
           ))}
         </ul>
+
+        <div
+          className="flex flex-col gap-[clamp(8px,1svh,14px)] min-w-0"
+          style={{
+            borderTop: "1px solid rgba(192,68,15,0.22)",
+            paddingTop: "clamp(12px,1.6svh,20px)",
+          }}
+        >
+          <p
+            className="max-w-prose"
+            style={{
+              opacity: 0.85,
+              fontFamily: "var(--font-francy), serif",
+              fontSize: "clamp(12px,2.6vw,15px)",
+              lineHeight: 1.6,
+              letterSpacing: "0.05em",
+              color: "var(--orange-deep)",
+              maxWidth: "60ch",
+            }}
+          >
+            <span
+              className="t-mono-xs"
+              style={{
+                color: "var(--orange)",
+                opacity: 0.9,
+                marginRight: "0.5em",
+                letterSpacing: "0.18em",
+              }}
+            >
+              btw —
+            </span>
+            on paper i&apos;m an electrical engineering diploma kid. code just got me first — curiosity for how things work, ideas that can ship the same week, and the rabbit holes of modern tooling pulled me in and never really let go.
+          </p>
+          <p
+            className="max-w-prose"
+            style={{
+              opacity: 0.85,
+              fontFamily: "var(--font-francy), serif",
+              fontSize: "clamp(12px,2.6vw,15px)",
+              lineHeight: 1.6,
+              letterSpacing: "0.05em",
+              color: "var(--orange-deep)",
+              maxWidth: "60ch",
+            }}
+          >
+            <span
+              className="t-mono-xs"
+              style={{
+                color: "var(--orange)",
+                opacity: 0.9,
+                marginRight: "0.5em",
+                letterSpacing: "0.18em",
+              }}
+            >
+              also —
+            </span>
+            never took a paid course or chased a fancy cert, so the badges over there are mostly hackerrank basics. please don&apos;t weigh me by those — i&apos;d rather the shipped work and the years on the keyboard speak first. I hope the skills and experience fill in what the paperwork misses.
+          </p>
+        </div>
       </div>
 
       {/* RIGHT COLUMN — portrait + certificates */}
