@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   LayoutGroup,
@@ -31,6 +31,13 @@ export function PortfolioShell({ github }: { github: GithubData }) {
   const [isDesktop, setIsDesktop] = useState(true);
   const reduce = useReducedMotion();
   const letterOpen = expanded === "letter";
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (expanded && sectionRef.current) {
+      sectionRef.current.scrollTop = 0;
+    }
+  }, [expanded]);
 
   useEffect(() => {
     if (reduce) {
@@ -104,7 +111,8 @@ export function PortfolioShell({ github }: { github: GithubData }) {
 
         {/* ─── BENTO ─── */}
         <section
-          className="col-span-12 relative grid grid-cols-2 grid-rows-[7fr_4fr_7fr] min-h-0 overflow-hidden max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)] max-[463px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible"
+          ref={sectionRef}
+          className={`col-span-12 relative grid grid-cols-2 grid-rows-[7fr_4fr_7fr] min-h-0 overflow-hidden max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
