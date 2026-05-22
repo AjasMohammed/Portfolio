@@ -12,7 +12,6 @@ import {
     LETTER_INK_SOFT,
 } from "../constants";
 import { SplitText } from "../split-text";
-import { socialIconStagger, socialIconItem } from "../animations";
 import { SocialIcon } from "../social-icon";
 import { innerPadding } from "../card";
 import { contactIcons } from "./bio-card";
@@ -179,66 +178,74 @@ export function SocialCard({
     const reduce = useReducedMotion();
     return (
         <div
+            className={`hidden lg:flex flex-col ${className ?? ""}`}
             style={{
-                borderRadius: RADIUS,
-                background: "var(--cream)",
-                color: "var(--orange-deep)",
+                gap: "clamp(4px, 0.5svh, 8px)",
                 minWidth: 0,
                 minHeight: 0,
                 ...extraStyle,
             }}
-            className={`relative overflow-hidden hidden lg:block ${className ?? ""}`}
         >
-            {/* Desktop / lg+ — horizontal label + icon row */}
-            <motion.div
-                className="hidden lg:flex flex-col items-center justify-center h-full w-full"
+            <p
+                className="t-mono-xs shrink-0 text-center"
                 style={{
-                    padding: "clamp(10px,1.2svh,16px) clamp(12px,1vw,18px)",
-                    gap: "clamp(8px,1svh,14px)",
+                    opacity: 0.85,
+                    fontSize: "clamp(12px,1vw,16px)",
+                    letterSpacing: "0.18em",
+                    fontWeight: 600,
                 }}
-                variants={socialIconStagger}
-                initial={reduce ? false : "hidden"}
-                animate="show"
             >
-                <p
-                    className="t-display text-center"
+                reach me
+            </p>
+            <div
+                className="grid flex-1 place-items-center min-h-0"
+                style={{
+                    gridTemplateColumns: `repeat(${contactIcons.length}, minmax(0, 1fr))`,
+                    gap: "clamp(6px, 0.7vw, 12px)",
+                    minWidth: 0,
+                }}
+            >
+                {contactIcons.map((c, i) => (
+                <motion.a
+                    key={c.name}
+                    href={c.href}
+                    target={c.ext ? "_blank" : undefined}
+                    rel={c.ext ? "noreferrer" : undefined}
+                    aria-label={c.label}
+                    title={c.label}
+                    initial={reduce ? false : { opacity: 0, scale: 0.3, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{
+                        duration: 0.6,
+                        ease,
+                        delay: CONTENT_BASE_DELAY + 0.45 + i * 0.08,
+                    }}
+                    className="group relative flex flex-col items-center justify-center aspect-square overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
                     style={{
-                        fontSize: "clamp(16px,1.4vw,22px)",
-                        fontWeight: 700,
-                        letterSpacing: "-0.005em",
-                        lineHeight: 1,
+                        width: "100%",
+                        maxHeight: "100%",
+                        background: "var(--cream)",
+                        color: "var(--orange-deep)",
+                        borderRadius: RADIUS,
+                        minWidth: 0,
+                        padding: "clamp(6px, 0.6svh, 12px) clamp(4px, 0.5vw, 10px)",
+                        gap: "clamp(3px, 0.4svh, 6px)",
                     }}
                 >
-                    get in touch
-                </p>
-                <div
-                    className="flex items-center justify-between w-full"
-                    style={{ gap: "clamp(6px,0.7vw,12px)" }}
-                >
-                    {contactIcons.map((c) => (
-                        <motion.a
-                            key={c.name}
-                            href={c.href}
-                            target={c.ext ? "_blank" : undefined}
-                            rel={c.ext ? "noreferrer" : undefined}
-                            aria-label={c.label}
-                            title={c.label}
-                            variants={socialIconItem}
-                            className="inline-flex items-center justify-center transition-all hover:-translate-y-0.5 hover:scale-110"
-                            style={{
-                                width: "clamp(40px,3.4vw,56px)",
-                                height: "clamp(40px,3.4vw,56px)",
-                                borderRadius: 999,
-                                border: "1px solid rgba(192,68,15,0.3)",
-                                color: "currentColor",
-                                flexShrink: 0,
-                            }}
-                        >
-                            <SocialIcon name={c.name} size={22} />
-                        </motion.a>
-                    ))}
-                </div>
-            </motion.div>
+                    <SocialIcon name={c.name} size={20} />
+                    <span
+                        className="t-mono-xs truncate w-full text-center"
+                        style={{
+                            fontSize: "clamp(9px, 0.7vw, 12px)",
+                            letterSpacing: "0.12em",
+                            opacity: 0.75,
+                        }}
+                    >
+                        {c.label}
+                    </span>
+                </motion.a>
+                ))}
+            </div>
         </div>
     );
 }

@@ -30,6 +30,23 @@ export type GithubRepo = {
   topics: string[];
 };
 
+export type ContributionDay = {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+};
+
+export type Contributions = {
+  totalContributions: number;
+  weeks: ContributionDay[][];
+  mostActiveDay: { date: string; count: number } | null;
+  currentStreak: number;
+  longestStreak: number;
+  daysActive: number;
+  from: string;
+  to: string;
+};
+
 export type GithubData = {
   user: GithubUser | null;
   repos: GithubRepo[];
@@ -38,6 +55,7 @@ export type GithubData = {
   totalStars: number;
   latestRepo: GithubRepo | null;
   profileReadme: string | null;
+  contributions: Contributions | null;
   fetchedAt: string;
 };
 
@@ -72,6 +90,39 @@ async function gh<T>(path: string): Promise<T | null> {
   }
 }
 
+async function ghGraphQL<T>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<T | null> {
+  if (!process.env.PORTFOLIO_GITHUB_TOKEN) return null;
+  try {
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "User-Agent": "ajas-portfolio",
+        Authorization: `Bearer ${process.env.PORTFOLIO_GITHUB_TOKEN}`,
+      },
+      body: JSON.stringify({ query, variables }),
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) {
+      console.error("[github graphql] !ok", res.status);
+      return null;
+    }
+    const json = (await res.json()) as { data?: T; errors?: unknown };
+    if (json.errors) {
+      console.error("[github graphql] errors", json.errors);
+      return null;
+    }
+    return json.data ?? null;
+  } catch (e) {
+    console.error("[github graphql] threw", e);
+    return null;
+  }
+}
+
 async function ghRaw(path: string): Promise<string | null> {
   const url = `https://api.github.com${path}`;
   try {
@@ -92,6 +143,99 @@ async function ghRaw(path: string): Promise<string | null> {
   }
 }
 
+const CONTRIBUTION_LEVELS: Record<string, 0 | 1 | 2 | 3 | 4> = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4,
+};
+
+export async function getGithubContributions(
+  username: string,
+): Promise<Contributions | null> {
+  const query = `
+    query($username: String!) {
+      user(login: $username) {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+                contributionLevel
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  type Resp = {
+    user: {
+      contributionsCollection: {
+        contributionCalendar: {
+          totalContributions: number;
+          weeks: {
+            contributionDays: {
+              date: string;
+              contributionCount: number;
+              contributionLevel: string;
+            }[];
+          }[];
+        };
+      };
+    } | null;
+  };
+  const data = await ghGraphQL<Resp>(query, { username });
+  if (!data?.user) return null;
+  const cal = data.user.contributionsCollection.contributionCalendar;
+
+  const weeks: ContributionDay[][] = cal.weeks.map((w) =>
+    w.contributionDays.map((d) => ({
+      date: d.date,
+      count: d.contributionCount,
+      level: CONTRIBUTION_LEVELS[d.contributionLevel] ?? 0,
+    })),
+  );
+  const flat = weeks.flat();
+
+  let mostActiveDay: { date: string; count: number } | null = null;
+  let daysActive = 0;
+  let longestStreak = 0;
+  let runningStreak = 0;
+  for (const d of flat) {
+    if (d.count > 0) {
+      daysActive++;
+      runningStreak++;
+      if (runningStreak > longestStreak) longestStreak = runningStreak;
+    } else {
+      runningStreak = 0;
+    }
+    if (!mostActiveDay || d.count > mostActiveDay.count) {
+      mostActiveDay = { date: d.date, count: d.count };
+    }
+  }
+
+  let currentStreak = 0;
+  for (let i = flat.length - 1; i >= 0; i--) {
+    if (flat[i].count > 0) currentStreak++;
+    else break;
+  }
+
+  return {
+    totalContributions: cal.totalContributions,
+    weeks,
+    mostActiveDay: mostActiveDay && mostActiveDay.count > 0 ? mostActiveDay : null,
+    currentStreak,
+    longestStreak,
+    daysActive,
+    from: flat[0]?.date ?? "",
+    to: flat[flat.length - 1]?.date ?? "",
+  };
+}
+
 const HIDDEN_REPO_SLUGS = new Set(["ajasmohammed/portfolio"]);
 
 function isHiddenRepo(repo: GithubRepo): boolean {
@@ -99,10 +243,11 @@ function isHiddenRepo(repo: GithubRepo): boolean {
 }
 
 export async function getGithubData(username: string): Promise<GithubData> {
-  const [rawUser, repos, profileReadme] = await Promise.all([
+  const [rawUser, repos, profileReadme, contributions] = await Promise.all([
     gh<GithubUser>(`/users/${username}`),
     gh<GithubRepo[]>(`/users/${username}/repos?per_page=100&sort=updated`),
     ghRaw(`/repos/${username}/${username}/readme`),
+    getGithubContributions(username),
   ]);
 
   const allRepos = (repos ?? []).filter((r) => !isHiddenRepo(r));
@@ -138,6 +283,7 @@ export async function getGithubData(username: string): Promise<GithubData> {
     totalStars,
     latestRepo,
     profileReadme,
+    contributions,
     fetchedAt: new Date().toISOString(),
   };
 }

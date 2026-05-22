@@ -348,13 +348,13 @@ export function BioExpanded({ github }: { github: GithubData }) {
             </h2>
           </div>
           <p
-            className="t-serif max-w-prose"
+            className="max-w-prose"
             style={{
               opacity: 0.9,
+              fontFamily: "var(--font-francy), serif",
               fontSize: "clamp(13px,3.4vw,20px)",
               lineHeight: 1.55,
-              fontStyle: "italic",
-              letterSpacing: "0.005em",
+              letterSpacing: "0.035em",
               borderLeft: "2px solid rgba(192,68,15,0.32)",
               paddingLeft: "clamp(10px,2.6vw,18px)",
               marginTop: "clamp(6px,0.8svh,12px)",
@@ -391,8 +391,15 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   </p>
                 </div>
                 <p
-                  className="t-serif truncate"
-                  style={{ color: "var(--orange)", fontSize: "clamp(11px,2.8vw,15px)" }}
+                  className="truncate"
+                  style={{
+                    color: "var(--orange)",
+                    fontFamily: "var(--font-francy), serif",
+                    letterSpacing: "0.04em",
+                    lineHeight: 0.92,
+                    fontSize: "clamp(11px,2.8vw,15px)",
+                    paddingBlock: "clamp(2px,0.4svh,5px)",
+                  }}
                 >
                   @ {e.company} · {e.location}
                 </p>
@@ -425,8 +432,15 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   )}
                 </div>
                 <p
-                  className="t-serif truncate"
-                  style={{ color: "var(--orange)", fontSize: "clamp(11px,2.8vw,15px)" }}
+                  className="truncate"
+                  style={{
+                    color: "var(--orange)",
+                    fontFamily: "var(--font-francy), serif",
+                    letterSpacing: "0.04em",
+                    lineHeight: 0.92,
+                    fontSize: "clamp(11px,2.8vw,15px)",
+                    paddingBlock: "clamp(2px,0.4svh,5px)",
+                  }}
                 >
                   @ {e.institution}
                   {e.location ? ` · ${e.location}` : ""}

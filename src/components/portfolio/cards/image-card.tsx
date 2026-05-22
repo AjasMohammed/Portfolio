@@ -1,61 +1,10 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { certificates } from "@/data/profile";
-import { ease, CONTENT_BASE_DELAY, LETTER_INK } from "../constants";
+import { ease, CONTENT_BASE_DELAY } from "../constants";
 import { SplitText } from "../split-text";
-
-/* Keywords highlighted in the cover letter — companies, projects, and
-   marquee tools. Order in the list doesn't matter; the highlighter sorts
-   by length so phrases like "Django REST Framework" win over "Django". */
-const COVER_LETTER_KEYWORDS = [
-  // Companies
-  "Neumeral Technologies", "Neumeral",
-  "Allwin Technologies",
-  "Imiot TechnoLabs",
-  // Projects
-  "Learnabble", "Neusler", "GitAI",
-  // Frameworks & libraries
-  "Django REST Framework", "Django ORM", "Django",
-  "FastAPI", "Wagtail", "React", "Next.js",
-  "Celery", "Redis", "Docker", "Ansible",
-  "LangChain", "GitPython",
-  // Languages
-  "Python", "SQL",
-  // Other
-  "HackerRank", "YouTube API", "Odoo",
-  "REST APIs", "RESTful APIs",
-];
-
-const KEYWORD_HIGHLIGHT_STYLE: CSSProperties = {
-  fontWeight: 600,
-  letterSpacing: "0.08em",
-};
-
-function buildKeywordHighlighter(keywords: string[]) {
-  const sorted = [...keywords].sort((a, b) => b.length - a.length);
-  const pattern = sorted
-    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|");
-  const regex = new RegExp(`(?<![A-Za-z])(${pattern})(?![A-Za-z])`, "gi");
-  const seen = new Set<string>();
-  return (text: string): ReactNode[] => {
-    const parts = text.split(regex);
-    return parts.map((part, i) => {
-      if (i % 2 === 0) return part;
-      const key = part.toLowerCase();
-      if (seen.has(key)) return part;
-      seen.add(key);
-      return (
-        <span key={i} style={KEYWORD_HIGHLIGHT_STYLE}>
-          {part}
-        </span>
-      );
-    });
-  };
-}
 
 /* ───────────────────────── IMAGE ───────────────────────── */
 
@@ -112,36 +61,29 @@ export function ImageInner() {
   );
 }
 
-export const coverLetterParagraphs = [
-  "I'm Ajas Mohammed — a Python developer based in Kochi, India, with around two years of hands-on experience building backend systems, REST APIs, and full-stack web applications for content publishing and learning platforms.",
-  "I currently work as a Software Developer at Neumeral Technologies, where I design and implement REST APIs with Django and Django REST Framework, build asynchronous workflows with Celery and Redis, and refactor legacy codebases for maintainability, scalability, and performance. I also containerize services with Docker and automate deployments using Ansible.",
-  "Before that, I worked at Allwin Technologies as a Backend Developer designing scalable RESTful APIs, and started out as a Python Django intern at Imiot TechnoLabs, shipping backend features and bug fixes remotely.",
-  "A few things I've built along the way: Learnabble, a learning portal where I built backend services, optimized Django ORM queries, and integrated the YouTube API and Odoo for course data synchronization; Neusler, a Django and Wagtail publishing platform I refactored through caching strategies, CMS enhancements, and new API endpoints; and GitAI, a FastAPI application I wrote that generates structured Git commit messages using LangChain prompt pipelines and GitPython.",
-  "Day to day I reach for Python, Django, Django REST Framework, FastAPI, Wagtail, React and Next.js — backed by PostgreSQL, MySQL or SQLite, with Docker, Redis, Celery, Ansible and Linux for the plumbing. I'm certified in Python, SQL, REST APIs and problem solving through HackerRank.",
-  "I care about code that ages well, queries that don't surprise anyone in production, and small careful changes over heroic rewrites. If you're building something patient and useful, I'd love to talk — every door (email, phone, GitHub, LinkedIn, resume) is on the contact card.",
-];
-
-/* Compact mobile version — fits the expanded card without scrolling */
-export const coverLetterParagraphsMobile = [
-  "I'm Ajas — a Python developer in Kochi with around two years of experience. Django, FastAPI, and async pipelines under the hood; a bit of React and Next.js on the surface. Currently @ Neumeral, building REST APIs and refactoring legacy code.",
-  "Things I've shipped along the way: Learnabble (a learning portal), Neusler (a Wagtail publishing platform), and GitAI (a FastAPI + LangChain commit-message tool). HackerRank certified in Python, SQL, and REST APIs.",
-  "I care about code that ages well and small careful changes over heroic rewrites. If you're building something patient and useful, I'd love to talk — every door is on the contact card.",
+const PERSONAL_DETAILS: { k: string; v: string }[] = [
+  { k: "Born", v: "January 20, 2002" },
+  { k: "From", v: "Anchal, Kollam, Kerala" },
+  { k: "Based in", v: "Kochi, India" },
+  { k: "Speaks", v: "Malayalam · English" },
+  { k: "Reads", v: "books, slowly" },
+  { k: "Listens to", v: "music, always" },
+  { k: "Tinkers with", v: "code on weekends" },
 ];
 
 export function ImageExpanded() {
-  const highlightDesktop = buildKeywordHighlighter(COVER_LETTER_KEYWORDS);
-  const highlightMobile = buildKeywordHighlighter(COVER_LETTER_KEYWORDS);
   return (
     <div
       className="flex flex-col h-full overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[1fr_clamp(220px,20vw,320px)]"
       style={{
         gap: "clamp(16px,1.6svh,28px)",
+        color: "var(--orange-deep)",
       }}
     >
       <div
-        className="flex flex-col min-w-0 gap-4 scrollbar-styled lg:overflow-y-auto lg:overflow-x-hidden lg:min-h-0 lg:w-[60vw]"
+        className="flex flex-col min-w-0 gap-[clamp(16px,2svh,28px)] scrollbar-styled lg:overflow-y-auto lg:overflow-x-hidden lg:min-h-0 lg:w-[60vw]"
       >
-        {/* Mobile only — small round avatar at top-right above the letter */}
+        {/* Mobile only — small round avatar at top-right above the details */}
         <div className="flex justify-end lg:hidden">
           <Image
             src="/images/portrait.jpeg"
@@ -159,82 +101,104 @@ export function ImageExpanded() {
           />
         </div>
 
-        <div className="min-w-0">
-          <div
-            className="flex flex-col gap-[clamp(8px,1.2svh,16px)]"
-            style={{ color: LETTER_INK }}
-          >
-            <p
-              className="t-body"
+        {/* Header — horizontal title lockup + tagline */}
+        <header className="flex flex-col gap-[clamp(10px,1.4svh,18px)] min-w-0">
+          <div className="flex items-baseline gap-[clamp(10px,1.6vw,20px)] min-w-0">
+            <h2
+              className="t-display shrink-0"
               style={{
-                fontSize: "clamp(13px,3.4vw,21px)",
-                lineHeight: 1.55,
-                opacity: 0.95,
+                fontSize: "clamp(28px,5.4vw,58px)",
+                lineHeight: 0.95,
+                letterSpacing: "-0.015em",
+                color: "var(--orange-deep)",
               }}
             >
-              Hello,
+              <SplitText delay={0.1}>About me.</SplitText>
+            </h2>
+            <span
+              aria-hidden
+              className="flex-1 min-w-0"
+              style={{
+                height: 1,
+                background: "rgba(192,68,15,0.32)",
+                transform: "translateY(-0.35em)",
+              }}
+            />
+            <p
+              className="t-mono-xs shrink-0"
+              style={{
+                opacity: 0.7,
+                fontSize: "clamp(9px,2.2vw,12px)",
+                letterSpacing: "0.18em",
+                color: "var(--orange)",
+                transform: "translateY(-0.35em)",
+              }}
+            >
+              {String(PERSONAL_DETAILS.length).padStart(2, "0")}
             </p>
-
-            {/* Desktop — full multi-paragraph letter */}
-            <div className="hidden lg:flex lg:flex-col gap-[clamp(8px,1.2svh,16px)]">
-              {coverLetterParagraphs.map((p, i) => (
-                <p
-                  key={i}
-                  className="t-body"
-                  style={{
-                    fontSize: "clamp(13px,3.4vw,21px)",
-                    lineHeight: 1.55,
-                    opacity: 0.92,
-                  }}
-                >
-                  {highlightDesktop(p)}
-                </p>
-              ))}
-            </div>
-
-            {/* Mobile — compact letter that fits without scrolling */}
-            <div className="flex flex-col gap-[clamp(8px,1.2svh,16px)] lg:hidden">
-              {coverLetterParagraphsMobile.map((p, i) => (
-                <p
-                  key={i}
-                  className="t-body"
-                  style={{
-                    fontSize: "clamp(13px,3.4vw,21px)",
-                    lineHeight: 1.55,
-                    opacity: 0.92,
-                  }}
-                >
-                  {highlightMobile(p)}
-                </p>
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-1 mt-2">
-              <p
-                className="t-serif"
-                style={{
-                  fontSize: "clamp(13px,3.4vw,21px)",
-                  lineHeight: 1.4,
-                  opacity: 0.85,
-                  fontStyle: "italic",
-                }}
-              >
-                Sincerely,
-              </p>
-              <p
-                className="t-display"
-                style={{
-                  fontSize: "clamp(16px,4vw,26px)",
-                  letterSpacing: "-0.005em",
-                }}
-              >
-                Ajas Mohammed
-              </p>
-            </div>
           </div>
-        </div>
+
+          <p
+            className="t-body"
+            style={{
+              fontSize: "clamp(12px,2.8vw,17px)",
+              lineHeight: 1.45,
+              opacity: 0.85,
+              color: "var(--orange-deep)",
+              maxWidth: "44ch",
+            }}
+          >
+            The bits that don&apos;t fit on a résumé.
+          </p>
+        </header>
+
+        {/* Editorial grid of personal details */}
+        <ul
+          className="grid grid-cols-1 sm:grid-cols-2 min-w-0"
+          style={{
+            gap: "clamp(2px, 0.2svh, 6px) clamp(16px,2.4vw,40px)",
+          }}
+        >
+          {PERSONAL_DETAILS.map((row) => (
+            <li
+              key={row.k}
+              className="flex flex-col min-w-0"
+              style={{
+                padding: "clamp(10px,1.4svh,18px) 0",
+                borderTop: "1px solid rgba(192,68,15,0.22)",
+              }}
+            >
+              <p
+                className="t-mono-xs"
+                style={{
+                  fontSize: "clamp(9px,2vw,12px)",
+                  letterSpacing: "0.22em",
+                  opacity: 0.75,
+                  textTransform: "uppercase",
+                  color: "var(--orange)",
+                }}
+              >
+                {row.k}
+              </p>
+              <p
+                className="t-body min-w-0"
+                style={{
+                  fontSize: "clamp(14px,3vw,20px)",
+                  lineHeight: 1.3,
+                  letterSpacing: "0.005em",
+                  color: "var(--orange-deep)",
+                  overflowWrap: "break-word",
+                  marginTop: "clamp(3px,0.5svh,6px)",
+                }}
+              >
+                {row.v}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
 
+      {/* RIGHT COLUMN — portrait + certificates */}
       <div
         className="flex flex-col gap-[clamp(10px,1.4svh,22px)] min-w-0 scrollbar-styled lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden"
       >
@@ -246,7 +210,10 @@ export function ImageExpanded() {
           height={1280}
           sizes="320px"
           className="hidden lg:block h-auto w-full self-start"
-          style={{ borderRadius: "clamp(5px,0.5vw,9px)" }}
+          style={{
+            borderRadius: "clamp(5px,0.5vw,9px)",
+            border: "1px solid rgba(192,68,15,0.22)",
+          }}
         />
 
         {certificates.length > 0 && (
@@ -255,16 +222,17 @@ export function ImageExpanded() {
               <p
                 className="t-mono"
                 style={{
-                  opacity: 0.7,
+                  opacity: 0.75,
                   fontSize: "clamp(10px,2.6vw,14px)",
                   letterSpacing: "0.08em",
+                  color: "var(--orange-deep)",
                 }}
               >
                 certificates · verified
               </p>
               <p
-                className="t-mono-xs opacity-55 shrink-0"
-                style={{ fontSize: "clamp(9px,2.4vw,12px)" }}
+                className="t-mono-xs opacity-60 shrink-0"
+                style={{ fontSize: "clamp(9px,2.4vw,12px)", color: "var(--orange-deep)" }}
               >
                 {String(certificates.length).padStart(2, "0")}
               </p>
@@ -292,12 +260,13 @@ export function ImageExpanded() {
                           fontWeight: 700,
                           letterSpacing: "-0.005em",
                           lineHeight: 1.15,
+                          color: "var(--orange-deep)",
                         }}
                       >
                         {c.title}
                       </p>
                       <p
-                        className="t-serif truncate"
+                        className="t-body truncate"
                         style={{
                           color: "rgba(192,68,15,0.78)",
                           fontSize: "clamp(10px,2.4vw,13px)",

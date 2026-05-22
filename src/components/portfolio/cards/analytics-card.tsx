@@ -17,6 +17,11 @@ import { SplitText } from "../split-text";
 import { fadeUp, stagger } from "../animations";
 import { SocialIcon } from "../social-icon";
 import { Counter } from "../stat";
+import {
+  ContributionHeatmap,
+  ContributionLegend,
+  formatMostActiveDay,
+} from "../contribution-heatmap";
 import { skillGroups } from "./skills-card";
 import { formatRelative } from "./projects-card";
 
@@ -747,13 +752,13 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[0.95fr_1.15fr_1.25fr]"
+      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[minmax(0,1fr)_auto]"
       style={{ gap: "clamp(16px,1.8vw,32px)" }}
     >
-      {/* Left: hero retro number + stat list */}
+      {/* Left: hero retro number + stat list (spans both rows on lg) */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 min-w-0 scrollbar-styled lg:justify-between lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden"
+        className="flex flex-col gap-3 min-w-0 overflow-x-hidden scrollbar-styled lg:row-span-2 lg:justify-between lg:min-h-0 lg:overflow-y-auto"
       >
         <div
           className="grid grid-cols-2 gap-x-3 items-start lg:flex lg:flex-col lg:gap-0"
@@ -762,9 +767,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
           {joinedYear && (
             <div className="col-start-1 row-start-1 flex items-end gap-2 min-w-0">
               <p
-                className="t-retro"
+                className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)]"
                 style={{
-                  fontSize: "clamp(44px,11vw,140px)",
                   textShadow:
                     "3px 3px 0 rgba(244,235,216,0.2), 6px 6px 0 rgba(244,235,216,0.08)",
                 }}
@@ -784,9 +788,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             style={{ paddingTop: "clamp(6px,0.8svh,10px)" }}
           >
             <p
-              className="t-retro"
+              className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)]"
               style={{
-                fontSize: "clamp(44px,11vw,140px)",
                 textShadow:
                   "3px 3px 0 rgba(244,235,216,0.2), 6px 6px 0 rgba(244,235,216,0.08)",
               }}
@@ -801,9 +804,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             </p>
           </div>
           <h2
-            className="col-start-2 row-start-2 self-start mt-3 text-left lg:mt-4 min-w-0"
+            className="col-start-2 row-start-2 self-start mt-3 text-left lg:mt-4 lg:pl-[clamp(12px,2vw,32px)] min-w-0 text-[clamp(26px,8vw,84px)] lg:text-[clamp(28px,4.4vw,72px)]"
             style={{
-              fontSize: "clamp(26px,8vw,84px)",
               lineHeight: 0.9,
               fontWeight: 700,
               letterSpacing: "-0.02em",
@@ -826,6 +828,28 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             { k: "following", v: u?.following ?? 0 },
             { k: "total stars", v: github.totalStars },
             { k: "joined", v: joinedYear ?? "—" },
+            ...(github.contributions
+              ? [
+                  {
+                    k: "contributions · 1y",
+                    v: github.contributions.totalContributions,
+                  },
+                  ...(github.contributions.mostActiveDay
+                    ? [
+                        {
+                          k: "most active",
+                          v: formatMostActiveDay(
+                            github.contributions.mostActiveDay.date,
+                          ),
+                        },
+                      ]
+                    : []),
+                  {
+                    k: "longest streak",
+                    v: `${github.contributions.longestStreak}d`,
+                  },
+                ]
+              : []),
           ].map((s) => (
             <li
               key={s.k}
@@ -834,13 +858,13 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             >
               <span
                 className="t-mono opacity-75"
-                style={{ fontSize: "clamp(10px,2.6vw,14px)", letterSpacing: "0.08em" }}
+                style={{ fontSize: "clamp(9px,2.2vw,12px)", letterSpacing: "0.08em" }}
               >
                 {s.k}
               </span>
               <span
                 className="t-num"
-                style={{ fontSize: "clamp(18px,4.6vw,30px)", fontWeight: 700 }}
+                style={{ fontSize: "clamp(13px,3vw,18px)", fontWeight: 700 }}
               >
                 {typeof s.v === "number" ? <Counter to={s.v} /> : s.v}
               </span>
@@ -852,7 +876,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       {/* Middle: featured projects (accordion) + live GitHub repos */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden"
+        className="flex flex-col min-w-0 overflow-x-hidden gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto"
       >
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between mb-2">
@@ -952,21 +976,29 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                               </li>
                             ))}
                           </ul>
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {p.technologies.map((t) => (
-                              <span
-                                key={t}
-                                className="t-mono-xs px-2 py-0.5"
-                                style={{
-                                  fontSize: "clamp(9px,2.2vw,12px)",
-                                  border: "1px solid rgba(244,235,216,0.3)",
-                                  borderRadius: 999,
-                                  letterSpacing: "0.06em",
-                                }}
-                              >
-                                {t}
-                              </span>
-                            ))}
+                          <div className="mt-2 min-w-0">
+                            <p
+                              className="t-mono opacity-85 mb-0.5"
+                              style={{
+                                fontSize: "clamp(10px,1.2vw,13px)",
+                                letterSpacing: "0.08em",
+                              }}
+                            >
+                              <span style={{ opacity: 0.55 }}>$ </span>
+                              tech
+                            </p>
+                            <p
+                              className="t-code wrap-break-word"
+                              style={{
+                                fontSize: "clamp(10px,1.05vw,13px)",
+                                lineHeight: 1.6,
+                                opacity: 0.85,
+                                paddingLeft: "1em",
+                                letterSpacing: 0,
+                              }}
+                            >
+                              {p.technologies.map((t) => t.toLowerCase()).join(" · ")}
+                            </p>
                           </div>
                         </div>
                       </motion.div>
@@ -1036,7 +1068,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       {/* Right: resume stack + GitHub languages donut + activity histogram */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden"
+        className="flex flex-col min-w-0 overflow-x-hidden gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto"
       >
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between mb-3">
@@ -1144,39 +1176,70 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             </ul>
           </div>
 
-          <div className="flex items-baseline justify-between mt-3 mb-1.5">
-            <p
-              className="t-mono opacity-70"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-            >
-              activity · pushed
-            </p>
-            <p
-              className="t-mono-xs opacity-60"
-              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-            >
-              {years.length} yrs
-            </p>
-          </div>
-          <ActivityBars years={years} maxYear={maxYear} height="clamp(56px,10svh,150px)" />
-          <div
-            className="grid mt-1"
-            style={{
-              gridTemplateColumns: `repeat(${Math.max(1, years.length)}, minmax(0, 1fr))`,
-              opacity: 0.55,
-            }}
-          >
-            {years.map((y) => (
-              <span
-                key={y.year}
-                className="t-mono-xs text-center"
-                style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-              >
-                &apos;{String(y.year).slice(2)}
-              </span>
-            ))}
-          </div>
         </div>
+      </motion.div>
+
+      {/* Bottom band: contribution heatmap — spans middle + right columns on lg */}
+      <motion.div
+        variants={fadeUp}
+        className="flex flex-col min-w-0 overflow-x-hidden gap-2 lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:pt-3"
+        style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}
+      >
+        <div className="flex items-baseline justify-between">
+          <p
+            className="t-mono opacity-70 inline-flex items-center gap-1.5"
+            style={{ fontSize: "clamp(10px,1vw,14px)" }}
+          >
+            {github.contributions ? (
+              <>
+                <span className="live-dot" /> contributions · 1y
+              </>
+            ) : (
+              "activity · pushed"
+            )}
+          </p>
+          <p
+            className="t-mono-xs opacity-60"
+            style={{ fontSize: "clamp(9px,0.85vw,12px)" }}
+          >
+            {github.contributions
+              ? `${github.contributions.totalContributions} total · ${github.contributions.daysActive} active days · streak ${github.contributions.currentStreak}d · longest ${github.contributions.longestStreak}d`
+              : `${years.length} yrs`}
+          </p>
+        </div>
+        {github.contributions ? (
+          <div className="flex flex-col gap-2 min-w-0">
+            <div className="w-full max-w-full overflow-x-auto scrollbar-styled">
+              <ContributionHeatmap
+                contributions={github.contributions}
+                cellSize={14}
+                gap={3}
+              />
+            </div>
+            <ContributionLegend cellSize={12} />
+          </div>
+        ) : (
+          <>
+            <ActivityBars years={years} maxYear={maxYear} height="clamp(56px,10svh,150px)" />
+            <div
+              className="grid mt-1"
+              style={{
+                gridTemplateColumns: `repeat(${Math.max(1, years.length)}, minmax(0, 1fr))`,
+                opacity: 0.55,
+              }}
+            >
+              {years.map((y) => (
+                <span
+                  key={y.year}
+                  className="t-mono-xs text-center"
+                  style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
+                >
+                  &apos;{String(y.year).slice(2)}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
       </motion.div>
     </motion.div>
   );
