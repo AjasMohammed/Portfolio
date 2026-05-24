@@ -16,12 +16,12 @@ import { SocialIcon } from "../social-icon";
 import { innerPadding } from "../card";
 import { contactIcons } from "./bio-card";
 
-export function LetterCollapsed() {
+export function LetterCollapsed({ compact = false }: { compact?: boolean } = {}) {
     const reduce = useReducedMotion();
     return (
         <>
             {/* Desktop / lg+ — 2x2 editorial grid */}
-            <div className="hidden lg:grid grid-cols-2 grid-rows-2 w-full h-full gap-2 min-w-0 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]">
+            <div className={`${compact ? "hidden" : "hidden lg:grid"} grid-cols-2 grid-rows-2 w-full h-full gap-2 min-w-0 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]`}>
                 {/* Top-left: soft serif invite, words stair-stepped left → right within the cell */}
                 <div
                     className="t-serif self-start justify-self-stretch flex flex-col w-full min-w-0"
@@ -93,7 +93,7 @@ export function LetterCollapsed() {
                         letterSpacing: "0.18em",
                     }}
                 >
-                    note
+                    !
                 </p>
 
                 {/* Bottom-left: click hint */}
@@ -131,15 +131,16 @@ export function LetterCollapsed() {
                 </h3>
             </div>
 
-            {/* Mobile — compact tile fitting a 3×2 sub-grid cell */}
-            <div className="flex lg:hidden flex-col items-center justify-center w-full h-full gap-0.5 px-1.5 py-1.5">
+            {/* Compact tile — used on mobile and when `compact` is set on lg */}
+            <div className={`${compact ? "flex" : "flex lg:hidden"} flex-col items-center justify-center w-full h-full gap-0.5 px-1.5 py-1.5`}>
                 <motion.p
-                    className="t-serif text-center"
+                    className="t-code text-center"
                     style={{
                         color: LETTER_INK_SOFT,
-                        fontSize: "clamp(8px, 1.6vw, 14px)",
+                        fontSize: "clamp(32px, 8vw, 72px)",
+                        fontWeight: 800,
                         letterSpacing: "0.02em",
-                        lineHeight: 1.1,
+                        lineHeight: 1,
                     }}
                     initial={reduce ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -149,20 +150,8 @@ export function LetterCollapsed() {
                         delay: CONTENT_BASE_DELAY + 0.1,
                     }}
                 >
-                    I left a note
+                    !
                 </motion.p>
-                <h3
-                    className="t-display text-center"
-                    style={{
-                        fontSize: "clamp(16px, 3.4vw, 30px)",
-                        lineHeight: 0.9,
-                        letterSpacing: "-0.02em",
-                    }}
-                >
-                    <SplitText delay={CONTENT_BASE_DELAY + 0.3}>
-                        for you.
-                    </SplitText>
-                </h3>
             </div>
         </>
     );

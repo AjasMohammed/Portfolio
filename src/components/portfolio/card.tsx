@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { GithubData } from "@/lib/github";
+import type { Testimonial } from "@/lib/testimonials";
 import { ease, RADIUS, SKY_BG } from "./constants";
 import type { CardId, Variant } from "./types";
 import { fadeUp } from "./animations";
@@ -9,6 +10,7 @@ import { ImageExpanded } from "./cards/image-card";
 import { LetterExpanded } from "./cards/letter-card";
 import { BioExpanded } from "./cards/bio-card";
 import { AnalyticsExpanded } from "./cards/analytics-card";
+import { TestimonialsExpanded } from "./cards/testimonials-card";
 
 /* ───────────────────────── CARDS ───────────────────────── */
 
@@ -112,11 +114,13 @@ export const innerPadding = {
 export function ExpandedCard({
   id,
   github,
+  testimonials,
   onClose,
   layoutKey,
 }: {
   id: CardId;
   github: GithubData;
+  testimonials: Testimonial[];
   onClose: () => void;
   layoutKey?: string;
 }) {
@@ -197,6 +201,7 @@ export function ExpandedCard({
           {id === "image" && <ImageExpanded />}
           {id === "bio" && <BioExpanded github={github} />}
           {id === "analytics" && <AnalyticsExpanded github={github} />}
+          {id === "testimonials" && <TestimonialsExpanded items={testimonials} />}
         </motion.div>
       )}
     </motion.div>

@@ -8,6 +8,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import type { GithubData } from "@/lib/github";
+import type { Testimonial } from "@/lib/testimonials";
 import {
   ease,
   RADIUS,
@@ -23,9 +24,16 @@ import { ImageInner } from "@/components/portfolio/cards/image-card";
 import { BioCollapsed } from "@/components/portfolio/cards/bio-card";
 import { LetterCollapsed, SocialCard, SocialMobileCells } from "@/components/portfolio/cards/letter-card";
 import { AnalyticsCollapsed } from "@/components/portfolio/cards/analytics-card";
-import { RingChartCard } from "@/components/portfolio/cards/ring-chart-card";
+import { TestimonialsCollapsed } from "@/components/portfolio/cards/testimonials-card";
+import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
 
-export function PortfolioShell({ github }: { github: GithubData }) {
+export function PortfolioShell({
+  github,
+  testimonials,
+}: {
+  github: GithubData;
+  testimonials: Testimonial[];
+}) {
   const [expanded, setExpanded] = useState<CardId | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -108,7 +116,7 @@ export function PortfolioShell({ github }: { github: GithubData }) {
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-2 grid-rows-[7fr_4fr_7fr] min-h-0 overflow-hidden max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1023px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
@@ -121,48 +129,70 @@ export function PortfolioShell({ github }: { github: GithubData }) {
               onOpen={setExpanded}
               variant="image"
               bleed
-              className="col-start-2 col-end-3 row-start-1 row-end-2 max-[463px]:row-end-3 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-7"
+              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-4 lg:col-end-7 lg:row-start-1 lg:row-end-4"
             >
               <ImageInner />
             </BentoCard>
 
-            {/* RING CHART — mobile <464 only — col 1 rows 1–2 (alongside image) */}
-            <RingChartCard
-              github={github}
-              className="hidden max-[463px]:block col-start-1 col-end-2 row-start-1 row-end-3"
-            />
+            {/* WELCOME (compact) — mobile + tablet (top-left). Replaces ring chart spot. */}
+            <div
+              className="hidden max-[1023px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 relative overflow-hidden"
+              style={{
+                borderRadius: RADIUS,
+                background: "var(--cream)",
+                color: "var(--orange-deep)",
+                padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
+              }}
+            >
+              <WelcomeCollapsed compact />
+            </div>
 
-            {/* BIO — tall left col 1 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
+            {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
             <BentoCard
               id="bio"
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
-              className="col-start-1 col-end-2 row-start-1 row-end-3 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
+              className="col-start-1 col-end-6 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-7 lg:col-end-13 lg:row-start-1 lg:row-end-4"
             >
               <BioCollapsed />
             </BentoCard>
 
-            {/* LETTER — desktop top-right corner */}
+            {/* WELCOME — desktop top-left hero (where the note used to live) */}
+            <div
+              className="hidden lg:block lg:col-start-1 lg:col-end-4 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
+              style={{
+                borderRadius: RADIUS,
+                background: "var(--cream)",
+                color: "var(--orange-deep)",
+                padding:
+                  "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
+              }}
+            >
+              <WelcomeCollapsed />
+            </div>
+
+            {/* LETTER — desktop: small square below the review (testimonials) card */}
             <BentoCard
               id="letter"
               expanded={expanded}
               onOpen={setExpanded}
               variant="sky"
-              className="hidden lg:block lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-3"
+              className="hidden lg:block lg:col-start-1 lg:col-end-2 lg:row-start-6 lg:row-end-7"
             >
-              <LetterCollapsed />
+              <LetterCollapsed compact />
             </BentoCard>
 
-            {/* SOCIAL — desktop single strip under letter */}
+            {/* SOCIAL — desktop: strip beside the small letter, below review */}
             <SocialCard
-              className="lg:col-start-10 lg:col-end-13 lg:row-start-3 lg:row-end-4"
+              className="lg:col-start-2 lg:col-end-5 lg:row-start-6 lg:row-end-7"
             />
 
             {/* MOBILE/TABLET — note card + 5 social mini-cards
-                (tablet ≥464: col 1 row 3 as 2×3) / (mobile <464: full-width row 5 as 3×2) */}
+                (tablet ≥464: col 2 row 4, shares row with testimonials, 3×2 grid)
+                (mobile <464: full-width row 5 as 3×2) */}
             <div
-              className="col-start-1 col-end-2 row-start-3 row-end-4 grid grid-cols-2 grid-rows-3 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 max-[463px]:grid-cols-3 max-[463px]:grid-rows-2 lg:hidden"
+              className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 max-[463px]:self-auto max-[463px]:aspect-auto lg:hidden"
               style={{ gap: "clamp(6px, 1.6vw, 10px)", minWidth: 0, minHeight: 0 }}
             >
               <BentoCard
@@ -177,15 +207,26 @@ export function PortfolioShell({ github }: { github: GithubData }) {
               <SocialMobileCells />
             </div>
 
-            {/* ANALYTICS — tall right col 2 (tablet) / full-width row 4 (mobile <464) / wide bottom (desktop) */}
+            {/* ANALYTICS — col 2 rows 2–3 (tablet) / full-width row 4 (mobile <464) / wide bottom (desktop) */}
             <BentoCard
               id="analytics"
               expanded={expanded}
               onOpen={setExpanded}
               variant="accent"
-              className="col-start-2 col-end-3 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
+              className="col-start-6 col-end-11 row-start-3 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <AnalyticsCollapsed github={github} />
+            </BentoCard>
+
+            {/* TESTIMONIALS — col 1 rows 3–4 (tablet) / full-width row 6 (mobile <464) / bottom-right (desktop) */}
+            <BentoCard
+              id="testimonials"
+              expanded={expanded}
+              onOpen={setExpanded}
+              variant="cream"
+              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-6 max-[463px]:row-end-7 lg:col-start-1 lg:col-end-5 lg:row-start-4 lg:row-end-6"
+            >
+              <TestimonialsCollapsed items={testimonials} />
             </BentoCard>
 
             <AnimatePresence>
@@ -212,6 +253,7 @@ export function PortfolioShell({ github }: { github: GithubData }) {
                   key={expanded}
                   id={expanded}
                   github={github}
+                  testimonials={testimonials}
                   onClose={() => setExpanded(null)}
                   layoutKey={
                     expanded === "letter" && !isDesktop
