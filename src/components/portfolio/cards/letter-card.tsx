@@ -132,12 +132,15 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
             </div>
 
             {/* Compact tile — used on mobile and when `compact` is set on lg */}
-            <div className={`${compact ? "flex" : "flex lg:hidden"} flex-col items-center justify-center w-full h-full gap-0.5 px-1.5 py-1.5`}>
+            <div
+                className={`${compact ? "flex" : "flex lg:hidden"} flex-col items-center justify-center w-full h-full gap-0.5 px-1.5 py-1.5`}
+                style={{ containerType: "inline-size" }}
+            >
                 <motion.p
                     className="t-code text-center"
                     style={{
                         color: LETTER_INK_SOFT,
-                        fontSize: "clamp(32px, 8vw, 72px)",
+                        fontSize: "clamp(28px, 85cqw, 96px)",
                         fontWeight: 800,
                         letterSpacing: "0.02em",
                         lineHeight: 1,
@@ -175,17 +178,6 @@ export function SocialCard({
                 ...extraStyle,
             }}
         >
-            <p
-                className="t-mono-xs shrink-0 text-center"
-                style={{
-                    opacity: 0.85,
-                    fontSize: "clamp(12px,1vw,16px)",
-                    letterSpacing: "0.18em",
-                    fontWeight: 600,
-                }}
-            >
-                reach me
-            </p>
             <div
                 className="grid flex-1 place-items-center min-h-0"
                 style={{

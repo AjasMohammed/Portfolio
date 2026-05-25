@@ -47,6 +47,7 @@ export function BentoCard({
   const otherOpen = expanded !== null && expanded !== id;
   const surface = surfaceStyles(variant);
   const interactive = !otherOpen && !isHidden;
+  const allowBleed = overflowBleed && !otherOpen;
 
   const hoverShadow =
     variant === "cream"
@@ -74,7 +75,7 @@ export function BentoCard({
         minHeight: 0,
         ...extraStyle,
       }}
-      className={`relative ${overflowBleed ? "" : "overflow-hidden"} ${className ?? ""}`}
+      className={`relative ${allowBleed ? "" : "overflow-hidden"} ${className ?? ""}`}
     >
       <button
         type="button"
@@ -85,7 +86,7 @@ export function BentoCard({
         {/* Bleed cards: image fills full container, chrome floats on top */}
         {bleed && (
           <div
-            className={`absolute inset-0 z-[1] ${overflowBleed ? "" : "overflow-hidden"}`}
+            className={`absolute inset-0 z-[1] ${allowBleed ? "" : "overflow-hidden"}`}
             style={{ borderRadius: "inherit" }}
           >
             {children}
@@ -134,9 +135,7 @@ export function ExpandedCard({
       ? "cream"
       : id === "letter"
         ? "sky"
-        : id === "analytics"
-          ? "accent"
-          : "cream";
+        : "cream";
   const surface = surfaceStyles(variant);
   const isLetter = id === "letter";
 

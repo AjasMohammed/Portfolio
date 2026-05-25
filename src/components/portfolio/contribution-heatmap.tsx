@@ -6,7 +6,7 @@ import type { Contributions } from "@/lib/github";
 import { ease, CONTENT_BASE_DELAY } from "./constants";
 
 const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
-  0: "rgba(244,235,216,0.10)",
+  0: "rgba(192,68,15,0.08)",
   1: "rgba(240,128,71,0.40)",
   2: "rgba(234,90,26,0.65)",
   3: "rgba(234,90,26,0.85)",
@@ -182,8 +182,8 @@ export function ContributionHeatmap({
                   borderRadius: 2,
                   background: LEVEL_COLORS[day.level],
                   outline: isHovered
-                    ? "1px solid rgba(244,235,216,0.85)"
-                    : "1px solid rgba(244,235,216,0.06)",
+                    ? "1px solid rgba(192,68,15,0.85)"
+                    : "1px solid rgba(192,68,15,0.08)",
                   outlineOffset: 0,
                   cursor: "default",
                 }}
@@ -242,7 +242,7 @@ export function ContributionLegend({ cellSize = 10 }: { cellSize?: number }) {
             height: cellSize,
             background: LEVEL_COLORS[l],
             borderRadius: 2,
-            outline: "1px solid rgba(244,235,216,0.08)",
+            outline: "1px solid rgba(192,68,15,0.08)",
           }}
         />
       ))}

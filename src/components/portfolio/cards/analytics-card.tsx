@@ -103,7 +103,7 @@ export function LanguageBar({
   return (
     <div
       className="flex w-full overflow-hidden"
-      style={{ height, borderRadius: 999, background: "rgba(244,235,216,0.18)" }}
+      style={{ height, borderRadius: 999, background: "rgba(192,68,15,0.18)" }}
     >
       {data.map((d, i) => (
         <motion.span
@@ -112,7 +112,7 @@ export function LanguageBar({
           animate={{ width: `${d.pct}%` }}
           transition={{ duration: 0.9, delay: 0.1 + i * 0.08, ease }}
           style={{
-            background: langDots[d.name] ?? (i % 2 === 0 ? "var(--cream)" : "var(--orange-soft)"),
+            background: langDots[d.name] ?? (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)"),
             opacity: 1 - i * 0.08,
           }}
           title={`${d.name} ${d.pct}%`}
@@ -183,7 +183,7 @@ export function LanguageDonut({
   const active = hovered !== null ? data[hovered] : null;
   const activeColor = active
     ? langDots[active.name] ?? langFallbackPalette[hovered! % langFallbackPalette.length]
-    : "var(--cream)";
+    : "var(--orange-deep)";
 
   const handleMove = (e: ReactMouseEvent<SVGCircleElement>) => {
     const el = wrapRef.current;
@@ -201,7 +201,7 @@ export function LanguageDonut({
             cy={cy}
             r={radius}
             fill="none"
-            stroke="rgba(244,235,216,0.14)"
+            stroke="rgba(192,68,15,0.16)"
             strokeWidth={stroke}
           />
           {segments.map((s) => {
@@ -352,7 +352,7 @@ export function ActivityBars({
                   key={l.name}
                   style={{
                     height: `${(l.count / y.count) * 100}%`,
-                    background: langDots[l.name] ?? "var(--cream-soft)",
+                    background: langDots[l.name] ?? "var(--orange-soft)",
                   }}
                 />
               ))}
@@ -529,7 +529,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               style={{
                 fontSize: "clamp(72px,8.4vw,180px)",
                 textShadow:
-                  "4px 4px 0 rgba(244,235,216,0.2), 8px 8px 0 rgba(244,235,216,0.08)",
+                  "4px 4px 0 rgba(192,68,15,0.22), 8px 8px 0 rgba(192,68,15,0.08)",
               }}
             >
               <Counter to={heroYears} startDelay={CONTENT_BASE_DELAY + 0.35} />
@@ -587,7 +587,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         {/* Middle: language ring chart */}
         <motion.div
           className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)]"
-          style={{ borderLeft: "1px solid rgba(244,235,216,0.22)" }}
+          style={{ borderLeft: "1px solid rgba(192,68,15,0.22)" }}
           initial={colHidden}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.35 }}
@@ -611,7 +611,6 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               data={langPct}
               size={isCompact ? 96 : 170}
               centerLabel={langPct.length}
-              centerSublabel="langs"
             />
           </div>
           <ul className="flex flex-wrap gap-x-2 gap-y-0.5 mt-auto min-w-0">
@@ -630,7 +629,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               >
                 <span
                   className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: langDots[l.name] ?? "var(--cream-soft)" }}
+                  style={{ background: langDots[l.name] ?? "var(--orange-soft)" }}
                 />
                 <span className="truncate">{l.name}</span>
                 <span style={{ opacity: 0.65 }}>{l.pct}%</span>
@@ -642,7 +641,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         {/* Right: live repos — dropped on compact (Nest Hub) where the row budget can't fit it */}
         <motion.div
           className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)] compact:hidden"
-          style={{ borderLeft: "1px solid rgba(244,235,216,0.22)" }}
+          style={{ borderLeft: "1px solid rgba(192,68,15,0.22)" }}
           initial={colHidden}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.5 }}
@@ -677,13 +676,13 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
                 <span className="inline-flex items-baseline gap-2 min-w-0">
                   <span
                     className="inline-block w-2 h-2 rounded-full shrink-0 translate-y-px"
-                    style={{ background: langDots[r.language ?? ""] ?? "var(--cream-soft)" }}
+                    style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
                   />
                   <span
                     className="t-display truncate"
                     style={{
                       fontSize: "clamp(14px,1.2vw,20px)",
-                      fontWeight: 600,
+                      fontWeight: 400,
                       letterSpacing: "-0.005em",
                     }}
                   >
@@ -721,7 +720,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled gap-[clamp(16px,1.8vw,32px)] compact:gap-3 lg:grid lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[auto_auto] compact:grid-cols-[0.55fr_1.3fr_1.5fr]"
+      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled-ink gap-[clamp(16px,1.8vw,32px)] compact:gap-3 lg:grid lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[auto_auto] compact:grid-cols-[0.55fr_1.3fr_1.5fr]"
     >
       {/* Left: hero retro number + stat list (spans both rows on lg) */}
       <motion.div
@@ -737,7 +736,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                 className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)] compact:text-[clamp(28px,3vw,40px)]"
                 style={{
                   textShadow:
-                    "3px 3px 0 rgba(244,235,216,0.2), 6px 6px 0 rgba(244,235,216,0.08)",
+                    "3px 3px 0 rgba(192,68,15,0.22), 6px 6px 0 rgba(192,68,15,0.08)",
                 }}
               >
                 <Counter to={new Date().getFullYear() - joinedYear} />
@@ -758,7 +757,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
               className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)]"
               style={{
                 textShadow:
-                  "3px 3px 0 rgba(244,235,216,0.2), 6px 6px 0 rgba(244,235,216,0.08)",
+                  "3px 3px 0 rgba(192,68,15,0.22), 6px 6px 0 rgba(192,68,15,0.08)",
               }}
             >
               <Counter to={repoCount} />
@@ -781,7 +780,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             <SplitText className="block" delay={0.1}>Built</SplitText>
             <SplitText
               className="block text-center t-serif"
-              style={{ color: "var(--cream-soft)", fontWeight: 400 }}
+              style={{ color: "var(--orange)", fontWeight: 400 }}
               delay={0.28}
             >
               over
@@ -821,7 +820,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             <li
               key={s.k}
               className="flex items-baseline justify-between gap-3 pt-1.5 compact:pt-1"
-              style={{ borderTop: "1px solid rgba(244,235,216,0.2)" }}
+              style={{ borderTop: "1px solid rgba(192,68,15,0.2)" }}
             >
               <span
                 className="t-mono opacity-75 text-[clamp(9px,2.2vw,12px)] compact:text-[9px]"
@@ -867,7 +866,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                 <li
                   key={p.name}
                   className="min-w-0"
-                  style={{ borderTop: i === 0 ? "1px solid rgba(244,235,216,0.22)" : "1px solid rgba(244,235,216,0.14)" }}
+                  style={{ borderTop: i === 0 ? "1px solid rgba(192,68,15,0.22)" : "1px solid rgba(192,68,15,0.14)" }}
                 >
                   <button
                     type="button"
@@ -888,7 +887,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                       <span
                         className="t-display truncate text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
                         style={{
-                          fontWeight: 700,
+                          fontWeight: 400,
                           letterSpacing: "-0.01em",
                           lineHeight: 1,
                         }}
@@ -917,7 +916,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                           <p
                             className="t-serif"
                             style={{
-                              color: "var(--cream-soft)",
+                              color: "var(--orange)",
                               fontSize: "clamp(12px,3.2vw,20px)",
                               lineHeight: 1.45,
                               letterSpacing: "0.005em",
@@ -1008,7 +1007,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                   <span className="inline-flex items-baseline gap-1.5 min-w-0">
                     <span
                       className="inline-block w-1.5 h-1.5 rounded-full shrink-0 translate-y-px"
-                      style={{ background: langDots[r.language ?? ""] ?? "var(--cream-soft)" }}
+                      style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
                     />
                     <span
                       className="t-display truncate link-line"
@@ -1057,7 +1056,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
               <div
                 key={g.key}
                 className="min-w-0 pt-2"
-                style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}
+                style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
               >
                 <div className="flex items-baseline justify-between mb-1">
                   <p
@@ -1094,7 +1093,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
           </div>
         </div>
 
-        <div className="pt-3" style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}>
+        <div className="pt-3" style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}>
           <div className="flex items-baseline justify-between mb-3">
             <p
               className="t-mono opacity-70"
@@ -1124,7 +1123,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                   <span className="inline-flex items-center gap-1.5 min-w-0">
                     <span
                       className="inline-block w-2 h-2 rounded-full shrink-0"
-                      style={{ background: langDots[l.name] ?? (i % 2 === 0 ? "var(--cream)" : "var(--orange-soft)") }}
+                      style={{ background: langDots[l.name] ?? (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)") }}
                     />
                     <span
                       className="t-display truncate"
@@ -1148,7 +1147,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       <motion.div
         variants={fadeUp}
         className="flex flex-col min-w-0 gap-2 lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:pt-3"
-        style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}
+        style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
       >
         <div className="flex items-baseline justify-between">
           <p
@@ -1174,7 +1173,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
         </div>
         {github.contributions ? (
           <div className="flex flex-col gap-2 min-w-0">
-            <div className="w-full max-w-full overflow-x-auto scrollbar-styled">
+            <div className="w-full max-w-full overflow-x-auto scrollbar-styled-ink">
               <ContributionHeatmap
                 contributions={github.contributions}
                 cellSize={14}

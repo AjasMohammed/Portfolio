@@ -147,7 +147,7 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.2fr_1.2fr_0.6fr] lg:overflow-visible`}
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
@@ -210,7 +210,7 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="sky"
-              className="hidden lg:block lg:col-start-1 lg:col-end-2 lg:row-start-6 lg:row-end-7"
+              className="hidden lg:block lg:col-start-1 lg:col-end-2 lg:row-start-6 lg:row-end-7 lg:place-self-start lg:w-3/5 lg:max-h-full lg:aspect-square"
             >
               <LetterCollapsed compact />
             </BentoCard>
@@ -244,7 +244,7 @@ export function PortfolioShell({
               id="analytics"
               expanded={expanded}
               onOpen={setExpanded}
-              variant="accent"
+              variant="cream"
               className="col-start-6 col-end-11 row-start-3 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <AnalyticsCollapsed github={github} />
