@@ -171,12 +171,8 @@ export function ImageInner() {
         style={{ zIndex: 4 }}
       >
         <div className="min-w-0">
-          <p className="t-display text-[clamp(18px,1.8vw,30px)] leading-none overflow-hidden flex flex-col py-2">
-            <SplitText delay={CONTENT_BASE_DELAY + 0.8}>Ajas</SplitText>
-            <SplitText delay={CONTENT_BASE_DELAY + 0.95}>Mohammed</SplitText>
-          </p>
           <motion.p
-            className="t-mono-xs mt-1.5 opacity-85 truncate"
+            className="t-mono-xs opacity-85 truncate"
             initial={reduce ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 0.85, y: 0 }}
             transition={{ duration: 0.5, ease, delay: CONTENT_BASE_DELAY + 1.15 }}

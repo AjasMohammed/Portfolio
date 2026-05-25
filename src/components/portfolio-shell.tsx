@@ -30,9 +30,11 @@ import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
 export function PortfolioShell({
   github,
   testimonials,
+  visits,
 }: {
   github: GithubData;
   testimonials: Testimonial[];
+  visits: number | null;
 }) {
   const [expanded, setExpanded] = useState<CardId | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -69,6 +71,32 @@ export function PortfolioShell({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Log one visit per browser session (cheap, fire-and-forget).
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("v_logged") === "1") return;
+      sessionStorage.setItem("v_logged", "1");
+    } catch {
+      // Private mode or storage disabled: skip dedup, still ping once.
+    }
+    let tz: string | undefined;
+    try {
+      tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {}
+    const meta = {
+      tz,
+      vp: `${window.innerWidth}x${window.innerHeight}`,
+      lang: navigator.language,
+      ref: document.referrer || undefined,
+    };
+    fetch("/api/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(meta),
+      keepalive: true,
+    }).catch(() => {});
   }, []);
 
   return (
@@ -148,7 +176,7 @@ export function PortfolioShell({
                 padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
               }}
             >
-              <WelcomeCollapsed compact />
+              <WelcomeCollapsed compact visits={visits} />
             </div>
 
             {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
@@ -173,7 +201,7 @@ export function PortfolioShell({
                   "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
               }}
             >
-              <WelcomeCollapsed />
+              <WelcomeCollapsed visits={visits} />
             </div>
 
             {/* LETTER — desktop: small square below the review (testimonials) card */}

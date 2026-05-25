@@ -26,12 +26,26 @@ const TITLE_START = 0.4; // seconds after CONTENT_BASE_DELAY
 const BOOT_START =
   TITLE_START + (TITLE_TEXT.length * TYPING_SPEED_MS) / 1000 + 0.25;
 
-const BOOT_ROWS: { mark: string; label: string; time: string; pending?: boolean }[] = [
+type BootRow = { mark: string; label: string; time: string; pending?: boolean };
+
+const BASE_BOOT_ROWS: BootRow[] = [
   { mark: "✓", label: "palette loaded", time: ".12s" },
   { mark: "✓", label: "typography ready", time: ".04s" },
   { mark: "✓", label: "bento mounted", time: ".28s" },
   { mark: "→", label: "awaiting click", time: "…", pending: true },
 ];
+
+function buildBootRows(visits: number | null | undefined): BootRow[] {
+  if (typeof visits !== "number") return BASE_BOOT_ROWS;
+  const visitorRow: BootRow = {
+    mark: "✓",
+    label: `visitor #${visits.toLocaleString()} logged`,
+    time: ".03s",
+  };
+  // Insert just before the pending "awaiting click" row.
+  const last = BASE_BOOT_ROWS[BASE_BOOT_ROWS.length - 1];
+  return [...BASE_BOOT_ROWS.slice(0, -1), visitorRow, last];
+}
 
 function TypingTitle({
   text,
@@ -112,10 +126,15 @@ function Dot({ color }: { color: string }) {
   );
 }
 
-export function WelcomeCollapsed({ compact = false }: { compact?: boolean } = {}) {
+export function WelcomeCollapsed({
+  compact = false,
+  visits,
+}: { compact?: boolean; visits?: number | null } = {}) {
   const reduce = useReducedMotion();
 
-  if (compact) return <WelcomeCompact />;
+  if (compact) return <WelcomeCompact visits={visits} />;
+
+  const bootRows = buildBootRows(visits);
 
   return (
     <div className="flex flex-col w-full h-full origin-left transition-transform duration-500 ease-out group-hover:scale-[0.97]">
@@ -214,7 +233,7 @@ export function WelcomeCollapsed({ compact = false }: { compact?: boolean } = {}
               alignItems: "baseline",
             }}
           >
-            {BOOT_ROWS.map((r, i) => {
+            {bootRows.map((r, i) => {
               const rowDelay = CONTENT_BASE_DELAY + BOOT_START + i * 0.35;
               return (
                 <motion.div
@@ -315,7 +334,7 @@ export function WelcomeCollapsed({ compact = false }: { compact?: boolean } = {}
   );
 }
 
-function WelcomeCompact() {
+function WelcomeCompact({ visits }: { visits?: number | null }) {
   return (
     <div className="flex flex-col h-full w-full justify-between gap-[clamp(4px,1vw,8px)]">
       {/* Top — small file label + traffic dots */}
@@ -372,6 +391,14 @@ function WelcomeCompact() {
           <span style={{ color: "var(--orange)", opacity: 0.9 }}>[✓]</span>{" "}
           <span style={{ opacity: 0.8 }}>bento mounted · ready</span>
         </p>
+        {typeof visits === "number" && (
+          <p className="truncate">
+            <span style={{ color: "var(--orange)", opacity: 0.9 }}>[✓]</span>{" "}
+            <span style={{ opacity: 0.8 }}>
+              visitor #{visits.toLocaleString()}
+            </span>
+          </p>
+        )}
         <p className="truncate">
           <span style={{ color: "var(--orange)", opacity: 0.9 }}>@see</span>{" "}
           <span style={{ opacity: 0.75 }}>./projects · ./note · ./contact</span>
