@@ -375,7 +375,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
               className="grid min-w-0 gap-x-[clamp(10px,1.6vw,20px)]"
               style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
             >
-              {profile.capabilities.map((item, i) => (
+              {profile.capabilities.map((item) => (
                 <li
                   key={item}
                   className="flex items-center gap-[clamp(6px,1vw,12px)] min-w-0"
@@ -384,19 +384,6 @@ export function BioExpanded({ github }: { github: GithubData }) {
                     paddingBlock: "clamp(3px,0.45svh,6px)",
                   }}
                 >
-                  <span
-                    className="t-retro shrink-0"
-                    style={{
-                      color: "var(--orange)",
-                      fontSize: "clamp(14px,1.9vw,22px)",
-                      lineHeight: 0.85,
-                      textShadow:
-                        "1.5px 1.5px 0 rgba(192,68,15,0.18), 3px 3px 0 rgba(192,68,15,0.06)",
-                      minWidth: "1.6em",
-                    }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                   <span
                     className="t-display min-w-0"
                     style={{

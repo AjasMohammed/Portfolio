@@ -282,3 +282,24 @@ body {
   mix-blend-mode: overlay;
   opacity: 0.07;
 }
+
+/* Low-perf variant: skip the mix-blend grain (forces a compositing layer for
+   the entire viewport on every paint) and ride a flat color instead. */
+.grain-lite::after {
+  content: none;
+}
+
+/* ── Bento card hover — CSS-only, GPU-only ─────────────────────────────
+   The shared-layout expand animation can run alongside hovers on other tiles;
+   driving hover via framer-motion `whileHover` schedules JS-side animations
+   and animates `box-shadow` (a paint property). Using CSS transitions on
+   transform + shadow keeps the work on the compositor, and the `@media (hover)`
+   gate skips the listener cost on touch devices entirely. */
+@media (hover: hover) and (pointer: fine) {
+  .bento-card--hover {
+    transition: box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .bento-card--hover:hover {
+    box-shadow: var(--hover-shadow);
+  }
+}

@@ -26,6 +26,7 @@ import { LetterCollapsed, SocialCard, SocialMobileCells } from "@/components/por
 import { AnalyticsCollapsed } from "@/components/portfolio/cards/analytics-card";
 import { TestimonialsCollapsed } from "@/components/portfolio/cards/testimonials-card";
 import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
+import { usePerfTier } from "@/components/portfolio/use-perf-tier";
 
 export function PortfolioShell({
   github,
@@ -40,6 +41,8 @@ export function PortfolioShell({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
   const reduce = useReducedMotion();
+  const perfTier = usePerfTier();
+  const lite = perfTier === "low";
   const letterOpen = expanded === "letter";
   const sectionRef = useRef<HTMLElement | null>(null);
 
@@ -102,13 +105,13 @@ export function PortfolioShell({
   return (
     <>
     <main
-      className="relative grain h-svh max-h-screen w-svw overflow-hidden text-cream"
+      className={`relative ${lite ? "grain-lite" : "grain"} h-svh max-h-screen w-svw overflow-hidden text-cream`}
       style={{
         background: letterOpen ? SKY_BG : "var(--ink)",
-        transition: "background 0.9s cubic-bezier(0.22,1,0.36,1)",
+        transition: "background 0.45s cubic-bezier(0.22,1,0.36,1)",
       }}
     >
-      <BackgroundField reduce={!!reduce} />
+      <BackgroundField reduce={!!reduce} lite={lite} paused={expanded !== null} />
 
       <div
         className="relative z-10 grid h-full w-full"
@@ -129,7 +132,7 @@ export function PortfolioShell({
               className="t-display text-[clamp(18px,1.7vw,24px)]"
               style={{
                 color: letterOpen ? LETTER_INK : undefined,
-                transition: "color 0.9s cubic-bezier(0.22,1,0.36,1)",
+                transition: "color 0.45s cubic-bezier(0.22,1,0.36,1)",
               }}
             >
               Ajas
@@ -275,7 +278,7 @@ export function PortfolioShell({
                       ? "rgba(168,196,220,0.32)"
                       : "rgba(192,68,15,0.32)",
                     borderRadius: RADIUS,
-                    transition: "background 0.9s cubic-bezier(0.22,1,0.36,1)",
+                    transition: "background 0.45s cubic-bezier(0.22,1,0.36,1)",
                   }}
                   onClick={() => setExpanded(null)}
                 />
