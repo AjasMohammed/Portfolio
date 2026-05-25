@@ -27,6 +27,7 @@ export function BentoCard({
   variant,
   children,
   bleed = false,
+  overflowBleed = false,
   extraStyle,
   className,
   layoutKey,
@@ -37,6 +38,7 @@ export function BentoCard({
   variant: Variant;
   children: React.ReactNode;
   bleed?: boolean;
+  overflowBleed?: boolean;
   extraStyle?: React.CSSProperties;
   className?: string;
   layoutKey?: string;
@@ -72,17 +74,20 @@ export function BentoCard({
         minHeight: 0,
         ...extraStyle,
       }}
-      className={`relative overflow-hidden ${className ?? ""}`}
+      className={`relative ${overflowBleed ? "" : "overflow-hidden"} ${className ?? ""}`}
     >
       <button
         type="button"
         onClick={() => onOpen(id)}
-        className="group relative flex h-full w-full flex-col text-left outline-none focus-visible:ring-2 focus-visible:ring-cream cursor-pointer"
+        className="group relative flex h-full w-full flex-col text-left outline-none cursor-pointer"
         style={{ borderRadius: "inherit" }}
       >
         {/* Bleed cards: image fills full container, chrome floats on top */}
         {bleed && (
-          <div className="absolute inset-0 z-[1] overflow-hidden" style={{ borderRadius: "inherit" }}>
+          <div
+            className={`absolute inset-0 z-[1] ${overflowBleed ? "" : "overflow-hidden"}`}
+            style={{ borderRadius: "inherit" }}
+          >
             {children}
           </div>
         )}
@@ -138,7 +143,7 @@ export function ExpandedCard({
   return (
     <motion.div
       layoutId={layoutKey ?? `card-${id}`}
-      className="absolute inset-0 z-30 overflow-hidden"
+      className="absolute inset-0 z-30 overflow-hidden compact:fixed compact:z-50 compact:rounded-none!"
       style={{
         borderRadius: RADIUS,
         background: surface.bg,

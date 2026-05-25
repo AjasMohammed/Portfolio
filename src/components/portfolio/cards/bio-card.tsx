@@ -84,7 +84,7 @@ export function BioCollapsed() {
         </div>
 
         <motion.p
-          className="t-body max-w-prose"
+          className="t-body max-w-prose compact:hidden"
           style={{
             fontSize: "clamp(12px, 0.95vw, 16px)",
             lineHeight: 1.5,
@@ -279,12 +279,12 @@ export function BioExpanded({ github }: { github: GithubData }) {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full overflow-y-auto scrollbar-styled-ink lg:grid lg:overflow-hidden lg:grid-cols-[1.2fr_1fr]"
+      className="flex flex-col h-full overflow-y-auto scrollbar-styled-ink lg:grid lg:grid-cols-[1.2fr_1fr]"
       style={{ gap: "clamp(16px,1.6svh,28px)" }}
     >
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-4 min-w-0 scrollbar-styled-ink lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden lg:justify-between"
+        className="flex flex-col gap-4 min-w-0 lg:justify-between"
       >
         <div className="flex flex-col gap-[clamp(8px,0.9svh,14px)] min-w-0">
           <p
@@ -442,7 +442,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
 
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 min-w-0 scrollbar-styled-ink lg:justify-between lg:min-h-0 lg:overflow-y-auto lg:overflow-x-hidden"
+        className="flex flex-col gap-3 min-w-0 lg:justify-between"
       >
         <div>
           <p

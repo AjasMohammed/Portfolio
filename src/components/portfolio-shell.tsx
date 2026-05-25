@@ -53,7 +53,10 @@ export function PortfolioShell({
   }, [reduce]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
+    // Mirror the lg: custom-variant in globals.css.
+    const mq = window.matchMedia(
+      "(min-width: 1280px), (min-width: 1024px) and (max-height: 800px)",
+    );
     const apply = () => setIsDesktop(mq.matches);
     apply();
     mq.addEventListener("change", apply);
@@ -116,7 +119,7 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1023px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-6 lg:overflow-visible`}
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
@@ -129,14 +132,15 @@ export function PortfolioShell({
               onOpen={setExpanded}
               variant="image"
               bleed
-              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-4 lg:col-end-7 lg:row-start-1 lg:row-end-4"
+              overflowBleed
+              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-5 lg:col-end-7 lg:row-start-1 lg:row-end-4"
             >
               <ImageInner />
             </BentoCard>
 
             {/* WELCOME (compact) — mobile + tablet (top-left). Replaces ring chart spot. */}
             <div
-              className="hidden max-[1023px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 relative overflow-hidden"
+              className="hidden max-[1279px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 lg:hidden relative overflow-hidden"
               style={{
                 borderRadius: RADIUS,
                 background: "var(--cream)",
@@ -160,7 +164,7 @@ export function PortfolioShell({
 
             {/* WELCOME — desktop top-left hero (where the note used to live) */}
             <div
-              className="hidden lg:block lg:col-start-1 lg:col-end-4 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
+              className="hidden lg:block lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
               style={{
                 borderRadius: RADIUS,
                 background: "var(--cream)",
@@ -271,7 +275,7 @@ export function PortfolioShell({
           className="col-span-12 grid items-center"
           style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))" }}
         >
-          <div className="hidden lg:block col-span-12 t-mono-xs opacity-70">
+          <div className="hidden lg:block col-span-12 t-mono-xs opacity-70 compact:hidden">
             click any tile to expand · esc to close · github synced every 10m
           </div>
         </footer>

@@ -223,7 +223,7 @@ export function SocialCard({
                 >
                     <SocialIcon name={c.name} size={20} />
                     <span
-                        className="t-mono-xs truncate w-full text-center"
+                        className="t-mono-xs truncate w-full text-center compact:hidden"
                         style={{
                             fontSize: "clamp(9px, 0.7vw, 12px)",
                             letterSpacing: "0.12em",
@@ -297,7 +297,7 @@ export function LetterExpanded() {
                 src={WHATSAPP_IMG}
                 alt="Ajas on a rooftop in Kochi, looking up at clouds"
                 fill
-                sizes="(max-width: 1024px) 100vw, 80vw"
+                sizes="(max-width: 1279px) 100vw, 80vw"
                 className="object-cover"
             />
             <div

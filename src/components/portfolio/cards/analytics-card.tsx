@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -407,6 +408,17 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
   const headline = github.ownedRepos.slice(0, 10);
   const reduce = useReducedMotion();
 
+  // Mirrors the `compact:` custom-variant in globals.css. The ring chart size is a JS prop,
+  // so we can't shrink it with a CSS class alone.
+  const [isCompact, setIsCompact] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px) and (max-height: 800px)");
+    const apply = () => setIsCompact(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   const colHidden = reduce ? false : { opacity: 0, y: 18 };
 
   return (
@@ -498,10 +510,11 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         </p>
       </div>
 
-      {/* 3-column body */}
+      {/* 3-column body — collapses to 2 cols on compact (landscape-short) since the right "repos · live"
+          column is hidden there. */}
       <div
-        className="grid flex-1 min-h-0 gap-[clamp(14px,1.6vw,28px)]"
-        style={{ gridTemplateColumns: "1fr 0.9fr 1.15fr", paddingTop: "clamp(12px,1.6svh,22px)" }}
+        className="grid flex-1 min-h-0 gap-[clamp(14px,1.6vw,28px)] grid-cols-[1fr_0.9fr_1.15fr] compact:grid-cols-[1.1fr_1fr]"
+        style={{ paddingTop: "clamp(12px,1.6svh,22px)" }}
       >
         {/* Left: hero retro number + activity chart */}
         <motion.div
@@ -593,10 +606,10 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               {langPct.length} tracked
             </p>
           </div>
-          <div className="flex-1 min-h-0 flex items-center justify-center p-[clamp(8px,1.2vw,18px)]">
+          <div className="flex-1 min-h-0 flex items-center justify-center p-[clamp(8px,1.2vw,18px)] compact:p-1">
             <LanguageDonut
               data={langPct}
-              size={170}
+              size={isCompact ? 96 : 170}
               centerLabel={langPct.length}
               centerSublabel="langs"
             />
@@ -626,9 +639,9 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           </ul>
         </motion.div>
 
-        {/* Right: live repos */}
+        {/* Right: live repos — dropped on compact (Nest Hub) where the row budget can't fit it */}
         <motion.div
-          className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)]"
+          className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)] compact:hidden"
           style={{ borderLeft: "1px solid rgba(244,235,216,0.22)" }}
           initial={colHidden}
           animate={{ opacity: 1, y: 0 }}
@@ -708,22 +721,20 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[minmax(0,1fr)_auto]"
-      style={{ gap: "clamp(16px,1.8vw,32px)" }}
+      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled gap-[clamp(16px,1.8vw,32px)] compact:gap-3 lg:grid lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[auto_auto] compact:grid-cols-[0.55fr_1.3fr_1.5fr]"
     >
       {/* Left: hero retro number + stat list (spans both rows on lg) */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 min-w-0 overflow-x-hidden scrollbar-styled lg:row-span-2 lg:justify-between lg:min-h-0 lg:overflow-y-auto"
+        className="flex flex-col gap-3 min-w-0 lg:row-span-2 lg:justify-between"
       >
         <div
-          className="grid grid-cols-2 gap-x-3 items-start lg:flex lg:flex-col lg:gap-0"
-          style={{ paddingTop: "clamp(8px,2.2svh,32px)" }}
+          className="grid grid-cols-2 gap-x-3 items-start lg:flex lg:flex-col lg:gap-0 pt-[clamp(8px,2.2svh,32px)] compact:pt-1"
         >
           {joinedYear && (
             <div className="col-start-1 row-start-1 flex items-end gap-2 min-w-0">
               <p
-                className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)]"
+                className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)] compact:text-[clamp(28px,3vw,40px)]"
                 style={{
                   textShadow:
                     "3px 3px 0 rgba(244,235,216,0.2), 6px 6px 0 rgba(244,235,216,0.08)",
@@ -760,7 +771,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             </p>
           </div>
           <h2
-            className="col-start-2 row-start-2 self-start mt-3 text-left lg:mt-4 lg:pl-[clamp(12px,2vw,32px)] min-w-0 text-[clamp(26px,8vw,84px)] lg:text-[clamp(28px,4.4vw,72px)]"
+            className="col-start-2 row-start-2 self-start mt-3 text-left lg:mt-4 lg:pl-[clamp(12px,2vw,32px)] min-w-0 text-[clamp(26px,8vw,84px)] lg:text-[clamp(28px,4.4vw,72px)] compact:text-[clamp(20px,2.6vw,32px)] compact:mt-1"
             style={{
               lineHeight: 0.9,
               fontWeight: 700,
@@ -778,7 +789,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             <SplitText className="block text-center" delay={0.46}>the years.</SplitText>
           </h2>
         </div>
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-2 compact:gap-0.5">
           {[
             { k: "followers", v: u?.followers ?? 0 },
             { k: "following", v: u?.following ?? 0 },
@@ -809,18 +820,18 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
           ].map((s) => (
             <li
               key={s.k}
-              className="flex items-baseline justify-between gap-3 pt-1.5"
+              className="flex items-baseline justify-between gap-3 pt-1.5 compact:pt-1"
               style={{ borderTop: "1px solid rgba(244,235,216,0.2)" }}
             >
               <span
-                className="t-mono opacity-75"
-                style={{ fontSize: "clamp(9px,2.2vw,12px)", letterSpacing: "0.08em" }}
+                className="t-mono opacity-75 text-[clamp(9px,2.2vw,12px)] compact:text-[9px]"
+                style={{ letterSpacing: "0.08em" }}
               >
                 {s.k}
               </span>
               <span
-                className="t-num"
-                style={{ fontSize: "clamp(13px,3vw,18px)", fontWeight: 700 }}
+                className="t-num text-[clamp(13px,3vw,18px)] compact:text-[11px]"
+                style={{ fontWeight: 700 }}
               >
                 {typeof s.v === "number" ? <Counter to={s.v} /> : s.v}
               </span>
@@ -832,7 +843,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       {/* Middle: featured projects (accordion) + live GitHub repos */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 overflow-x-hidden gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto"
+        className="flex flex-col min-w-0 gap-3"
       >
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between mb-2">
@@ -862,13 +873,12 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                     type="button"
                     onClick={() => setOpenProject(isOpen ? null : p.name)}
                     aria-expanded={isOpen}
-                    className="w-full flex items-baseline justify-between gap-3 text-left py-[clamp(8px,1svh,14px)] group"
+                    className="w-full flex items-baseline justify-between gap-3 text-left py-[clamp(8px,1svh,14px)] compact:py-1.5 group"
                   >
                     <span className="inline-flex items-baseline gap-2 min-w-0">
                       <span
-                        className="t-retro shrink-0"
+                        className="t-retro shrink-0 text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
                         style={{
-                          fontSize: "clamp(18px,5vw,38px)",
                           opacity: isOpen ? 1 : 0.55,
                           transition: "opacity 0.3s ease",
                         }}
@@ -876,9 +886,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                         {isOpen ? "−" : "+"}
                       </span>
                       <span
-                        className="t-display truncate"
+                        className="t-display truncate text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
                         style={{
-                          fontSize: "clamp(18px,5vw,38px)",
                           fontWeight: 700,
                           letterSpacing: "-0.01em",
                           lineHeight: 1,
@@ -1024,7 +1033,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       {/* Right: resume stack + GitHub languages donut + activity histogram */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 overflow-x-hidden gap-3 scrollbar-styled lg:min-h-0 lg:overflow-y-auto"
+        className="flex flex-col min-w-0 gap-3"
       >
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between mb-3">
@@ -1138,7 +1147,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       {/* Bottom band: contribution heatmap — spans middle + right columns on lg */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 overflow-x-hidden gap-2 lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:pt-3"
+        className="flex flex-col min-w-0 gap-2 lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:pt-3"
         style={{ borderTop: "1px solid rgba(244,235,216,0.22)" }}
       >
         <div className="flex items-baseline justify-between">

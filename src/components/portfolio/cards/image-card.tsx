@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { certificates } from "@/data/profile";
 import { ease, CONTENT_BASE_DELAY } from "../constants";
 import { SplitText } from "../split-text";
@@ -10,30 +17,159 @@ import { SplitText } from "../split-text";
 
 export function ImageInner() {
   const reduce = useReducedMotion();
+
+  // Pointer position normalized to [-1, 1] over the card.
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+
+  // Spring smoothing so movement feels weighted, not jittery.
+  const sx = useSpring(px, { stiffness: 90, damping: 18, mass: 0.6 });
+  const sy = useSpring(py, { stiffness: 90, damping: 18, mass: 0.6 });
+
+  // Depth layers — background drifts slightly, foreground travels further
+  // and tilts, which sells the parallax illusion.
+  const bgX = useTransform(sx, (v) => v * 10);
+  const bgY = useTransform(sy, (v) => v * 6);
+  const fgX = useTransform(sx, (v) => v * 28);
+  const fgY = useTransform(sy, (v) => v * 18);
+  const fgRotY = useTransform(sx, (v) => v * 4);
+  const fgRotX = useTransform(sy, (v) => v * -3);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  function handleMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (reduce) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+    px.set(nx);
+    py.set(ny);
+  }
+
+  function handleLeave() {
+    px.set(0);
+    py.set(0);
+  }
+
   return (
-    <div className="relative h-full w-full overflow-hidden" style={{ borderRadius: "inherit" }}>
-      {/* Image with vertical clip-path wipe reveal */}
-      <motion.div
-        className="absolute inset-0"
-        initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
-        animate={{ clipPath: "inset(0% 0 0 0)" }}
-        transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
-      >
-        <Image
-          src="/images/portrait.jpeg"
-          alt="Illustrated portrait of Ajas Mohammed"
-          fill
-          sizes="(max-width: 1024px) 100vw, 34vw"
-          priority
-          className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
-        />
-      </motion.div>
-      {/* Top fade so the chrome overlay text stays legible */}
+    <div
+      ref={containerRef}
+      onPointerMove={handleMove}
+      onPointerLeave={handleLeave}
+      className="relative h-full w-full"
+      style={{ borderRadius: "inherit", perspective: 900 }}
+    >
+      {/* Mobile + tablet: single portrait image with the wipe reveal.
+          The desktop card shape (tall + narrow) lets the foreground spill
+          above and below the card; the tablet shape (wide + short) and
+          mobile shape (very small) don't have that geometry, so we fall
+          back to the original single-image treatment. */}
       <div
-        className="absolute inset-x-0 top-0 h-[22%] pointer-events-none"
-        style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32), transparent)" }}
-      />
-      <div className="absolute left-3 right-3 bottom-3 hidden lg:flex items-end justify-between gap-2 text-cream">
+        className="absolute inset-0 overflow-hidden lg:hidden"
+        style={{ borderRadius: "inherit" }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
+          animate={{ clipPath: "inset(0% 0 0 0)" }}
+          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+        >
+          <Image
+            src="/images/portrait.jpeg"
+            alt="Illustrated portrait of Ajas Mohammed"
+            fill
+            sizes="(max-width: 1279px) 100vw, 34vw"
+            priority
+            className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
+          />
+        </motion.div>
+        <div
+          className="absolute inset-x-0 top-0 h-[22%] pointer-events-none"
+          style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32), transparent)" }}
+        />
+      </div>
+
+      {/* Desktop: layered background, clipped to the card shape */}
+      <div
+        className="absolute inset-0 overflow-hidden hidden lg:block"
+        style={{ borderRadius: "inherit" }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
+          animate={{ clipPath: "inset(0% 0 0 0)" }}
+          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+        >
+          <motion.div
+            className="absolute -inset-[6%]"
+            style={{ x: bgX, y: bgY, willChange: "transform" }}
+          >
+            <Image
+              src="/images/background.png"
+              alt=""
+              aria-hidden
+              fill
+              sizes="34vw"
+              priority
+              className="object-cover object-center scale-110 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+            />
+          </motion.div>
+        </motion.div>
+        {/* Top fade so the chrome overlay text stays legible */}
+        <div
+          className="absolute inset-x-0 top-0 h-[22%] pointer-events-none"
+          style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32), transparent)" }}
+        />
+      </div>
+
+      {/* Desktop: foreground escapes the card top, clipped at the card bottom.
+          Outer holds parallax transforms; inner clips so anything pushed
+          below the card edge is hidden. */}
+      <motion.div
+        className="absolute pointer-events-none hidden lg:block"
+        style={{
+          left: "-18%",
+          right: "-18%",
+          bottom: 0,
+          height: "138%",
+          x: fgX,
+          y: fgY,
+          rotateX: fgRotX,
+          rotateY: fgRotY,
+          transformPerspective: 900,
+          transformOrigin: "50% 100%",
+          willChange: "transform",
+          zIndex: 3,
+        }}
+      >
+        <motion.div
+          className="absolute inset-0 overflow-hidden"
+          initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
+          animate={{ clipPath: "inset(0 0 0 0)" }}
+          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{ transform: "translateY(14%)" }}
+          >
+            <Image
+              src="/images/foreground-2.png"
+              alt="Illustrated portrait of Ajas Mohammed"
+              fill
+              sizes="40vw"
+              priority
+              className="object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              style={{ transformOrigin: "50% 100%" }}
+            />
+          </div>
+        </motion.div>
+      </motion.div>
+      <div
+        className="absolute left-3 right-3 bottom-3 hidden lg:flex compact:hidden items-end justify-between gap-2 text-cream"
+        style={{ zIndex: 4 }}
+      >
         <div className="min-w-0">
           <p className="t-display text-[clamp(18px,1.8vw,30px)] leading-none overflow-hidden flex flex-col py-2">
             <SplitText delay={CONTENT_BASE_DELAY + 0.8}>Ajas</SplitText>
