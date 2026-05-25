@@ -14,7 +14,7 @@ async function handle(request: Request) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
   }
-  revalidateTag(TESTIMONIALS_CACHE_TAG);
+  revalidateTag(TESTIMONIALS_CACHE_TAG, { expire: 0 });
   revalidatePath("/");
   return NextResponse.json({
     ok: true,
