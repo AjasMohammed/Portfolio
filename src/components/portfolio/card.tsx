@@ -21,10 +21,16 @@ export function surfaceStyles(v: Variant) {
   return { bg: "var(--orange-deep)", fg: "var(--cream)" };
 }
 
-/* Shared transition for the layout (expand/collapse) animation. Keeping this
-   short and using a single ease keeps the FLIP work on the GPU and gives the
-   browser room to schedule paint of the new content right after. */
-const LAYOUT_TRANSITION = { duration: 0.42, ease } as const;
+/* Shared transition for the layout (expand/collapse) animation. We force a
+   tween (the framer-motion default for `layoutId` is a spring, which snaps in
+   too quickly when FLIPping from a small tile to fullscreen) and use a soft
+   ease-out curve so the size/position interpolation reads as a deliberate
+   reveal rather than a teleport. */
+const LAYOUT_TRANSITION = {
+  type: "tween",
+  duration: 0.55,
+  ease,
+} as const;
 
 export function BentoCard({
   id,
@@ -53,7 +59,12 @@ export function BentoCard({
   const otherOpen = expanded !== null && expanded !== id;
   const surface = surfaceStyles(variant);
   const interactive = !otherOpen && !isHidden;
-  const allowBleed = overflowBleed && !otherOpen;
+  // Bleed lets the portrait card's foreground escape above the tile. We only
+  // want that while the tile is in its resting bento position — once it's the
+  // source of an expand animation (isHidden) we must clip, or the foreground
+  // (which lives outside the card's box) stays visible above the section
+  // while the ExpandedCard FLIPs over.
+  const allowBleed = overflowBleed && !otherOpen && !isHidden;
 
   // Hover lift is enabled per-card for tiles where it reads well. We keep the
   // transform (scale + y) on framer-motion `whileHover` because Framer writes
