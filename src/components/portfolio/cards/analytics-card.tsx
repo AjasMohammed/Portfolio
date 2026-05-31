@@ -1114,7 +1114,6 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                 data={langPct}
                 size={120}
                 centerLabel={langPct.length}
-                centerSublabel="langs"
               />
             </div>
             <ul className="flex flex-col gap-1.5 min-w-0 flex-1">

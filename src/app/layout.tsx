@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
 import {
-  Archivo,
-  Archivo_Black,
+  Hanken_Grotesk,
   Instrument_Serif,
   JetBrains_Mono,
 } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-});
-
-const archivoBlack = Archivo_Black({
-  variable: "--font-archivo-black",
-  weight: "400",
+// Primary reading/UI face — warm, highly legible humanist grotesque.
+// Loaded as a variable font so the full weight axis (regular → bold) is
+// available for body copy, labels, and emphasis without extra requests.
+const hankenGrotesk = Hanken_Grotesk({
+  variable: "--font-hanken",
   subsets: ["latin"],
 });
 
@@ -45,14 +41,6 @@ const roketto = localFont({
   display: "swap",
   src: [
     { path: "../../public/fonts/roketto/Roketto.woff2", weight: "400", style: "normal" },
-  ],
-});
-
-const francy = localFont({
-  variable: "--font-francy",
-  display: "swap",
-  src: [
-    { path: "../../public/fonts/francy/Francy.woff2", weight: "400", style: "normal" },
   ],
 });
 
@@ -106,7 +94,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivo.variable} ${archivoBlack.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${gunterz.variable} ${roketto.variable} ${francy.variable} h-full antialiased`}
+      className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${gunterz.variable} ${roketto.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">{children}</body>
     </html>

@@ -74,7 +74,7 @@ export function BioCollapsed() {
               <br />
               <SplitText
                 className="t-serif"
-                style={{ color: "var(--orange)", fontStyle: "italic" }}
+                style={{ color: "var(--orange)", fontStyle: "italic", fontSize: "clamp(18px, 2.4vw, 40px)", paddingBlock: "clamp(4px, 0.5svh, 8px)", display: "block" }}
                 delay={CONTENT_BASE_DELAY + 0.7}
               >
                 Quietly built.
@@ -351,7 +351,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
             className="max-w-prose"
             style={{
               opacity: 0.9,
-              fontFamily: "var(--font-francy), serif",
+              fontFamily: "var(--font-hanken), system-ui, sans-serif",
               fontSize: "clamp(13px,3.4vw,20px)",
               lineHeight: 1.55,
               letterSpacing: "0.035em",
@@ -403,7 +403,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
               className="max-w-prose"
               style={{
                 opacity: 0.8,
-                fontFamily: "var(--font-francy), serif",
+                fontFamily: "var(--font-hanken), system-ui, sans-serif",
                 fontSize: "clamp(11px,2.4vw,14px)",
                 lineHeight: 1.45,
                 letterSpacing: "0.025em",
@@ -456,7 +456,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   className="truncate"
                   style={{
                     color: "var(--orange)",
-                    fontFamily: "var(--font-francy), serif",
+                    fontFamily: "var(--font-hanken), system-ui, sans-serif",
                     letterSpacing: "0.04em",
                     lineHeight: 0.92,
                     fontSize: "clamp(11px,2.8vw,15px)",
@@ -497,7 +497,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   className="truncate"
                   style={{
                     color: "var(--orange)",
-                    fontFamily: "var(--font-francy), serif",
+                    fontFamily: "var(--font-hanken), system-ui, sans-serif",
                     letterSpacing: "0.04em",
                     lineHeight: 0.92,
                     fontSize: "clamp(11px,2.8vw,15px)",

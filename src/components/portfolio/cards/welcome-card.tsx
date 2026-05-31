@@ -198,15 +198,16 @@ export function WelcomeCollapsed({
           </p>
 
           <p
-            className="t-display"
+            className="t-body"
             style={{
-              fontSize: "clamp(13px,1.4vw,22px)",
-              lineHeight: 1.3,
-              letterSpacing: "-0.005em",
+              fontSize: "clamp(14px,1.5vw,22px)",
+              fontWeight: 500,
+              lineHeight: 1.45,
+              letterSpacing: 0,
               borderLeft: "1px solid rgba(192,68,15,0.22)",
               marginLeft: "0.35em",
               paddingLeft: "0.85em",
-              minHeight: "calc(1.3em * 3)",
+              minHeight: "calc(1.45em * 3)",
             }}
           >
             <TypingTitle
@@ -358,11 +359,12 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
 
       {/* Middle — typed title */}
       <p
-        className="t-display flex-1 min-h-0 flex items-center"
+        className="t-body flex-1 min-h-0 flex items-center"
         style={{
-          fontSize: "clamp(13px,3.6vw,17px)",
-          lineHeight: 1.3,
-          letterSpacing: "-0.005em",
+          fontSize: "clamp(14px,3.8vw,18px)",
+          fontWeight: 500,
+          lineHeight: 1.4,
+          letterSpacing: 0,
         }}
       >
         <span style={{ display: "inline-block" }}>

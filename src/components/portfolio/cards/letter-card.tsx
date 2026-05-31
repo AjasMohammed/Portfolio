@@ -348,19 +348,7 @@ export function LetterExpanded() {
                             </span>
                         </p>
                         <p className="pl-[clamp(16px,4vw,40px)]">
-                            <span
-                                className="t-display"
-                                style={{
-                                    fontSize: "clamp(18px,1.9vw,28px)",
-                                    fontWeight: 400,
-                                    letterSpacing: "-0.01em",
-                                    lineHeight: 1,
-                                    marginRight: "0.18em",
-                                    textTransform: "none",
-                                }}
-                            >
-                                On
-                            </span>{" "}
+                            On
                             the kind of afternoon where the clouds take their
                             time. I figured a note might feel friendlier than a
                             list of bullet points — so here&apos;s something a

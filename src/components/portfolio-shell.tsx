@@ -18,6 +18,7 @@ import {
 } from "@/components/portfolio/constants";
 import type { CardId } from "@/components/portfolio/types";
 import { SplitText } from "@/components/portfolio/split-text";
+import { BootBar } from "@/components/portfolio/boot-bar";
 import { BackgroundField } from "@/components/portfolio/background-field";
 import { BentoCard, ExpandedCard } from "@/components/portfolio/card";
 import { ImageInner } from "@/components/portfolio/cards/image-card";
@@ -320,7 +321,7 @@ export function PortfolioShell({
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease } }}
-          className="fixed inset-0 z-[100] grain flex items-center justify-center"
+          className="fixed inset-0 z-100 grain flex items-center justify-center"
           style={{ background: "var(--ink)", color: "var(--cream)" }}
         >
           <div className="flex flex-col items-center gap-4 text-center">
@@ -332,17 +333,12 @@ export function PortfolioShell({
               Ajas Mohammed
             </SplitText>
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, ease, delay: 0.55 }}
-              style={{
-                height: 1,
-                width: "clamp(60px,6vw,90px)",
-                background: "var(--cream)",
-                transformOrigin: "center",
-                opacity: 0.45,
-              }}
-            />
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease, delay: 0.45 }}
+            >
+              <BootBar />
+            </motion.div>
             <motion.span
               className="t-mono-xs"
               style={{ letterSpacing: "0.22em" }}
@@ -350,7 +346,7 @@ export function PortfolioShell({
               animate={{ opacity: 0.7, y: 0 }}
               transition={{ duration: 0.6, ease, delay: 0.65 }}
             >
-              software developer
+              booting · software developer
             </motion.span>
           </div>
         </motion.div>
