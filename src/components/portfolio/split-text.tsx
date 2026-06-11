@@ -118,15 +118,14 @@ export function SplitText({
   }, [reduce, children, delay, duration, stagger, triggerKey]);
 
   return (
-    <Tag className={className} style={style}>
-      <span ref={rootRef} key={triggerKey} className="inline">
+    <Tag className={className} style={style} aria-label={children}>
+      {/* Visual tree is per-character spans — hide it from AT so the
+          aria-label above is the single, unfragmented accessible name. */}
+      <span ref={rootRef} key={triggerKey} className="inline" aria-hidden>
         {words.map((w, wi) => {
           if (/^\s+$/.test(w)) return <span key={`s-${wi}`}>{w}</span>;
           return (
-            <span
-              key={`w-${wi}`}
-              className="split-line inline-block align-baseline"
-            >
+            <span key={`w-${wi}`} className="split-line">
               {[...w].map((ch, ci) => (
                 <span
                   key={`c-${wi}-${ci}`}

@@ -13,6 +13,7 @@ import {
 } from "../constants";
 import { SplitText } from "../split-text";
 import { SocialIcon } from "../social-icon";
+import { Magnetic } from "../magnetic";
 import { innerPadding } from "../card";
 import { contactIcons } from "./bio-card";
 
@@ -201,7 +202,7 @@ export function SocialCard({
                         ease,
                         delay: CONTENT_BASE_DELAY + 0.45 + i * 0.08,
                     }}
-                    className="group relative flex flex-col items-center justify-center aspect-square overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
+                    className="group relative flex aspect-square overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
                     style={{
                         width: "100%",
                         maxHeight: "100%",
@@ -210,20 +211,26 @@ export function SocialCard({
                         borderRadius: RADIUS,
                         minWidth: 0,
                         padding: "clamp(6px, 0.6svh, 12px) clamp(4px, 0.5vw, 10px)",
-                        gap: "clamp(3px, 0.4svh, 6px)",
                     }}
                 >
-                    <SocialIcon name={c.name} size={20} />
-                    <span
-                        className="t-mono-xs truncate w-full text-center compact:hidden"
-                        style={{
-                            fontSize: "clamp(9px, 0.7vw, 12px)",
-                            letterSpacing: "0.12em",
-                            opacity: 0.75,
-                        }}
+                    {/* Magnetic inner — the icon + label lean toward the cursor
+                        while the tile itself stays put. */}
+                    <Magnetic
+                        className="flex w-full flex-col items-center justify-center min-w-0"
+                        style={{ gap: "clamp(3px, 0.4svh, 6px)" }}
                     >
-                        {c.label}
-                    </span>
+                        <SocialIcon name={c.name} size={20} />
+                        <span
+                            className="t-mono-xs truncate w-full text-center compact:hidden"
+                            style={{
+                                fontSize: "clamp(9px, 0.7vw, 12px)",
+                                letterSpacing: "0.12em",
+                                opacity: 0.75,
+                            }}
+                        >
+                            {c.label}
+                        </span>
+                    </Magnetic>
                 </motion.a>
                 ))}
             </div>

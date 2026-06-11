@@ -218,8 +218,12 @@ export async function getGithubContributions(
     }
   }
 
+  // The calendar's last cell is *today* — an empty today shouldn't zero the
+  // streak before the day is over, so skip it and count back from yesterday.
   let currentStreak = 0;
-  for (let i = flat.length - 1; i >= 0; i--) {
+  let start = flat.length - 1;
+  if (start >= 0 && flat[start].count === 0) start--;
+  for (let i = start; i >= 0; i--) {
     if (flat[i].count > 0) currentStreak++;
     else break;
   }
@@ -242,10 +246,26 @@ function isHiddenRepo(repo: GithubRepo): boolean {
   return HIDDEN_REPO_SLUGS.has(repo.full_name.toLowerCase());
 }
 
+// Follow pagination so stars/languages/year histograms stay correct past 100
+// repos. Capped at 3 pages — far above the current account size, while still
+// bounding the request volume per revalidation.
+async function getAllRepos(username: string): Promise<GithubRepo[] | null> {
+  const all: GithubRepo[] = [];
+  for (let page = 1; page <= 3; page++) {
+    const batch = await gh<GithubRepo[]>(
+      `/users/${username}/repos?per_page=100&sort=updated&page=${page}`,
+    );
+    if (!batch) return page === 1 ? null : all;
+    all.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return all;
+}
+
 export async function getGithubData(username: string): Promise<GithubData> {
   const [rawUser, repos, profileReadme, contributions] = await Promise.all([
     gh<GithubUser>(`/users/${username}`),
-    gh<GithubRepo[]>(`/users/${username}/repos?per_page=100&sort=updated`),
+    getAllRepos(username),
     ghRaw(`/repos/${username}/${username}/readme`),
     getGithubContributions(username),
   ]);

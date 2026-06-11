@@ -6,7 +6,7 @@ const LOG_CAP = 1000;
 
 let cached: Redis | null | undefined;
 
-function getRedis(): Redis | null {
+export function getRedis(): Redis | null {
   if (cached !== undefined) return cached;
   const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
   const token =

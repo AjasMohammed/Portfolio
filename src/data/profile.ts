@@ -50,7 +50,7 @@ export const certificates: CertificateItem[] = [
 
 export const profile = {
   name: "Ajas Mohammed",
-  role: "Python Developer",
+  role: "Software Developer",
   location: "Kochi, India",
   email: "ajasmohammed09@gmail.com",
   phone: "+919567987785",

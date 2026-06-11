@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { Contributions } from "@/lib/github";
 import { ease, CONTENT_BASE_DELAY } from "./constants";
@@ -41,20 +46,34 @@ export function ContributionHeatmap({
 }) {
   const reduce = useReducedMotion();
   const [hovered, setHovered] = useState<{
-    week: number;
-    day: number;
     date: string;
     count: number;
   } | null>(null);
-  const [tip, setTip] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const wrapRef = useRef<HTMLDivElement>(null);
+  // Tooltip position is written straight to the DOM — routing mousemove
+  // through setState re-rendered the whole ~370-cell grid on every frame.
+  const posRef = useRef({ x: 0, y: 0 });
+  const tipRef = useRef<HTMLDivElement | null>(null);
+
+  const applyTip = () => {
+    const el = tipRef.current;
+    if (!el) return;
+    el.style.left = `${posRef.current.x}px`;
+    el.style.top = `${posRef.current.y}px`;
+  };
 
   const handleMove = (e: ReactMouseEvent<HTMLDivElement>) => {
     const el = wrapRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setTip({ x: e.clientX - r.left, y: e.clientY - r.top });
+    posRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    applyTip();
   };
+
+  const totalContributions = contributions.weeks.reduce(
+    (sum, week) => sum + week.reduce((s, d) => s + (d?.count ?? 0), 0),
+    0,
+  );
 
   const monthLabels: { idx: number; label: string }[] = [];
   let lastMonth = -1;
@@ -82,6 +101,8 @@ export function ContributionHeatmap({
       ref={wrapRef}
       className={`relative ${className ?? ""}`}
       style={{ paddingLeft: labelGutter, paddingTop: monthGutter }}
+      role="img"
+      aria-label={`GitHub contribution heatmap: ${totalContributions} contributions in the last year`}
     >
       {showLabels && (
         <>
@@ -132,79 +153,87 @@ export function ContributionHeatmap({
         </>
       )}
 
-      <div
-        className="grid"
-        style={{
-          gridAutoFlow: "column",
-          gridTemplateRows: `repeat(7, ${cellSize}px)`,
-          gridAutoColumns: `${cellSize}px`,
-          gap,
-        }}
-        onMouseMove={handleMove}
-        onMouseLeave={() => setHovered(null)}
-      >
-        {contributions.weeks.map((week, wi) =>
-          Array.from({ length: 7 }).map((_, di) => {
-            const day = week[di];
-            if (!day) {
-              return (
-                <span
-                  key={`${wi}-${di}-empty`}
-                  style={{
-                    width: cellSize,
-                    height: cellSize,
-                    background: "transparent",
-                  }}
-                />
-              );
-            }
-            const isHovered =
-              hovered?.week === wi && hovered?.day === di;
-            return (
-              <motion.span
-                key={day.date}
-                initial={reduce ? false : { opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  duration: 0.3,
-                  ease,
-                  delay:
-                    CONTENT_BASE_DELAY +
-                    0.2 +
-                    Math.min(0.9, (wi / contributions.weeks.length) * 0.9),
-                }}
-                onMouseEnter={() =>
-                  setHovered({ week: wi, day: di, date: day.date, count: day.count })
+      {/* Memoized — hover only changes tooltip content, so the cell grid
+          (~370 motion spans) must not re-render with it. */}
+      {useMemo(
+        () => (
+          <div
+            className="grid"
+            style={{
+              gridAutoFlow: "column",
+              gridTemplateRows: `repeat(7, ${cellSize}px)`,
+              gridAutoColumns: `${cellSize}px`,
+              gap,
+            }}
+            onMouseMove={handleMove}
+            onMouseLeave={() => setHovered(null)}
+          >
+            {contributions.weeks.map((week, wi) =>
+              Array.from({ length: 7 }).map((_, di) => {
+                const day = week[di];
+                if (!day) {
+                  return (
+                    <span
+                      key={`${wi}-${di}-empty`}
+                      style={{
+                        width: cellSize,
+                        height: cellSize,
+                        background: "transparent",
+                      }}
+                    />
+                  );
                 }
-                style={{
-                  width: cellSize,
-                  height: cellSize,
-                  borderRadius: 2,
-                  background: LEVEL_COLORS[day.level],
-                  outline: isHovered
-                    ? "1px solid rgba(192,68,15,0.85)"
-                    : "1px solid rgba(192,68,15,0.08)",
-                  outlineOffset: 0,
-                  cursor: "default",
-                }}
-              />
-            );
-          }),
-        )}
-      </div>
+                return (
+                  <motion.span
+                    key={day.date}
+                    className="heat-cell"
+                    initial={reduce ? false : { opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      duration: 0.3,
+                      ease,
+                      delay:
+                        CONTENT_BASE_DELAY +
+                        0.2 +
+                        Math.min(0.9, (wi / contributions.weeks.length) * 0.9),
+                    }}
+                    onMouseEnter={() =>
+                      setHovered({ date: day.date, count: day.count })
+                    }
+                    style={{
+                      width: cellSize,
+                      height: cellSize,
+                      borderRadius: 2,
+                      background: LEVEL_COLORS[day.level],
+                      cursor: "default",
+                    }}
+                  />
+                );
+              }),
+            )}
+          </div>
+        ),
+        // handleMove and setHovered only touch refs/stable setters.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [contributions.weeks, cellSize, gap, reduce],
+      )}
 
       <AnimatePresence>
         {hovered && (
           <motion.div
-            key={`${hovered.date}-tip`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
+            key="tip"
+            ref={(el: HTMLDivElement | null) => {
+              tipRef.current = el;
+              applyTip();
+            }}
+            // Opacity only — animating `y` would hand `transform` to
+            // framer-motion and discard the centering translate below.
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.15, ease }}
             className="t-mono pointer-events-none absolute z-10 whitespace-nowrap"
             style={{
-              left: tip.x,
-              top: tip.y,
               transform: "translate(-50%, calc(-100% - 10px))",
               fontSize: 11,
               color: "var(--cream)",

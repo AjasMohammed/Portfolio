@@ -40,7 +40,11 @@ export function PortfolioShell({
 }) {
   const [expanded, setExpanded] = useState<CardId | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(true);
+  // null = not yet measured (SSR / pre-hydration) — both welcome variants
+  // render and CSS arbitrates; once known, only one mounts so the hidden
+  // copy's typing timers don't run forever.
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  const [visitCount, setVisitCount] = useState(visits);
   const reduce = useReducedMotion();
   const perfTier = usePerfTier();
   const lite = perfTier === "low";
@@ -54,7 +58,14 @@ export function PortfolioShell({
   }, [expanded]);
 
   useEffect(() => {
-    const t = setTimeout(() => setIsLoaded(true), reduce ? 0 : 1200);
+    // The boot screen is a one-time hello — repeat navigations in the same
+    // session skip straight to the grid.
+    let booted = false;
+    try {
+      booted = sessionStorage.getItem("booted") === "1";
+      sessionStorage.setItem("booted", "1");
+    } catch {}
+    const t = setTimeout(() => setIsLoaded(true), reduce || booted ? 0 : 1200);
     return () => clearTimeout(t);
   }, [reduce]);
 
@@ -100,7 +111,14 @@ export function PortfolioShell({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(meta),
       keepalive: true,
-    }).catch(() => {});
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((j: { count?: number } | null) => {
+        // The server-rendered count is up to a minute stale and predates this
+        // visit — the POST response is the number that actually includes it.
+        if (typeof j?.count === "number") setVisitCount(j.count);
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -165,23 +183,34 @@ export function PortfolioShell({
               variant="image"
               bleed
               overflowBleed
+              entered={isLoaded}
+              enterDelay={0.07}
               className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-5 lg:col-end-7 lg:row-start-1 lg:row-end-4"
             >
               <ImageInner />
             </BentoCard>
 
             {/* WELCOME (compact) — mobile + tablet (top-left). Replaces ring chart spot. */}
-            <div
-              className="hidden max-[1279px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 lg:hidden relative overflow-hidden"
-              style={{
-                borderRadius: RADIUS,
-                background: "var(--cream)",
-                color: "var(--orange-deep)",
-                padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
-              }}
-            >
-              <WelcomeCollapsed compact visits={visits} />
-            </div>
+            {isDesktop !== true && (
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 16, scale: 0.98 }}
+                animate={
+                  isLoaded || reduce
+                    ? { opacity: 1, y: 0, scale: 1 }
+                    : { opacity: 0, y: 16, scale: 0.98 }
+                }
+                transition={{ duration: 0.55, ease }}
+                className="hidden max-[1279px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 lg:hidden relative overflow-hidden"
+                style={{
+                  borderRadius: RADIUS,
+                  background: "var(--cream)",
+                  color: "var(--orange-deep)",
+                  padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
+                }}
+              >
+                <WelcomeCollapsed compact visits={visitCount} />
+              </motion.div>
+            )}
 
             {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
             <BentoCard
@@ -189,24 +218,35 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
+              entered={isLoaded}
+              enterDelay={0.14}
               className="col-start-1 col-end-6 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-7 lg:col-end-13 lg:row-start-1 lg:row-end-4"
             >
               <BioCollapsed />
             </BentoCard>
 
             {/* WELCOME — desktop top-left hero (where the note used to live) */}
-            <div
-              className="hidden lg:block lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
-              style={{
-                borderRadius: RADIUS,
-                background: "var(--cream)",
-                color: "var(--orange-deep)",
-                padding:
-                  "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
-              }}
-            >
-              <WelcomeCollapsed visits={visits} />
-            </div>
+            {isDesktop !== false && (
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 16, scale: 0.98 }}
+                animate={
+                  isLoaded || reduce
+                    ? { opacity: 1, y: 0, scale: 1 }
+                    : { opacity: 0, y: 16, scale: 0.98 }
+                }
+                transition={{ duration: 0.55, ease }}
+                className="hidden lg:block lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
+                style={{
+                  borderRadius: RADIUS,
+                  background: "var(--cream)",
+                  color: "var(--orange-deep)",
+                  padding:
+                    "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
+                }}
+              >
+                <WelcomeCollapsed visits={visitCount} />
+              </motion.div>
+            )}
 
             {/* LETTER — desktop: small square below the review (testimonials) card */}
             <BentoCard
@@ -214,6 +254,8 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="sky"
+              entered={isLoaded}
+              enterDelay={0.32}
               className="hidden lg:block lg:col-start-1 lg:col-end-2 lg:row-start-6 lg:row-end-7 lg:place-self-start lg:w-3/5 lg:max-h-full lg:aspect-square"
             >
               <LetterCollapsed compact />
@@ -237,6 +279,8 @@ export function PortfolioShell({
                 onOpen={setExpanded}
                 variant="sky"
                 layoutKey="card-letter-mobile"
+                entered={isLoaded}
+                enterDelay={0.28}
               >
                 <LetterCollapsed />
               </BentoCard>
@@ -249,6 +293,8 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
+              entered={isLoaded}
+              enterDelay={0.28}
               className="col-start-6 col-end-11 row-start-3 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <AnalyticsCollapsed github={github} />
@@ -260,6 +306,8 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
+              entered={isLoaded}
+              enterDelay={0.21}
               className="col-start-1 col-end-6 row-start-4 row-end-6 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-6 max-[463px]:row-end-7 lg:col-start-1 lg:col-end-5 lg:row-start-4 lg:row-end-6"
             >
               <TestimonialsCollapsed items={testimonials} />
@@ -292,7 +340,7 @@ export function PortfolioShell({
                   testimonials={testimonials}
                   onClose={() => setExpanded(null)}
                   layoutKey={
-                    expanded === "letter" && !isDesktop
+                    expanded === "letter" && isDesktop === false
                       ? "card-letter-mobile"
                       : undefined
                   }

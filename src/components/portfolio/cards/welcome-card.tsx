@@ -57,16 +57,13 @@ function TypingTitle({
   speed?: number;
 }) {
   const reduce = useReducedMotion();
-  const [count, setCount] = useState(reduce ? text.length : 0);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (reduce) {
-      setCount(text.length);
-      return;
-    }
-    setCount(0);
+    if (reduce) return;
     let interval: ReturnType<typeof setInterval> | undefined;
     const start = window.setTimeout(() => {
+      setCount(0);
       interval = setInterval(() => {
         setCount((prev) => {
           if (prev >= text.length) {
@@ -84,11 +81,14 @@ function TypingTitle({
     };
   }, [text, startDelay, speed, reduce]);
 
-  const done = count >= text.length;
+  // Reduced motion renders the full line immediately — derived, not set in
+  // the effect, so typing state never flows through an extra render pass.
+  const shown = reduce ? text.length : count;
+  const done = shown >= text.length;
 
   return (
     <>
-      {text.slice(0, count)}
+      {text.slice(0, shown)}
       <span
         aria-hidden
         className={`typing-caret${done ? " typing-caret--blink" : ""}`}
@@ -194,7 +194,7 @@ export function WelcomeCollapsed({
               opacity: 0.5,
             }}
           >
-            /**
+            {"/**"}
           </p>
 
           <p
@@ -348,7 +348,7 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
             opacity: 0.7,
           }}
         >
-          // welcome.md
+          {"// welcome.md"}
         </p>
         <span className="flex items-center gap-0.75">
           <Dot color={ACCENT} />

@@ -159,6 +159,15 @@ body {
   position: relative;
 }
 
+/* Heatmap cell hover ring — CSS-only so hovering never re-renders the grid */
+.heat-cell {
+  outline: 1px solid rgba(192, 68, 15, 0.08);
+  outline-offset: 0;
+}
+.heat-cell:hover {
+  outline-color: rgba(192, 68, 15, 0.85);
+}
+
 /* Styled scrollbar — thin, cream thumb on transparent track */
 .scrollbar-styled {
   scrollbar-width: thin;
@@ -218,8 +227,18 @@ body {
   animation: marquee 28s linear infinite;
   will-change: transform;
 }
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
 
-/* SplitText container — clips each line so chars can slide in */
+/* SplitText word cell — block on purpose: headlines stack one word per line
+   (the poster look used across every card). Overflow clip keeps decode
+   glyphs from poking outside the cell. */
 .split-line {
   display: block;
   overflow: hidden;

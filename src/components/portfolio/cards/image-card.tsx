@@ -80,7 +80,10 @@ export function ImageInner() {
             src="/images/portrait.jpeg"
             alt="Illustrated portrait of Ajas Mohammed"
             fill
-            sizes="(max-width: 1279px) 100vw, 34vw"
+            // This variant is lg:hidden — on desktop viewports resolve it to a
+            // 16px source so the (still-issued) request costs ~1KB, not the
+            // full-size image. Mirrors the `lg` custom variant in globals.css.
+            sizes="(min-width: 1280px) 16px, (min-width: 1024px) and (max-height: 800px) 16px, 100vw"
             priority
             className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
           />
@@ -111,7 +114,9 @@ export function ImageInner() {
               alt=""
               aria-hidden
               fill
-              sizes="34vw"
+              // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
+              // stub instead of the full PNG.
+              sizes="(min-width: 1280px) 34vw, (min-width: 1024px) and (max-height: 800px) 34vw, 16px"
               priority
               className="object-cover object-center scale-110 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             />
@@ -158,7 +163,9 @@ export function ImageInner() {
               src="/images/foreground-2.png"
               alt="Illustrated portrait of Ajas Mohammed"
               fill
-              sizes="40vw"
+              // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
+              // stub instead of the full PNG.
+              sizes="(min-width: 1280px) 40vw, (min-width: 1024px) and (max-height: 800px) 40vw, 16px"
               priority
               className="object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               style={{ transformOrigin: "50% 100%" }}

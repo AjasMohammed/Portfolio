@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { logVisit } from "@/lib/visits";
+import { getVisitCount, logVisit } from "@/lib/visits";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -49,6 +50,20 @@ function decodeIfEncoded(v: string | undefined): string | undefined {
 }
 
 export async function POST(request: Request) {
+  // Local dev shares the production Redis via .env — read the counter but
+  // don't inflate it. Set VISITS_LOG_IN_DEV=1 to test the write path.
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.VISITS_LOG_IN_DEV !== "1"
+  ) {
+    const count = await getVisitCount();
+    return NextResponse.json({ ok: true, count: count ?? 0, dev: true });
+  }
+
+  if (!(await rateLimit("visit", clientIp(request), 10, 60))) {
+    return NextResponse.json({ error: "too many requests" }, { status: 429 });
+  }
+
   let client: ClientMeta = {};
   try {
     client = (await request.json()) as ClientMeta;

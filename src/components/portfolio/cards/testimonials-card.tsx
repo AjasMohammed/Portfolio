@@ -14,18 +14,27 @@ const ROTATE_MS = 7000;
 export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
   const hasItems = items.length > 0;
 
+  // Reduced-motion users get a static quote (WCAG 2.2.2); everyone else can
+  // pause the rotation by hovering or focusing the tile.
   useEffect(() => {
-    if (!hasItems || items.length === 1) return;
+    if (!hasItems || items.length === 1 || reduce || paused) return;
     const t = setInterval(() => setIdx((i) => (i + 1) % items.length), ROTATE_MS);
     return () => clearInterval(t);
-  }, [hasItems, items.length]);
+  }, [hasItems, items.length, reduce, paused]);
 
   const current = hasItems ? items[idx % items.length] : null;
 
   return (
-    <div className="flex flex-col w-full h-full gap-2 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.96]">
+    <div
+      className="flex flex-col w-full h-full gap-2 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.96]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
       <div className="flex items-baseline justify-between gap-2 min-w-0 shrink-0">
         <p
           className="t-mono-xs"
@@ -290,7 +299,10 @@ function TestimonialForm() {
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    // React nulls `currentTarget` once the synchronous dispatch ends — grab the
+    // form now so it's still usable after the awaits below.
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const payload = {
       name: String(fd.get("name") ?? ""),
       role: String(fd.get("role") ?? ""),
@@ -318,7 +330,7 @@ function TestimonialForm() {
         return;
       }
       setState({ kind: "done" });
-      e.currentTarget.reset();
+      form.reset();
     } catch {
       setState({ kind: "error", msg: "network error" });
     }

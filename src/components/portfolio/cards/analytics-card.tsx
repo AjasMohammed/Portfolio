@@ -172,8 +172,18 @@ export function LanguageDonut({
   const circumference = 2 * Math.PI * radius;
   const gap = 1.5;
   const [hovered, setHovered] = useState<number | null>(null);
-  const [tip, setTip] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const wrapRef = useRef<HTMLDivElement>(null);
+  // Tooltip position goes straight to the DOM — setState per mousemove would
+  // re-render the whole ring on every frame.
+  const posRef = useRef({ x: 0, y: 0 });
+  const tipRef = useRef<HTMLDivElement | null>(null);
+
+  const applyTip = () => {
+    const el = tipRef.current;
+    if (!el) return;
+    el.style.left = `${posRef.current.x}px`;
+    el.style.top = `${posRef.current.y}px`;
+  };
 
   const segments = useMemo(
     () => buildDonutSegments(data, circumference, gap),
@@ -189,11 +199,18 @@ export function LanguageDonut({
     const el = wrapRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setTip({ x: e.clientX - r.left, y: e.clientY - r.top });
+    posRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    applyTip();
   };
 
   return (
-    <div ref={wrapRef} className="relative inline-block" style={{ width: size, height: size }}>
+    <div
+      ref={wrapRef}
+      className="relative inline-block"
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label={`Languages: ${data.map((d) => `${d.name} ${d.pct}%`).join(", ")}`}
+    >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <g transform={`rotate(-90 ${cx} ${cy})`}>
           <circle
@@ -269,14 +286,18 @@ export function LanguageDonut({
         {active && (
           <motion.div
             key="donut-tip"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
+            ref={(el: HTMLDivElement | null) => {
+              tipRef.current = el;
+              applyTip();
+            }}
+            // Opacity only — animating `y` would hand `transform` to
+            // framer-motion and discard the centering translate below.
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.15, ease }}
             className="t-mono pointer-events-none absolute z-10 whitespace-nowrap inline-flex items-center gap-1.5"
             style={{
-              left: tip.x,
-              top: tip.y,
               transform: "translate(-50%, calc(-100% - 10px))",
               fontSize: "clamp(10px,0.72vw,12px)",
               color: "var(--cream)",
@@ -320,6 +341,10 @@ export function ActivityBars({
         gridTemplateColumns: `repeat(${Math.max(1, years.length)}, minmax(0, 1fr))`,
         height: height ?? "clamp(80px,12svh,150px)",
       }}
+      role="img"
+      aria-label={`Repos created per year: ${years
+        .map((y) => `${y.year}: ${y.count}`)
+        .join(", ")}`}
     >
       {years.map((y, i) => {
         const isActive = hovered === i;
@@ -401,11 +426,14 @@ export function ActivityBars({
 }
 
 export function AnalyticsCollapsed({ github }: { github: GithubData }) {
-  const { years, joinedYear, langPct } = buildAnalytics(github);
+  const { years, joinedYear, langPct } = useMemo(
+    () => buildAnalytics(github),
+    [github],
+  );
   const yearsOnGithub = joinedYear ? new Date().getFullYear() - joinedYear : null;
   const heroYears = yearsOnGithub ?? computeExperienceYears();
   const maxYear = Math.max(1, ...years.map((y) => y.count));
-  const headline = github.ownedRepos.slice(0, 10);
+  const headline = github.ownedRepos.slice(0, 8);
   const reduce = useReducedMotion();
 
   // Mirrors the `compact:` custom-variant in globals.css. The ring chart size is a JS prop,
@@ -661,7 +689,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
             </p>
           </div>
           <ul className="flex flex-col gap-1 overflow-hidden min-h-0">
-            {headline.slice(0, 8).map((r, i) => (
+            {headline.map((r, i) => (
               <motion.li
                 key={r.id}
                 className="flex items-baseline justify-between gap-2 min-w-0"
@@ -706,7 +734,10 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
 }
 
 export function AnalyticsExpanded({ github }: { github: GithubData }) {
-  const { langPct, years, joinedYear } = buildAnalytics(github);
+  const { langPct, years, joinedYear } = useMemo(
+    () => buildAnalytics(github),
+    [github],
+  );
   const maxYear = Math.max(1, ...years.map((y) => y.count));
   const u = github.user;
   const groups = skillGroups();

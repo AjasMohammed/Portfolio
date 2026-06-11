@@ -67,13 +67,16 @@ export function RingChartCard({
   const reduce = useReducedMotion();
 
   // ── data ──────────────────────────────────────────────
-  const total =
-    github.topLanguages.reduce((n, l) => n + l.count, 0) || 1;
-  const langs = github.topLanguages.map((l) => ({
-    name: l.name,
-    count: l.count,
-    pct: (l.count / total) * 100,
-  }));
+  // Memoized so the segments useMemo below actually hits — a fresh array
+  // every render made it recompute on each hover/lock change.
+  const langs = useMemo(() => {
+    const total = github.topLanguages.reduce((n, l) => n + l.count, 0) || 1;
+    return github.topLanguages.map((l) => ({
+      name: l.name,
+      count: l.count,
+      pct: (l.count / total) * 100,
+    }));
+  }, [github.topLanguages]);
 
   // ── geometry (viewBox units) ─────────────────────────
   const VB = 160;
@@ -344,19 +347,30 @@ export function RingChartCard({
                   opacity: activeIdx !== null && !isActive ? 0.45 : 1,
                 }}
                 transition={{ duration: 0.22, ease }}
+                // 24px hit target (WCAG 2.5.8) around the 8px visual dot.
+                className="inline-flex items-center justify-center"
                 style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 999,
-                  background: s.color,
+                  width: 24,
+                  height: 24,
+                  background: "transparent",
                   border: "none",
                   padding: 0,
                   cursor: "pointer",
-                  boxShadow: isActive
-                    ? `0 0 0 3px rgba(244,235,216,0.18)`
-                    : "none",
                 }}
-              />
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 999,
+                    background: s.color,
+                    boxShadow: isActive
+                      ? `0 0 0 3px rgba(244,235,216,0.18)`
+                      : "none",
+                  }}
+                />
+              </motion.button>
             );
           })}
         </div>

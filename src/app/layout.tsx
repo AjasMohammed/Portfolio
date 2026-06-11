@@ -47,15 +47,19 @@ const roketto = localFont({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+// "Software Developer" everywhere — matches the on-page header, bio heading,
+// and current job title. "Python developer" stays in keywords/description for
+// search since that's the trade.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Ajas Mohammed — Python Developer",
+  title: "Ajas Mohammed — Software Developer",
   description:
-    "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+    "Single-screen portfolio of Ajas Mohammed — software developer writing Python that ages well: backends, APIs, and quiet interfaces.",
   applicationName: "Ajas Mohammed — Portfolio",
   authors: [{ name: "Ajas Mohammed" }],
   keywords: [
     "Ajas Mohammed",
+    "software developer",
     "Python developer",
     "backend developer",
     "Django",
@@ -68,16 +72,16 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "Ajas Mohammed",
-    title: "Ajas Mohammed — Python Developer",
+    title: "Ajas Mohammed — Software Developer",
     description:
-      "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+      "Single-screen portfolio of Ajas Mohammed — software developer writing Python that ages well: backends, APIs, and quiet interfaces.",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ajas Mohammed — Python Developer",
+    title: "Ajas Mohammed — Software Developer",
     description:
-      "Single-screen portfolio of Ajas Mohammed — Python developer building backends, APIs, and quiet interfaces.",
+      "Single-screen portfolio of Ajas Mohammed — software developer writing Python that ages well: backends, APIs, and quiet interfaces.",
   },
   robots: {
     index: true,

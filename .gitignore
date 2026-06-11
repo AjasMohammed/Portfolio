@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+# editor temp files
+*.tmp.*
 
 # debug
 npm-debug.log*
@@ -32,6 +34,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# …but the setup documentation must reach the repo
+!.env.example
 
 # vercel
 .vercel

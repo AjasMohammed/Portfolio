@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
 import { ease, RADIUS, SKY_BG } from "./constants";
@@ -43,6 +43,8 @@ export function BentoCard({
   extraStyle,
   className,
   layoutKey,
+  entered = true,
+  enterDelay = 0,
 }: {
   id: CardId;
   expanded: CardId | null;
@@ -54,11 +56,27 @@ export function BentoCard({
   extraStyle?: React.CSSProperties;
   className?: string;
   layoutKey?: string;
+  /** Flips true when the boot overlay clears — gates the entrance animation. */
+  entered?: boolean;
+  /** Per-tile stagger offset for the grid entrance. */
+  enterDelay?: number;
 }) {
   const isHidden = expanded === id;
   const otherOpen = expanded !== null && expanded !== id;
   const surface = surfaceStyles(variant);
   const interactive = !otherOpen && !isHidden;
+  const reduce = useReducedMotion();
+
+  // The entrance (rise + fade, staggered per tile) shares the `animate` prop
+  // with the dim-when-other-open state, so the stagger delay must drop to 0
+  // once the entrance has played — otherwise every dim/undim would lag by it.
+  const [enterDone, setEnterDone] = useState(reduce ?? false);
+  useEffect(() => {
+    if (!entered || enterDone) return;
+    const t = setTimeout(() => setEnterDone(true), (enterDelay + 0.6) * 1000);
+    return () => clearTimeout(t);
+  }, [entered, enterDone, enterDelay]);
+  const preEnter = { opacity: 0, y: 16, scale: 0.98 };
   // Bleed lets the portrait card's foreground escape above the tile. We only
   // want that while the tile is in its resting bento position — once it's the
   // source of an expand animation (isHidden) we must clip, or the foreground
@@ -87,9 +105,20 @@ export function BentoCard({
   return (
     <motion.div
       layoutId={layoutKey ?? `card-${id}`}
-      animate={{ opacity: otherOpen ? 0.25 : 1, scale: otherOpen ? 0.985 : 1 }}
+      initial={reduce ? false : preEnter}
+      animate={
+        entered || reduce
+          ? { opacity: otherOpen ? 0.25 : 1, scale: otherOpen ? 0.985 : 1, y: 0 }
+          : preEnter
+      }
       whileHover={hoverable ? { scale: 1.012, y: -4 } : undefined}
-      transition={{ duration: 0.32, ease, layout: LAYOUT_TRANSITION }}
+      whileTap={interactive && !reduce ? { scale: 0.988 } : undefined}
+      transition={{
+        duration: enterDone ? 0.32 : 0.55,
+        ease,
+        delay: enterDone ? 0 : enterDelay,
+        layout: LAYOUT_TRANSITION,
+      }}
       style={{
         borderRadius: RADIUS,
         background: surface.bg,
@@ -108,6 +137,10 @@ export function BentoCard({
       <button
         type="button"
         onClick={() => onOpen(id)}
+        aria-haspopup="dialog"
+        // Tiles behind an open dialog are covered by the backdrop — keep
+        // them out of the tab order too.
+        tabIndex={otherOpen ? -1 : undefined}
         className="group relative flex h-full w-full flex-col text-left outline-none cursor-pointer"
         style={{ borderRadius: "inherit" }}
       >
@@ -183,11 +216,47 @@ export function ExpandedCard({
     return () => clearTimeout(t);
   }, []);
 
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+
+  // Dialog focus management: move focus in on open (the source tile goes
+  // visibility:hidden, orphaning focus), give it back on close.
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => prev?.focus?.();
+  }, []);
+
+  // Minimal focus trap — wrap Tab/Shift+Tab at the dialog's edges.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "Tab") return;
+    const root = rootRef.current;
+    if (!root) return;
+    const focusables = root.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
     <motion.div
+      ref={rootRef}
       layoutId={layoutKey ?? `card-${id}`}
       transition={LAYOUT_TRANSITION}
       onLayoutAnimationComplete={() => setContentReady(true)}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${id} — expanded`}
+      onKeyDown={onKeyDown}
       className="absolute inset-0 z-30 overflow-hidden compact:fixed compact:z-50 compact:rounded-none!"
       style={{
         borderRadius: RADIUS,
@@ -197,10 +266,11 @@ export function ExpandedCard({
       }}
     >
       <button
+        ref={closeRef}
         type="button"
         onClick={onClose}
         aria-label="close"
-        className="absolute top-[clamp(12px,1.4svh,18px)] right-[clamp(14px,1.6vw,24px)] z-40 inline-flex items-center justify-center transition-transform duration-300 hover:scale-110"
+        className="absolute top-[clamp(12px,1.4svh,18px)] right-[clamp(14px,1.6vw,24px)] z-40 inline-flex items-center justify-center transition-transform duration-300 hover:scale-110 hover:rotate-90 active:scale-95"
         style={{
           width: "clamp(28px,2.2vw,38px)",
           height: "clamp(28px,2.2vw,38px)",
