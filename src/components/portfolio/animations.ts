@@ -6,7 +6,7 @@ export const fadeUp: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease, delay: 0.1 },
+    transition: { duration: 0.3, ease, delay: 0.05 },
   },
   exit: { opacity: 0, y: -6, transition: { duration: 0.18, ease } },
 };

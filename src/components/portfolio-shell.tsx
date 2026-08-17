@@ -65,7 +65,7 @@ export function PortfolioShell({
       booted = sessionStorage.getItem("booted") === "1";
       sessionStorage.setItem("booted", "1");
     } catch {}
-    const t = setTimeout(() => setIsLoaded(true), reduce || booted ? 0 : 1200);
+    const t = setTimeout(() => setIsLoaded(true), reduce || booted ? 0 : 600);
     return () => clearTimeout(t);
   }, [reduce]);
 
@@ -368,31 +368,31 @@ export function PortfolioShell({
           key="boot"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.5, ease } }}
+          exit={{ opacity: 0, transition: { duration: 0.35, ease } }}
           className="fixed inset-0 z-100 grain flex items-center justify-center"
           style={{ background: "var(--ink)", color: "var(--cream)" }}
         >
           <div className="flex flex-col items-center gap-4 text-center">
             <SplitText
               className="t-display text-[clamp(36px,4.5vw,64px)] leading-none"
-              delay={0.15}
-              stagger={0.035}
+              delay={0.05}
+              stagger={0.022}
             >
               Ajas Mohammed
             </SplitText>
             <motion.div
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease, delay: 0.45 }}
+              transition={{ duration: 0.4, ease, delay: 0.15 }}
             >
-              <BootBar />
+              <BootBar duration={520} />
             </motion.div>
             <motion.span
               className="t-mono-xs"
               style={{ letterSpacing: "0.22em" }}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 0.7, y: 0 }}
-              transition={{ duration: 0.6, ease, delay: 0.65 }}
+              transition={{ duration: 0.4, ease, delay: 0.25 }}
             >
               booting · software developer
             </motion.span>

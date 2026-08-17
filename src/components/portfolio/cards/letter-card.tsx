@@ -122,7 +122,6 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
                     style={{
                         fontSize: "clamp(18px, 2vw, 34px)",
                         lineHeight: 1.05,
-                        letterSpacing: "-0.01em",
                         overflowWrap: "break-word",
                     }}
                 >
@@ -315,7 +314,6 @@ export function LetterExpanded() {
                         style={{
                             fontSize: "clamp(42px,3.4vw,56px)",
                             lineHeight: 0.95,
-                            letterSpacing: "-0.01em",
                             color: LETTER_INK,
                         }}
                     >
@@ -344,8 +342,6 @@ export function LetterExpanded() {
                                 className="t-display"
                                 style={{
                                     fontSize: "clamp(22px,2.3vw,36px)",
-                                    fontWeight: 400,
-                                    letterSpacing: "-0.01em",
                                     lineHeight: 1,
                                     marginRight: "0.18em",
                                     textTransform: "none",
@@ -385,10 +381,9 @@ export function LetterExpanded() {
                         style={{ borderTop: `1px solid ${LETTER_INK_SOFT}` }}
                     >
                         <p
-                            className="t-display text-left lg:text-right"
+                            className="t-display-med text-left lg:text-right"
                             style={{
                                 fontSize: "clamp(15px,1.3vw,22px)",
-                                letterSpacing: "-0.005em",
                                 color: LETTER_INK,
                             }}
                         >

@@ -68,7 +68,7 @@ export function BioCollapsed() {
             </motion.div>
             <h1
               className="t-display min-w-0"
-              style={{ fontSize: "clamp(26px, 3.6vw, 58px)", lineHeight: 0.94, letterSpacing: "-0.01em" }}
+              style={{ fontSize: "clamp(22px, 2.8vw, 46px)", lineHeight: 0.94 }}
             >
               <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Software developer.</SplitText>
               <br />
@@ -147,9 +147,12 @@ export function BioCollapsed() {
             <h1
               className="t-display"
               style={{
-                fontSize: "clamp(20px, 3.4vw, 38px)",
+                // cqw cap: the cell is ~half the card, so a vw clamp alone
+                // wraps "developer." mid-word on tablet widths
+                fontSize: "min(clamp(20px, 3.4vw, 38px), 5.6cqw)",
                 lineHeight: 0.95,
-                letterSpacing: "-0.015em",
+                // narrow grid cell — full 125% width breaks "SOFTWARE" mid-word
+                fontStretch: "100%",
               }}
             >
               <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Software</SplitText>
@@ -323,7 +326,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
             </div>
             <h2
               className="t-display min-w-0"
-              style={{ fontSize: "clamp(22px, 6.5vw, 68px)", lineHeight: 0.92, letterSpacing: "-0.015em" }}
+              style={{ fontSize: "clamp(22px, 6.5vw, 68px)", lineHeight: 0.92 }}
             >
               <SplitText delay={0.15}>Software developer.</SplitText>
               <br />
@@ -385,10 +388,9 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   }}
                 >
                   <span
-                    className="t-display min-w-0"
+                    className="t-display-med min-w-0"
                     style={{
                       fontSize: "clamp(11px,1.35vw,15px)",
-                      letterSpacing: "-0.012em",
                       lineHeight: 1.05,
                       overflowWrap: "break-word",
                       wordBreak: "break-word",
@@ -442,7 +444,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
             {experiences.map((e) => (
               <li key={e.company}>
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="t-display truncate py-1" style={{ fontSize: "clamp(13px,3.4vw,18px)" }}>
+                  <p className="t-display-med truncate py-1" style={{ fontSize: "clamp(13px,3.4vw,18px)" }}>
                     {e.role}
                   </p>
                   <p
@@ -481,7 +483,11 @@ export function BioExpanded({ github }: { github: GithubData }) {
             {profile.education.map((e) => (
               <li key={`${e.institution}-${e.degree}`} className="min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="t-display truncate py-1" style={{ fontSize: "clamp(12px,3.2vw,17px)" }}>
+                  {/* long degree names — narrow width step + wrap instead of clipping */}
+                  <p
+                    className="t-display-med py-1"
+                    style={{ fontSize: "clamp(12px,3.2vw,15px)", fontStretch: "100%" }}
+                  >
                     {e.degree}
                   </p>
                   {e.period && (
@@ -557,7 +563,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                     </span>
                   </span>
                   <span
-                    className="t-display truncate link-line text-right"
+                    className="t-display-med truncate link-line text-right"
                     style={{ fontSize: "clamp(11px,2.8vw,16px)" }}
                   >
                     {contactValue(c.name)}

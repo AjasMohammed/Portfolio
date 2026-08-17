@@ -28,7 +28,7 @@ export function surfaceStyles(v: Variant) {
    reveal rather than a teleport. */
 const LAYOUT_TRANSITION = {
   type: "tween",
-  duration: 0.55,
+  duration: 0.42,
   ease,
 } as const;
 
@@ -161,6 +161,9 @@ export function BentoCard({
             style={{
               padding:
                 "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
+              // Size container so display headings can cap their font-size in
+              // cqw — a vw clamp can't know the card is only half the viewport.
+              containerType: "inline-size",
             }}
           >
             {children}
@@ -212,7 +215,7 @@ export function ExpandedCard({
   // source tile is off-screen and there's nothing to FLIP from), still reveal
   // the content shortly after mount so the card never appears empty.
   useEffect(() => {
-    const t = setTimeout(() => setContentReady(true), 520);
+    const t = setTimeout(() => setContentReady(true), 440);
     return () => clearTimeout(t);
   }, []);
 

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import {
+  Archivo,
   Hanken_Grotesk,
   Instrument_Serif,
   JetBrains_Mono,
 } from "next/font/google";
-import localFont from "next/font/local";
 import "./globals.css";
 
 // Primary reading/UI face — warm, highly legible humanist grotesque.
@@ -27,21 +27,15 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const gunterz = localFont({
-  variable: "--font-gunterz",
-  display: "swap",
-  src: [
-    { path: "../../public/fonts/gunterz/Gunterz-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/gunterz/Gunterz-BlackItalic.woff2", weight: "900", style: "italic" },
-  ],
-});
-
-const roketto = localFont({
-  variable: "--font-roketto",
-  display: "swap",
-  src: [
-    { path: "../../public/fonts/roketto/Roketto.woff2", weight: "400", style: "normal" },
-  ],
+// Display face — Archivo variable with the width axis. Hero/display runs
+// Black at 125% width (poster grotesque), smaller headings drop to ~112%
+// so all-caps lines stay legible at 14–20px — the reason Roketto/Gunterz
+// (single-weight display faces) were retired.
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["wdth"],
 });
 
 const siteUrl =
@@ -98,7 +92,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${gunterz.variable} ${roketto.variable} h-full antialiased`}
+      className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${archivo.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">{children}</body>
     </html>

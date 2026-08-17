@@ -2,7 +2,7 @@ export const ease = [0.22, 1, 0.36, 1] as const;
 export const RADIUS = "clamp(8px, 0.9vw, 14px)";
 export const WHATSAPP_IMG = "/images/rooftop-kochi.webp";
 
-export const CONTENT_BASE_DELAY = 1.3;
+export const CONTENT_BASE_DELAY = 0.65;
 
 export const SKY_BG = "#a8c4dc";
 

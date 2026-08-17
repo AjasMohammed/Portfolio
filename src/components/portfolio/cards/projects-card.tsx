@@ -87,7 +87,7 @@ export function ProjectsExpanded({ github }: { github: GithubData }) {
               style={{ borderTop: i === 0 ? undefined : "1px solid rgba(192,68,15,0.18)" }}
             >
               <div className="flex items-baseline justify-between gap-3">
-                <p className="t-display text-[clamp(16px,1.5vw,24px)] truncate">{p.name}</p>
+                <p className="t-display-med text-[clamp(16px,1.5vw,24px)] truncate">{p.name}</p>
                 <p className="t-mono-xs opacity-60 shrink-0">{p.context.split(",")[0]}</p>
               </div>
               <p className="t-serif text-[clamp(12px,0.9vw,15px)] line-clamp-2" style={{ color: "var(--orange)" }}>
@@ -144,7 +144,7 @@ export function RepoTile({ repo }: { repo: GithubRepo }) {
         }}
       >
         <div className="flex items-baseline justify-between gap-2 min-w-0">
-          <p className="t-display text-[clamp(12px,1vw,16px)] truncate">
+          <p className="t-display-med text-[clamp(12px,1vw,16px)] truncate">
             {repo.name}
           </p>
           <p className="t-mono-xs opacity-60 shrink-0">

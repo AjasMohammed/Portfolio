@@ -94,7 +94,7 @@ export function SkillsExpanded({ github }: { github: GithubData }) {
               {g.items.map((it) => (
                 <li
                   key={it}
-                  className="t-display text-[clamp(13px,1.2vw,20px)] min-w-0 max-w-full"
+                  className="t-display-med text-[clamp(13px,1.2vw,20px)] min-w-0 max-w-full"
                   style={{ lineHeight: 1.05, overflowWrap: "break-word", wordBreak: "break-word" }}
                 >
                   {it}

@@ -98,7 +98,6 @@ export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
                 fontSize: "clamp(20px,2vw,32px)",
                 lineHeight: 1,
                 color: "var(--orange-deep)",
-                letterSpacing: "-0.01em",
               }}
             >
               <SplitText delay={CONTENT_BASE_DELAY + 0.2}>kind words.</SplitText>
@@ -172,7 +171,6 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
           style={{
             fontSize: "clamp(28px,4.6vw,64px)",
             lineHeight: 0.95,
-            letterSpacing: "-0.015em",
             color: "var(--orange-deep)",
           }}
         >
@@ -270,7 +268,6 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
                 fontSize: "clamp(20px,2vw,32px)",
                 lineHeight: 1,
                 color: "var(--orange-deep)",
-                letterSpacing: "-0.01em",
               }}
             >
               for the wall.

@@ -457,11 +457,10 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           <motion.h2
             className="t-display min-w-0"
             style={{
-              fontFamily: "var(--font-gunterz), sans-serif",
-              fontWeight: 900,
-              fontSize: "clamp(20px, 3.4vw, 38px)",
+              // cqw cap: two headings share this row — vw clamps alone wrap
+              // "Profile." / "projects." mid-word (see bio-card)
+              fontSize: "min(clamp(20px, 3.4vw, 38px), 5.6cqw)",
               lineHeight: 0.95,
-              letterSpacing: "-0.015em",
             }}
             initial={reduce ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -472,10 +471,8 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           <h2
             className="t-display min-w-0 text-right"
             style={{
-              fontWeight: 900,
-              fontSize: "clamp(20px, 3.4vw, 38px)",
+              fontSize: "min(clamp(20px, 3.4vw, 38px), 5.6cqw)",
               lineHeight: 0.95,
-              letterSpacing: "-0.015em",
             }}
           >
             <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Live</SplitText>
@@ -707,12 +704,8 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
                     style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
                   />
                   <span
-                    className="t-display truncate"
-                    style={{
-                      fontSize: "clamp(14px,1.2vw,20px)",
-                      fontWeight: 400,
-                      letterSpacing: "-0.005em",
-                    }}
+                    className="t-display-med truncate"
+                    style={{ fontSize: "clamp(14px,1.2vw,20px)" }}
                   >
                     {r.name}
                   </span>
@@ -916,12 +909,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                         {isOpen ? "−" : "+"}
                       </span>
                       <span
-                        className="t-display truncate text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
-                        style={{
-                          fontWeight: 400,
-                          letterSpacing: "-0.01em",
-                          lineHeight: 1,
-                        }}
+                        className="t-display-med truncate text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
+                        style={{ lineHeight: 1 }}
                       >
                         {p.name}
                       </span>
@@ -1041,7 +1030,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                       style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
                     />
                     <span
-                      className="t-display truncate link-line"
+                      className="t-display-med truncate link-line"
                       style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
                     >
                       {r.name}
@@ -1156,8 +1145,8 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                       style={{ background: langDots[l.name] ?? (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)") }}
                     />
                     <span
-                      className="t-display truncate"
-                      style={{ fontSize: "clamp(11px,2.8vw,18px)", letterSpacing: "0.01em" }}
+                      className="t-display-med truncate"
+                      style={{ fontSize: "clamp(11px,2.8vw,18px)" }}
                     >
                       {l.name}
                     </span>

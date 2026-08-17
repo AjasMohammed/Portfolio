@@ -74,7 +74,7 @@ export function ImageInner() {
           className="absolute inset-0"
           initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
           animate={{ clipPath: "inset(0% 0 0 0)" }}
-          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+          transition={{ duration: 0.8, ease, delay: CONTENT_BASE_DELAY }}
         >
           <Image
             src="/images/portrait.jpeg"
@@ -82,8 +82,10 @@ export function ImageInner() {
             fill
             // This variant is lg:hidden — on desktop viewports resolve it to a
             // 16px source so the (still-issued) request costs ~1KB, not the
-            // full-size image. Mirrors the `lg` custom variant in globals.css.
-            sizes="(min-width: 1280px) 16px, (min-width: 1024px) and (max-height: 800px) 16px, 100vw"
+            // full-size image. px-only sizes on purpose: any `vw` value makes
+            // Next drop the small imageSizes buckets from srcset, so the 16px
+            // stub would silently upgrade to w=640.
+            sizes="(min-width: 1280px) 16px, (min-width: 1024px) and (max-height: 800px) 16px, (min-width: 464px) 420px, 200px"
             priority
             className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
           />
@@ -103,7 +105,7 @@ export function ImageInner() {
           className="absolute inset-0"
           initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
           animate={{ clipPath: "inset(0% 0 0 0)" }}
-          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+          transition={{ duration: 0.8, ease, delay: CONTENT_BASE_DELAY }}
         >
           <motion.div
             className="absolute -inset-[6%]"
@@ -115,8 +117,9 @@ export function ImageInner() {
               aria-hidden
               fill
               // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
-              // stub instead of the full PNG.
-              sizes="(min-width: 1280px) 34vw, (min-width: 1024px) and (max-height: 800px) 34vw, 16px"
+              // stub instead of the full PNG. px-only sizes: a `vw` value would
+              // strip the 16px bucket from srcset (see portrait above).
+              sizes="(min-width: 1920px) 660px, (min-width: 1280px) 500px, (min-width: 1024px) and (max-height: 800px) 360px, 16px"
               priority
               className="object-cover object-center scale-110 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             />
@@ -153,7 +156,7 @@ export function ImageInner() {
           className="absolute inset-0 overflow-hidden"
           initial={reduce ? false : { clipPath: "inset(100% 0 0 0)" }}
           animate={{ clipPath: "inset(0 0 0 0)" }}
-          transition={{ duration: 1.1, ease, delay: CONTENT_BASE_DELAY }}
+          transition={{ duration: 0.8, ease, delay: CONTENT_BASE_DELAY }}
         >
           <div
             className="absolute inset-0"
@@ -164,8 +167,9 @@ export function ImageInner() {
               alt="Illustrated portrait of Ajas Mohammed"
               fill
               // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
-              // stub instead of the full PNG.
-              sizes="(min-width: 1280px) 40vw, (min-width: 1024px) and (max-height: 800px) 40vw, 16px"
+              // stub instead of the full PNG. px-only sizes: a `vw` value would
+              // strip the 16px bucket from srcset (see portrait above).
+              sizes="(min-width: 1920px) 780px, (min-width: 1280px) 580px, (min-width: 1024px) and (max-height: 800px) 420px, 16px"
               priority
               className="object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               style={{ transformOrigin: "50% 100%" }}
@@ -182,7 +186,7 @@ export function ImageInner() {
             className="t-mono-xs opacity-85 truncate"
             initial={reduce ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 0.85, y: 0 }}
-            transition={{ duration: 0.5, ease, delay: CONTENT_BASE_DELAY + 1.15 }}
+            transition={{ duration: 0.5, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
           >
             est. 2024 · py · django · react
           </motion.p>
@@ -191,7 +195,7 @@ export function ImageInner() {
           className="t-mono-xs opacity-85 shrink-0"
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 0.85 }}
-          transition={{ duration: 0.5, ease, delay: CONTENT_BASE_DELAY + 1.25 }}
+          transition={{ duration: 0.5, ease, delay: CONTENT_BASE_DELAY + 0.95 }}
         >
           fig.01 / 01
         </motion.p>
@@ -248,7 +252,6 @@ export function ImageExpanded() {
               style={{
                 fontSize: "clamp(28px,5.4vw,58px)",
                 lineHeight: 0.95,
-                letterSpacing: "-0.015em",
                 color: "var(--orange-deep)",
               }}
             >
@@ -452,11 +455,9 @@ export function ImageExpanded() {
                   >
                     <div className="min-w-0">
                       <p
-                        className="t-display truncate"
+                        className="t-display-med truncate"
                         style={{
                           fontSize: "clamp(12px,3vw,17px)",
-                          fontWeight: 700,
-                          letterSpacing: "-0.005em",
                           lineHeight: 1.15,
                           color: "var(--orange-deep)",
                         }}

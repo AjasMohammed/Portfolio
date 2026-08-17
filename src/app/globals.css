@@ -35,7 +35,7 @@
   --color-ink: var(--ink);
 
   --font-sans: var(--font-hanken);
-  --font-display: var(--font-roketto);
+  --font-display: var(--font-archivo);
   --font-serif: var(--font-instrument-serif);
   --font-mono: var(--font-jetbrains-mono);
   --font-secondary: var(--font-hanken);
@@ -67,21 +67,24 @@ body {
   opacity: 0.35;
 }
 
-/* ── Typographic system — Roketto-led ─────────────────────────── */
-/* Display — Roketto, the brand voice (single weight, all-caps designed) */
+/* ── Typographic system — Archivo-led ─────────────────────────── */
+/* Display — Archivo Black at full 125% width: wide poster grotesque */
 .t-display {
-  font-family: var(--font-roketto), var(--font-gunterz), sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-archivo), sans-serif;
+  font-weight: 900;
+  font-stretch: 125%;
+  letter-spacing: 0.015em;
   line-height: 0.95;
   text-transform: uppercase;
 }
 
-/* Display medium — same family, slightly tighter */
+/* Display medium — Bold at 112% width for card/list headings, where the
+   full-width Black would crowd at 14–20px */
 .t-display-med {
-  font-family: var(--font-roketto), var(--font-gunterz), sans-serif;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-family: var(--font-archivo), sans-serif;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.03em;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -134,19 +137,21 @@ body {
 
 /* Numerals for stats */
 .t-num {
-  font-family: var(--font-gunterz), sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-archivo), sans-serif;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0;
   font-feature-settings: "tnum" 1;
   line-height: 0.95;
   text-transform: uppercase;
 }
 
-/* Retro chunky display — Gunterz Black for huge stat numbers */
+/* Retro chunky display — Archivo Black italic for huge stat numbers */
 .t-retro {
-  font-family: var(--font-gunterz), sans-serif;
+  font-family: var(--font-archivo), sans-serif;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
   font-feature-settings: "tnum" 1;
   line-height: 0.82;
   text-transform: uppercase;
