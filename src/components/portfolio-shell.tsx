@@ -25,6 +25,7 @@ import { ImageInner } from "@/components/portfolio/cards/image-card";
 import { BioCollapsed } from "@/components/portfolio/cards/bio-card";
 import { LetterCollapsed, SocialCard, SocialMobileCells } from "@/components/portfolio/cards/letter-card";
 import { AnalyticsCollapsed } from "@/components/portfolio/cards/analytics-card";
+import { ProjectsCollapsed } from "@/components/portfolio/cards/projects-card";
 import { TestimonialsCollapsed } from "@/components/portfolio/cards/testimonials-card";
 import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
 import { usePerfTier } from "@/components/portfolio/use-perf-tier";
@@ -156,7 +157,7 @@ export function PortfolioShell({
             >
               Ajas
               <span style={{ color: letterOpen ? LETTER_INK_SOFT : undefined }} className={letterOpen ? undefined : "text-cream-deep"}>
-                /
+                {' '}
               </span>
               Mohammed
             </span>
@@ -169,13 +170,13 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.2fr_1.2fr_0.6fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.2fr_1.2fr_0.6fr] lg:overflow-visible`}
           style={{
             gap: "clamp(8px, 1.2svh, 14px)",
           }}
         >
           <LayoutGroup>
-            {/* IMAGE — top-right (tablet) / col 2 rows 1–2 (mobile <464) / tall left (desktop) */}
+            {/* IMAGE — top-right (tablet) / col 2 rows 1–2 (mobile <464) / tall bottom-middle (desktop) */}
             <BentoCard
               id="image"
               expanded={expanded}
@@ -185,7 +186,7 @@ export function PortfolioShell({
               overflowBleed
               entered={isLoaded}
               enterDelay={0.07}
-              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-5 lg:col-end-7 lg:row-start-1 lg:row-end-4"
+              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-5 lg:col-end-7 lg:row-start-4 lg:row-end-7"
             >
               <ImageInner />
             </BentoCard>
@@ -212,7 +213,7 @@ export function PortfolioShell({
               </motion.div>
             )}
 
-            {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / top middle (desktop) */}
+            {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / bottom right (desktop) */}
             <BentoCard
               id="bio"
               expanded={expanded}
@@ -220,7 +221,7 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.14}
-              className="col-start-1 col-end-6 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-7 lg:col-end-13 lg:row-start-1 lg:row-end-4"
+              className="col-start-1 col-end-6 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-7 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <BioCollapsed />
             </BentoCard>
@@ -270,7 +271,7 @@ export function PortfolioShell({
                 (tablet ≥464: col 2 row 4, shares row with testimonials, 3×2 grid)
                 (mobile <464: full-width row 5 as 3×2) */}
             <div
-              className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 max-[463px]:self-auto max-[463px]:aspect-auto lg:hidden"
+              className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-6 max-[463px]:row-end-7 max-[463px]:self-auto max-[463px]:aspect-auto lg:hidden"
               style={{ gap: "clamp(6px, 1.6vw, 10px)", minWidth: 0, minHeight: 0 }}
             >
               <BentoCard
@@ -287,17 +288,30 @@ export function PortfolioShell({
               <SocialMobileCells />
             </div>
 
-            {/* ANALYTICS — col 2 rows 2–3 (tablet) / full-width row 4 (mobile <464) / wide bottom (desktop) */}
+            {/* SKILLS · GITHUB — col 2 row 4 (tablet) / full-width row 4 (mobile <464) / wide top (desktop) */}
             <BentoCard
-              id="analytics"
+              id="skills"
               expanded={expanded}
               onOpen={setExpanded}
               variant="cream"
               entered={isLoaded}
               enterDelay={0.28}
-              className="col-start-6 col-end-11 row-start-3 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-13 lg:row-start-4 lg:row-end-7"
+              className="col-start-6 col-end-11 row-start-4 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
             >
               <AnalyticsCollapsed github={github} />
+            </BentoCard>
+
+            {/* PROJECTS · previews — col 2 row 3 (tablet) / full-width row 5 (mobile <464) / narrow top-right (desktop) */}
+            <BentoCard
+              id="projects"
+              expanded={expanded}
+              onOpen={setExpanded}
+              variant="cream"
+              entered={isLoaded}
+              enterDelay={0.35}
+              className="col-start-6 col-end-11 row-start-3 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-4"
+            >
+              <ProjectsCollapsed />
             </BentoCard>
 
             {/* TESTIMONIALS — col 1 rows 3–4 (tablet) / full-width row 6 (mobile <464) / bottom-right (desktop) */}
@@ -308,7 +322,7 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.21}
-              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-6 max-[463px]:row-end-7 lg:col-start-1 lg:col-end-5 lg:row-start-4 lg:row-end-6"
+              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-7 max-[463px]:row-end-8 lg:col-start-1 lg:col-end-5 lg:row-start-4 lg:row-end-6"
             >
               <TestimonialsCollapsed items={testimonials} />
             </BentoCard>

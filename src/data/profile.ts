@@ -12,6 +12,18 @@ export type ProjectItem = {
   description: string;
   highlights: string[];
   technologies: string[];
+  /** Screenshot under /public/images/projects/. Omit → cover art fallback. */
+  preview?: string;
+  /** Live deployment, if public. */
+  url?: string;
+  /** Source, if public. */
+  repo?: string;
+  /**
+   * Set false when the site refuses framing (X-Frame-Options /
+   * CSP frame-ancestors) — the expanded card then stays on the screenshot
+   * instead of offering a live preview that would render a blank frame.
+   */
+  embeddable?: boolean;
 };
 
 export type CertificateItem = {
@@ -50,11 +62,11 @@ export const certificates: CertificateItem[] = [
 
 export const profile = {
   name: "Ajas Mohammed",
-  role: "Software Developer",
+  role: "Python Backend Engineer",
   location: "Kochi, India",
   email: "ajasmohammed09@gmail.com",
   phone: "+919567987785",
-  resumeUrl: "/resume-ajas-mohammed.pdf",
+  resumeUrl: "/ajasmohammed-python-developer.pdf",
   social: {
     githubUser: "AjasMohammed",
     githubUrl: "https://github.com/AjasMohammed",
@@ -63,7 +75,7 @@ export const profile = {
     twitterUrl: "",
   },
   summary:
-    "Two years writing python that ages well — django, fastapi, async pipelines under the hood, react and next.js on the surface. Small careful changes over heroic rewrites.",
+    "Two years writing python that ages well — primary backend maintainer of an e-learning platform: rest apis, celery pipelines, postgres performance, deploys. Lately llm and retrieval services with langchain, langgraph and pgvector. Small careful changes over heroic rewrites.",
   headline:
     "Patient backends, honest interfaces. Python by trade, react by curiosity.",
   capabilities: [
@@ -72,6 +84,8 @@ export const profile = {
     "Static sites",
     "Desktop apps",
     "LLM-powered tools",
+    "RAG & retrieval services",
+    "Payments & subscriptions",
     "Automation & agentic workflows",
     "Containerized deploys",
   ],
@@ -99,28 +113,39 @@ export const profile = {
     },
   ],
   skills: {
-    languages: ["Python", "JavaScript", "HTML", "CSS"],
+    languages: ["Python", "SQL", "JavaScript", "TypeScript"],
     frameworks: [
       "Django",
       "Django REST Framework",
-      "Wagtail",
+      "FastAPI",
+      "Celery",
+      "Django Channels",
+      "LangChain",
+      "LangGraph",
+      "SQLAlchemy",
       "ReactJS",
       "Next.js",
-      "FastAPI",
-      "LangChain",
-      "SQLAlchemy",
     ],
-    databases: ["MySQL", "PostgreSQL", "SQLite"],
+    databases: [
+      "PostgreSQL",
+      "pgvector",
+      "Redis",
+      "Elasticsearch",
+      "Qdrant",
+      "MySQL",
+      "SQLite",
+    ],
     tools: [
       "Docker",
       "Docker Compose",
+      "GitHub Actions",
       "Ansible",
-      "Redis",
-      "Celery",
-      "Git",
+      "nginx",
       "Linux",
-      "Cursor",
+      "Git",
+      "uv",
       "Claude Code",
+      "Cursor",
     ],
   },
 };
@@ -132,11 +157,24 @@ export const experiences: ExperienceItem[] = [
     location: "Kochi",
     period: "Apr 2024 - Present",
     highlights: [
-      "Contribute across frontend and backend development for content publishing and learning platforms.",
-      "Design and implement REST APIs using Django and Django REST Framework.",
-      "Build asynchronous processing workflows with Celery and Redis.",
-      "Refactor legacy codebases for maintainability, scalability, and performance.",
-      "Containerize services with Docker and automate deployments using Ansible.",
+      "Primary backend maintainer of Learnabble, a Django and DRF e-learning platform, owning its core, accounts, and portal apps.",
+      "Built the mock-interview pipeline end to end — data model, audio-format validation, scoring, and Celery workers so 3–5 min of transcription and grading runs off the request cycle.",
+      "Shipped subscriptions and payments with Razorpay and RevenueCat, reworking the Android-only purchase API into a multi-platform mobile endpoint.",
+      "Cut course-page latency from 800ms to 200ms with cursor pagination, an index-backed completion check, and cached course-item lookups.",
+      "Set up Pactflow contract tests with PostgreSQL and Redis service containers in GitHub Actions, and deploy tagged releases to Hetzner with Ansible, nginx, and Docker.",
+      "Sole author of Learnabble Agents, a FastAPI and LangGraph assistant routing messages over WebSockets with PostgreSQL checkpointing, interrupt/resume mid-chat verification, and Langfuse tracing.",
+    ],
+  },
+  {
+    company: "CloudToBuild",
+    role: "Software Developer · Contract",
+    location: "Remote",
+    period: "Jun 2025 - Present",
+    highlights: [
+      "Built the checkout and payments API and its admin surface on FastAPI with SQLAlchemy and Alembic migrations.",
+      "Shipped through GitHub Actions CI and scripted deploys.",
+      "Also worked on an e-commerce storefront and an AI-assisted site builder.",
+      "Use agentic coding tools daily — Claude Code, Cursor, Antigravity, plus self-built MCP servers.",
     ],
   },
   {
@@ -162,60 +200,69 @@ export const experiences: ExperienceItem[] = [
   },
 ];
 
+/* Freelance builds only — client sites that are live and public. Employer work
+   (Learnabble, Neusler) stays described in `experiences`. */
 export const projects: ProjectItem[] = [
   {
-    name: "Learnabble",
-    context: "Online Learning Portal, Neumeral Technologies",
+    name: "Zacmount",
+    context: "Shilajit brand storefront, freelance",
     description:
-      "A learning platform with course listing, enrollment, and learning workflows.",
+      "A single-product storefront for a Himalayan shilajit brand, built around long-form editorial and buyer trust.",
     highlights: [
-      "Built backend services and APIs with Django and Django REST Framework.",
-      "Implemented optimized Django ORM queries, unit tests, and contract tests.",
-      "Developed full-stack features using Django templates and React.",
-      "Integrated YouTube API and Odoo for automated course data synchronization.",
+      "Built the storefront and ordering flow with the Next.js App Router.",
+      "Structured product, offer, and return-policy JSON-LD for rich results.",
+      "Shipped supporting routes for lab results, process, journal, and policies.",
+      "Deployed on Cloudflare with static caching for the editorial pages.",
     ],
-    technologies: [
-      "Django",
-      "Django REST Framework",
-      "React",
-      "Docker",
-      "Ansible",
-      "YouTube API",
-      "Odoo",
-    ],
+    technologies: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+    preview: "/images/projects/zacmount.webp",
+    url: "https://zacmount.com/",
+    // Serves `x-frame-options: SAMEORIGIN` — drop that header on the site to
+    // turn the live preview on here.
+    embeddable: false,
   },
   {
-    name: "Neusler",
-    context: "Publishing Platform, Neumeral Technologies",
+    name: "BA-BU Family Salon",
+    context: "Salon site, North Paravur · freelance",
     description:
-      "A Django and Wagtail publishing product improved through dependency upgrades, API work, and CMS enhancements.",
+      "A multi-page salon site with per-service pages, gallery, and WhatsApp-first appointment booking.",
     highlights: [
-      "Refactored a legacy Django and Wagtail codebase.",
-      "Implemented API endpoints and backend models for publishing workflows.",
-      "Optimized database queries and caching strategies for better platform performance.",
-      "Fixed CMS bugs and built custom content management functionality.",
+      "Built service routes for hair care, skin and body care, and weddings.",
+      "Wired enquiries to WhatsApp and a contact form for walk-in bookings.",
+      "Added BeautySalon, Service, and FAQ schema for local search.",
+      "Tuned image-heavy gallery pages to stay fast on mobile data.",
     ],
-    technologies: ["Django", "Wagtail", "REST APIs", "Caching", "PostgreSQL"],
+    technologies: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+    preview: "/images/projects/babu-family-salon.webp",
+    url: "https://babufamilysalon.com/",
   },
   {
-    name: "GitAI",
-    context: "Commit Message Generator",
+    name: "SkyGym",
+    context: "Gym landing site, Alappuzha · freelance",
     description:
-      "A FastAPI application that generates structured Git commit messages using LLM-powered prompt pipelines.",
+      "A single-page site for a two-branch gym, built to convert launch-offer traffic into WhatsApp enquiries.",
     highlights: [
-      "Used GitPython to extract staged diffs for LLM processing.",
-      "Built LangChain prompt workflows for commit message generation.",
-      "Added persistence with SQLAlchemy, PostgreSQL, and SQLite support.",
-      "Containerized the application with Docker and Docker Compose.",
+      "Laid out programs, transformations, and member testimonials in one scroll.",
+      "Split launch offers by plan so pricing reads at a glance.",
+      "Made branch selection the first choice in the hero.",
+      "Routed every call-to-action to WhatsApp for instant enquiries.",
     ],
-    technologies: [
-      "FastAPI",
-      "LangChain",
-      "GitPython",
-      "SQLAlchemy",
-      "PostgreSQL",
-      "SQLite",
-      "Docker",
+    technologies: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+    preview: "/images/projects/skygym.webp",
+    url: "https://skygym.in/",
+  },
+  {
+    name: "Aurora Salon",
+    context: "Concept build · demo",
+    description:
+      "A salon site concept built as a pitch template — same structure as a client build, with placeholder content.",
+    highlights: [
+      "Designed a dark, editorial hero for a bridal and makeover studio.",
+      "Covered services, gallery, and contact as a reusable salon layout.",
+      "Deployed to Cloudflare Workers as a shareable preview link.",
     ],
+    technologies: ["Next.js", "React", "Tailwind CSS", "Cloudflare Workers"],
+    preview: "/images/projects/aurora-salon.webp",
+    url: "https://seoul-salon.ajasmohammed33.workers.dev/",
   },
 ];

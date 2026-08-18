@@ -240,7 +240,30 @@ export async function getGithubContributions(
   };
 }
 
-const HIDDEN_REPO_SLUGS = new Set(["ajasmohammed/portfolio"]);
+// Repos excluded everywhere the GitHub data surfaces (counts, languages,
+// stars, repo list). Add a `owner/name` slug here to drop one — the public
+// repo count is adjusted to match so the numbers stay self-consistent.
+const HIDDEN_REPO_SLUGS = new Set([
+  "ajasmohammed/portfolio", // this site
+  "ajasmohammed/ajasmohammed", // profile README config
+  // interview assessments / take-homes
+  "ajasmohammed/paywint-test",
+  "ajasmohammed/vendor-management-system",
+  // tutorials, demos, throwaway practice
+  "ajasmohammed/rag_demo",
+  "ajasmohammed/langgraph-agent-example",
+  "ajasmohammed/codemasters",
+  "ajasmohammed/projects",
+  "ajasmohammed/todoapprest",
+  "ajasmohammed/billingapp",
+  "ajasmohammed/hms",
+  "ajasmohammed/rockpaperscissors",
+  "ajasmohammed/bot",
+  // agentos ecosystem — not for public display yet
+  "ajasmohammed/agos",
+  "ajasmohammed/agos-mcp",
+  "ajasmohammed/agos-dashboard",
+]);
 
 function isHiddenRepo(repo: GithubRepo): boolean {
   return HIDDEN_REPO_SLUGS.has(repo.full_name.toLowerCase());
@@ -271,10 +294,9 @@ export async function getGithubData(username: string): Promise<GithubData> {
   ]);
 
   const allRepos = (repos ?? []).filter((r) => !isHiddenRepo(r));
-  const hiddenCount = (repos ?? []).length - allRepos.length;
-  const user = rawUser
-    ? { ...rawUser, public_repos: Math.max(0, rawUser.public_repos - hiddenCount) }
-    : null;
+  // Keep `public_repos` as GitHub reports it — nothing renders it now; the UI
+  // counts `ownedRepos` so the number always matches the list it labels.
+  const user = rawUser;
   const ownedRepos = allRepos
     .filter((r) => !r.fork)
     .sort(

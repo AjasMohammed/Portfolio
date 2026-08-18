@@ -52,7 +52,7 @@ export default async function Image() {
               opacity: 0.7,
             }}
           >
-            Ajas / Mohammed
+            Ajas  Mohammed
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>

@@ -34,11 +34,11 @@
   --color-cream-deep: var(--cream-deep);
   --color-ink: var(--ink);
 
-  --font-sans: var(--font-hanken);
-  --font-display: var(--font-archivo);
+  --font-sans: var(--font-futura);
+  --font-display: var(--font-fugaz);
   --font-serif: var(--font-instrument-serif);
   --font-mono: var(--font-jetbrains-mono);
-  --font-secondary: var(--font-hanken);
+  --font-secondary: var(--font-futura);
 }
 
 html,
@@ -67,23 +67,28 @@ body {
   opacity: 0.35;
 }
 
-/* ── Typographic system — Archivo-led ─────────────────────────── */
-/* Display — Archivo Black at full 125% width: wide poster grotesque */
+/* ── Typographic system — Fugaz One titles + copy, Archivo numerals ──── */
+/* Single-weight face: never ask for 700 here or the browser fakes it. Big
+   headings get their weight from size; the two display tiers differ by
+   tracking alone. */
 .t-display {
-  font-family: var(--font-archivo), sans-serif;
+  font-family: var(--font-fugaz), sans-serif;
+  /* Fugaz One only ships 400, so `font-weight: 900` alone gets a synthetic
+     bold the browser barely renders on an already-black face. The stroke is
+     what actually fattens the letterforms. */
   font-weight: 900;
-  font-stretch: 125%;
+  -webkit-text-stroke: 0.022em currentColor;
+  paint-order: stroke fill;
   letter-spacing: 0.015em;
   line-height: 0.95;
   text-transform: uppercase;
 }
 
-/* Display medium — Bold at 112% width for card/list headings, where the
-   full-width Black would crowd at 14–20px */
+/* Display medium — same cut, wider tracking so card/list headings stay open
+   at 14–20px */
 .t-display-med {
-  font-family: var(--font-archivo), sans-serif;
-  font-weight: 700;
-  font-stretch: 112%;
+  font-family: var(--font-fugaz), sans-serif;
+  font-weight: 400;
   letter-spacing: 0.03em;
   line-height: 1;
   text-transform: uppercase;
@@ -97,11 +102,11 @@ body {
   line-height: 0.92;
 }
 
-/* Small-caps UI labels — Hanken Grotesk Medium reads far better than a display
-   face at these sizes. Floors raised (was 10/9px) and tracking eased slightly so
-   the uppercase letterforms stay open and legible. */
+/* Small-caps UI labels — Jost (geometric, Futura-derived) Medium. Its x-height
+   sits lower than a grotesque's, so the floors are 1px up from the Hanken-era
+   values and tracking stays wide to keep the uppercase forms open. */
 .t-mono {
-  font-family: var(--font-hanken), system-ui, sans-serif;
+  font-family: var(--font-futura), system-ui, sans-serif;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -109,7 +114,7 @@ body {
 }
 
 .t-mono-xs {
-  font-family: var(--font-hanken), system-ui, sans-serif;
+  font-family: var(--font-futura), system-ui, sans-serif;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -124,14 +129,15 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-/* Body — Hanken Grotesk for descriptive copy. Larger floor (was 12px), looser
-   leading, and near-zero tracking for comfortable running text. */
+/* Main copy — Fugaz One. A heavy display face doing running-text duty, so it
+   gets extra leading and tracking to keep the dense strokes from closing up.
+   Jost sits behind it as the fallback. */
 .t-body {
-  font-family: var(--font-hanken), system-ui, sans-serif;
+  font-family: var(--font-fugaz), var(--font-futura), system-ui, sans-serif;
   font-weight: 400;
-  font-size: clamp(13px, 0.95vw, 16px);
-  line-height: 1.6;
-  letter-spacing: 0.005em;
+  font-size: clamp(14px, 1.05vw, 17px);
+  line-height: 1.7;
+  letter-spacing: 0.02em;
   text-transform: none;
 }
 

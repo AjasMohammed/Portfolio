@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import {
   Archivo,
-  Hanken_Grotesk,
+  Fugaz_One,
   Instrument_Serif,
   JetBrains_Mono,
+  Jost,
 } from "next/font/google";
 import "./globals.css";
 
-// Primary reading/UI face — warm, highly legible humanist grotesque.
-// Loaded as a variable font so the full weight axis (regular → bold) is
-// available for body copy, labels, and emphasis without extra requests.
-const hankenGrotesk = Hanken_Grotesk({
-  variable: "--font-hanken",
+// Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
+// (Futura PT itself is Adobe-licensed and can't be self-hosted; swap the src
+// here if a licensed woff2 ever lands in public/fonts.) Variable weight axis,
+// so labels, body copy, and emphasis all come from one request.
+const jost = Jost({
+  variable: "--font-futura",
   subsets: ["latin"],
 });
 
@@ -27,10 +29,17 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-// Display face — Archivo variable with the width axis. Hero/display runs
-// Black at 125% width (poster grotesque), smaller headings drop to ~112%
-// so all-caps lines stay legible at 14–20px — the reason Roketto/Gunterz
-// (single-weight display faces) were retired.
+// Title + running-copy face — Fugaz One. Single weight by design, so display
+// hierarchy comes from size and tracking; never request 700 or the browser
+// fakes it.
+const fugaz = Fugaz_One({
+  variable: "--font-fugaz",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+// Archivo variable (width axis) — numeral face for stats. Still Black/125%
+// for the big stat numbers, where a weight axis actually matters.
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
@@ -92,7 +101,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${archivo.variable} h-full antialiased`}
+      className={`${jost.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">{children}</body>
     </html>

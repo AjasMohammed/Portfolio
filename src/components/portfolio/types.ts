@@ -1,3 +1,9 @@
-export type CardId = "image" | "bio" | "analytics" | "letter" | "testimonials";
+export type CardId =
+  | "image"
+  | "bio"
+  | "projects"
+  | "skills"
+  | "letter"
+  | "testimonials";
 
 export type Variant = "cream" | "accent" | "image" | "sky";

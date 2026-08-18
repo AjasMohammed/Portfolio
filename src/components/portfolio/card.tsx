@@ -11,6 +11,7 @@ import { ImageExpanded } from "./cards/image-card";
 import { LetterExpanded } from "./cards/letter-card";
 import { BioExpanded } from "./cards/bio-card";
 import { AnalyticsExpanded } from "./cards/analytics-card";
+import { ProjectsExpanded } from "./cards/projects-card";
 import { TestimonialsExpanded } from "./cards/testimonials-card";
 
 /* ───────────────────────── CARDS ───────────────────────── */
@@ -92,7 +93,7 @@ export function BentoCard({
     interactive &&
     id !== "bio" &&
     id !== "letter" &&
-    id !== "analytics" &&
+    id !== "skills" &&
     id !== "image";
 
   const hoverShadow =
@@ -325,7 +326,8 @@ export function ExpandedCard({
           >
             {id === "image" && <ImageExpanded />}
             {id === "bio" && <BioExpanded github={github} />}
-            {id === "analytics" && <AnalyticsExpanded github={github} />}
+            {id === "skills" && <AnalyticsExpanded github={github} />}
+            {id === "projects" && <ProjectsExpanded />}
             {id === "testimonials" && <TestimonialsExpanded items={testimonials} />}
           </motion.div>
         ))}

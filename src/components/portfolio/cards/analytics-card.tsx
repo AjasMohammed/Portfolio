@@ -12,7 +12,7 @@ import {
   motion,
   useReducedMotion,
 } from "framer-motion";
-import { experiences, profile, projects } from "@/data/profile";
+import { experiences, profile } from "@/data/profile";
 import type { GithubData } from "@/lib/github";
 import { ease, CONTENT_BASE_DELAY, langDots, langFallbackPalette } from "../constants";
 import { SplitText } from "../split-text";
@@ -24,10 +24,18 @@ import {
   ContributionLegend,
   formatMostActiveDay,
 } from "../contribution-heatmap";
-import { skillGroups } from "./skills-card";
 import { formatRelative } from "./projects-card";
 
-/* ───────────────────────── ANALYTICS ───────────────────────── */
+/* ───────────────────────── SKILLS · GITHUB ───────────────────────── */
+
+export function skillGroups() {
+  return [
+    { key: "Languages", items: profile.skills.languages },
+    { key: "Frameworks", items: profile.skills.frameworks },
+    { key: "Databases", items: profile.skills.databases },
+    { key: "Tooling", items: profile.skills.tools },
+  ];
+}
 
 export function buildAnalytics(github: GithubData) {
   const repos = github.ownedRepos;
@@ -433,7 +441,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
   const yearsOnGithub = joinedYear ? new Date().getFullYear() - joinedYear : null;
   const heroYears = yearsOnGithub ?? computeExperienceYears();
   const maxYear = Math.max(1, ...years.map((y) => y.count));
-  const headline = github.ownedRepos.slice(0, 8);
+  const groups = skillGroups();
   const reduce = useReducedMotion();
 
   // Mirrors the `compact:` custom-variant in globals.css. The ring chart size is a JS prop,
@@ -475,9 +483,9 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
               lineHeight: 0.95,
             }}
           >
-            <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Live</SplitText>
+            <SplitText delay={CONTENT_BASE_DELAY + 0.4}>The</SplitText>
             <br />
-            <SplitText delay={CONTENT_BASE_DELAY + 0.55}>projects.</SplitText>
+            <SplitText delay={CONTENT_BASE_DELAY + 0.55}>stack.</SplitText>
           </h2>
         </div>
 
@@ -524,7 +532,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           className="t-mono-xs shrink-0"
           style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
         >
-          projects info
+          skills · github
         </p>
         <p
           className="t-mono-xs shrink-0 inline-flex items-center gap-1.5"
@@ -535,8 +543,8 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         </p>
       </div>
 
-      {/* 3-column body — collapses to 2 cols on compact (landscape-short) since the right "repos · live"
-          column is hidden there. */}
+      {/* 3-column body — collapses to 2 cols on compact (landscape-short) since the right
+          "the stack" column is hidden there. */}
       <div
         className="grid flex-1 min-h-0 gap-[clamp(14px,1.6vw,28px)] grid-cols-[1fr_0.9fr_1.15fr] compact:grid-cols-[1.1fr_1fr]"
         style={{ paddingTop: "clamp(12px,1.6svh,22px)" }}
@@ -618,17 +626,13 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.35 }}
         >
           <div className="flex items-baseline justify-between gap-2">
+            {/* Label only: this column is the narrowest of the three, and the
+                donut's center already prints the tracked-language count. */}
             <p
-              className="t-mono"
+              className="t-mono truncate"
               style={{ opacity: 0.75, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
             >
-              languages · github
-            </p>
-            <p
-              className="t-mono-xs shrink-0"
-              style={{ opacity: 0.55, fontSize: "clamp(10px,0.78vw,13px)" }}
-            >
-              {langPct.length} tracked
+              languages
             </p>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center p-[clamp(8px,1.2vw,18px)] compact:p-1">
@@ -663,7 +667,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           </ul>
         </motion.div>
 
-        {/* Right: live repos — dropped on compact (Nest Hub) where the row budget can't fit it */}
+        {/* Right: the stack — dropped on compact (Nest Hub) where the row budget can't fit it */}
         <motion.div
           className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)] compact:hidden"
           style={{ borderLeft: "1px solid rgba(192,68,15,0.22)" }}
@@ -673,49 +677,50 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         >
           <div className="flex items-baseline justify-between gap-2">
             <p
-              className="t-mono inline-flex items-center gap-1.5"
+              className="t-mono truncate"
               style={{ opacity: 0.75, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
             >
-              <span className="live-dot" /> repos · live
+              the stack
             </p>
             <p
               className="t-mono-xs shrink-0"
               style={{ opacity: 0.6, fontSize: "clamp(10px,0.78vw,13px)" }}
             >
-              ★ {github.totalStars}
+              {groups.reduce((n, g) => n + g.items.length, 0)} total
             </p>
           </div>
-          <ul className="flex flex-col gap-1 overflow-hidden min-h-0">
-            {headline.map((r, i) => (
+          <ul className="flex flex-col gap-1.5 overflow-hidden min-h-0">
+            {groups.map((g, i) => (
               <motion.li
-                key={r.id}
-                className="flex items-baseline justify-between gap-2 min-w-0"
+                key={g.key}
+                className="min-w-0 pt-1.5"
+                style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
                 initial={{ opacity: 0, x: 14 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
                   duration: 0.45,
-                  delay: CONTENT_BASE_DELAY + 0.95 + i * 0.06,
+                  delay: CONTENT_BASE_DELAY + 0.95 + i * 0.08,
                   ease,
                 }}
               >
-                <span className="inline-flex items-baseline gap-2 min-w-0">
-                  <span
-                    className="inline-block w-2 h-2 rounded-full shrink-0 translate-y-px"
-                    style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
-                  />
-                  <span
-                    className="t-display-med truncate"
-                    style={{ fontSize: "clamp(14px,1.2vw,20px)" }}
-                  >
-                    {r.name}
-                  </span>
-                </span>
-                <span
-                  className="t-mono shrink-0"
-                  style={{ opacity: 0.6, fontSize: "clamp(10px,0.8vw,13px)" }}
+                <p
+                  className="t-mono"
+                  style={{ opacity: 0.7, fontSize: "clamp(10px,0.75vw,12px)", letterSpacing: "0.08em" }}
                 >
-                  {formatRelative(r.pushed_at)}
-                </span>
+                  <span style={{ opacity: 0.55 }}>$ </span>
+                  {g.key.toLowerCase()}
+                </p>
+                <p
+                  className="t-code line-clamp-2"
+                  style={{
+                    fontSize: "clamp(10px,0.8vw,13px)",
+                    lineHeight: 1.5,
+                    opacity: 0.85,
+                    letterSpacing: 0,
+                  }}
+                >
+                  {g.items.map((it) => it.toLowerCase()).join(" · ")}
+                </p>
               </motion.li>
             ))}
           </ul>
@@ -733,11 +738,13 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
   );
   const maxYear = Math.max(1, ...years.map((y) => y.count));
   const u = github.user;
+  // Count what's actually listed — `public_repos` counts forks and hidden
+  // repos, so it would disagree with the list right below it.
+  const repoCount = github.ownedRepos.length;
   const groups = skillGroups();
-  const repoCount = u?.public_repos ?? github.ownedRepos.length;
-  const featured = projects;
-  const liveRepos = github.ownedRepos.slice(0, 8);
-  const [openProject, setOpenProject] = useState<string | null>(featured[0]?.name ?? null);
+  // The middle column is repos-only now that curated projects have their own
+  // tile — show more of them rather than leaving the column half empty.
+  const liveRepos = github.ownedRepos.slice(0, 24);
 
   return (
     <motion.div
@@ -863,137 +870,11 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
         </ul>
       </motion.div>
 
-      {/* Middle: featured projects (accordion) + live GitHub repos */}
+      {/* Middle: live GitHub repos */}
       <motion.div
         variants={fadeUp}
         className="flex flex-col min-w-0 gap-3"
       >
-        <div className="flex flex-col">
-          <div className="flex items-baseline justify-between mb-2">
-            <p
-              className="t-mono opacity-70"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-            >
-              featured · curated
-            </p>
-            <p
-              className="t-mono-xs opacity-60"
-              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-            >
-              {featured.length} projects · click to expand
-            </p>
-          </div>
-          <ul className="flex flex-col">
-            {featured.map((p, i) => {
-              const isOpen = openProject === p.name;
-              return (
-                <li
-                  key={p.name}
-                  className="min-w-0"
-                  style={{ borderTop: i === 0 ? "1px solid rgba(192,68,15,0.22)" : "1px solid rgba(192,68,15,0.14)" }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpenProject(isOpen ? null : p.name)}
-                    aria-expanded={isOpen}
-                    className="w-full flex items-baseline justify-between gap-3 text-left py-[clamp(8px,1svh,14px)] compact:py-1.5 group"
-                  >
-                    <span className="inline-flex items-baseline gap-2 min-w-0">
-                      <span
-                        className="t-retro shrink-0 text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
-                        style={{
-                          opacity: isOpen ? 1 : 0.55,
-                          transition: "opacity 0.3s ease",
-                        }}
-                      >
-                        {isOpen ? "−" : "+"}
-                      </span>
-                      <span
-                        className="t-display-med truncate text-[clamp(18px,5vw,38px)] compact:text-[clamp(14px,1.8vw,20px)]"
-                        style={{ lineHeight: 1 }}
-                      >
-                        {p.name}
-                      </span>
-                    </span>
-                    <span
-                      className="t-mono-xs opacity-55 shrink-0"
-                      style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-                    >
-                      {p.context.split(",")[0]}
-                    </span>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        key="body"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.35, ease }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pb-[clamp(10px,1.4svh,18px)] pl-[clamp(14px,3.4vw,36px)] flex flex-col gap-2">
-                          <p
-                            className="t-serif"
-                            style={{
-                              color: "var(--orange)",
-                              fontSize: "clamp(12px,3.2vw,20px)",
-                              lineHeight: 1.45,
-                              letterSpacing: "0.005em",
-                            }}
-                          >
-                            {p.description}
-                          </p>
-                          <ul className="flex flex-col gap-1 mt-1">
-                            {p.highlights.map((h) => (
-                              <li
-                                key={h}
-                                className="t-body flex items-baseline gap-2"
-                                style={{
-                                  fontSize: "clamp(11px,2.6vw,15px)",
-                                  lineHeight: 1.5,
-                                  opacity: 0.88,
-                                }}
-                              >
-                                <span className="opacity-50 shrink-0">·</span>
-                                <span>{h}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-2 min-w-0">
-                            <p
-                              className="t-mono opacity-85 mb-0.5"
-                              style={{
-                                fontSize: "clamp(10px,1.2vw,13px)",
-                                letterSpacing: "0.08em",
-                              }}
-                            >
-                              <span style={{ opacity: 0.55 }}>$ </span>
-                              tech
-                            </p>
-                            <p
-                              className="t-code wrap-break-word"
-                              style={{
-                                fontSize: "clamp(10px,1.05vw,13px)",
-                                lineHeight: 1.6,
-                                opacity: 0.85,
-                                paddingLeft: "1em",
-                                letterSpacing: 0,
-                              }}
-                            >
-                              {p.technologies.map((t) => t.toLowerCase()).join(" · ")}
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
         <div className="flex flex-col">
           <div className="flex items-baseline justify-between mb-2">
             <p
@@ -1049,7 +930,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
         </div>
       </motion.div>
 
-      {/* Right: resume stack + GitHub languages donut + activity histogram */}
+      {/* Right: the stack, then GitHub languages donut */}
       <motion.div
         variants={fadeUp}
         className="flex flex-col min-w-0 gap-3"

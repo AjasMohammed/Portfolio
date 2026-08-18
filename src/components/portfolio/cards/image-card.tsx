@@ -350,7 +350,7 @@ export function ImageExpanded() {
             className="max-w-prose"
             style={{
               opacity: 0.85,
-              fontFamily: "var(--font-hanken), system-ui, sans-serif",
+              fontFamily: "var(--font-futura), system-ui, sans-serif",
               fontSize: "clamp(12px,2.6vw,15px)",
               lineHeight: 1.6,
               letterSpacing: "0.05em",
@@ -375,7 +375,7 @@ export function ImageExpanded() {
             className="max-w-prose"
             style={{
               opacity: 0.85,
-              fontFamily: "var(--font-hanken), system-ui, sans-serif",
+              fontFamily: "var(--font-futura), system-ui, sans-serif",
               fontSize: "clamp(12px,2.6vw,15px)",
               lineHeight: 1.6,
               letterSpacing: "0.05em",

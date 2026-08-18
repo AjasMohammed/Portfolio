@@ -86,8 +86,11 @@ export function BioCollapsed() {
         <motion.p
           className="t-body max-w-prose compact:hidden"
           style={{
-            fontSize: "clamp(12px, 0.95vw, 16px)",
-            lineHeight: 1.5,
+            // Fugaz One runs wide, so this blurb takes a third line and its
+            // top line rides up beside the portrait's bleed — indent clears it
+            fontSize: "clamp(12px, 0.9vw, 15px)",
+            lineHeight: 1.65,
+            paddingLeft: "18px",
             borderTop: "1px solid rgba(244,235,216,0.18)",
             paddingTop: "clamp(8px, 1svh, 12px)",
           }}
@@ -151,8 +154,6 @@ export function BioCollapsed() {
                 // wraps "developer." mid-word on tablet widths
                 fontSize: "min(clamp(20px, 3.4vw, 38px), 5.6cqw)",
                 lineHeight: 0.95,
-                // narrow grid cell — full 125% width breaks "SOFTWARE" mid-word
-                fontStretch: "100%",
               }}
             >
               <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Software</SplitText>
@@ -354,7 +355,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
             className="max-w-prose"
             style={{
               opacity: 0.9,
-              fontFamily: "var(--font-hanken), system-ui, sans-serif",
+              fontFamily: "var(--font-futura), system-ui, sans-serif",
               fontSize: "clamp(13px,3.4vw,20px)",
               lineHeight: 1.55,
               letterSpacing: "0.035em",
@@ -405,7 +406,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
               className="max-w-prose"
               style={{
                 opacity: 0.8,
-                fontFamily: "var(--font-hanken), system-ui, sans-serif",
+                fontFamily: "var(--font-futura), system-ui, sans-serif",
                 fontSize: "clamp(11px,2.4vw,14px)",
                 lineHeight: 1.45,
                 letterSpacing: "0.025em",
@@ -458,7 +459,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   className="truncate"
                   style={{
                     color: "var(--orange)",
-                    fontFamily: "var(--font-hanken), system-ui, sans-serif",
+                    fontFamily: "var(--font-futura), system-ui, sans-serif",
                     letterSpacing: "0.04em",
                     lineHeight: 0.92,
                     fontSize: "clamp(11px,2.8vw,15px)",
@@ -486,7 +487,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   {/* long degree names — narrow width step + wrap instead of clipping */}
                   <p
                     className="t-display-med py-1"
-                    style={{ fontSize: "clamp(12px,3.2vw,15px)", fontStretch: "100%" }}
+                    style={{ fontSize: "clamp(12px,3.2vw,15px)" }}
                   >
                     {e.degree}
                   </p>
@@ -503,7 +504,7 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   className="truncate"
                   style={{
                     color: "var(--orange)",
-                    fontFamily: "var(--font-hanken), system-ui, sans-serif",
+                    fontFamily: "var(--font-futura), system-ui, sans-serif",
                     letterSpacing: "0.04em",
                     lineHeight: 0.92,
                     fontSize: "clamp(11px,2.8vw,15px)",
