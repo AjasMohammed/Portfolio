@@ -11,6 +11,7 @@ import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
 import {
   ease,
+  GAP,
   RADIUS,
   SKY_BG,
   LETTER_INK,
@@ -29,6 +30,23 @@ import { ProjectsCollapsed } from "@/components/portfolio/cards/projects-card";
 import { TestimonialsCollapsed } from "@/components/portfolio/cards/testimonials-card";
 import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
 import { usePerfTier } from "@/components/portfolio/use-perf-tier";
+
+/* The welcome tile sits full-bleed on the cosmos-wall art. It is already
+   landscape and mostly pale, so it needs no crop — just a thin cream veil to
+   lift the copy off the bloom and the shapes in the bottom-right. */
+/* One `background` shorthand, not longhands: React warns (and can mis-style)
+   when a rerender mixes shorthand and longhand background properties. */
+const WELCOME_SURFACE: React.CSSProperties = {
+  background:
+    "linear-gradient(rgba(244,235,216,0.42), rgba(244,235,216,0.42)) center / cover no-repeat, url(/images/cosmos-wall.webp) center / cover no-repeat var(--cream)",
+};
+
+/* The compact tile is half as tall and much wider, so `cover` centres the bloom
+   straight on the headline — anchoring low lifts it up into the filename bar. */
+const WELCOME_SURFACE_COMPACT: React.CSSProperties = {
+  background:
+    "linear-gradient(rgba(244,235,216,0.42), rgba(244,235,216,0.42)) center / cover no-repeat, url(/images/cosmos-wall.webp) center bottom / cover no-repeat var(--cream)",
+};
 
 export function PortfolioShell({
   github,
@@ -59,14 +77,9 @@ export function PortfolioShell({
   }, [expanded]);
 
   useEffect(() => {
-    // The boot screen is a one-time hello — repeat navigations in the same
-    // session skip straight to the grid.
-    let booted = false;
-    try {
-      booted = sessionStorage.getItem("booted") === "1";
-      sessionStorage.setItem("booted", "1");
-    } catch {}
-    const t = setTimeout(() => setIsLoaded(true), reduce || booted ? 0 : 600);
+    // The boot screen plays on every load — long enough to read, short enough
+    // to not annoy. Reduced motion skips straight to the grid.
+    const t = setTimeout(() => setIsLoaded(true), reduce ? 0 : 1600);
     return () => clearTimeout(t);
   }, [reduce]);
 
@@ -138,7 +151,7 @@ export function PortfolioShell({
         style={{
           gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
           gridTemplateRows: "auto 1fr auto",
-          gap: "clamp(8px, 1.2svh, 14px)",
+          gap: GAP,
           padding: "clamp(10px, 1.6svh, 18px) clamp(12px, 1.6vw, 22px)",
         }}
       >
@@ -170,9 +183,9 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[5fr_4fr_4fr_5fr_6fr] min-h-0 overflow-hidden max-[463px]:grid-cols-[3fr_2fr] max-[463px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[463px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.2fr_1.2fr_0.6fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.1fr_1.1fr_0.85fr] lg:overflow-visible`}
           style={{
-            gap: "clamp(8px, 1.2svh, 14px)",
+            gap: GAP,
           }}
         >
           <LayoutGroup>
@@ -186,7 +199,8 @@ export function PortfolioShell({
               overflowBleed
               entered={isLoaded}
               enterDelay={0.07}
-              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[463px]:col-start-2 max-[463px]:col-end-3 max-[463px]:row-start-1 max-[463px]:row-end-3 lg:col-start-5 lg:col-end-7 lg:row-start-4 lg:row-end-7"
+              enterFrom="bottom"
+              className="col-start-6 col-end-11 row-start-1 row-end-3 max-[639px]:col-start-2 max-[639px]:col-end-3 max-[639px]:row-start-1 max-[639px]:row-end-3 lg:col-start-4 lg:col-end-6 lg:row-start-4 lg:row-end-7"
             >
               <ImageInner />
             </BentoCard>
@@ -194,17 +208,13 @@ export function PortfolioShell({
             {/* WELCOME (compact) — mobile + tablet (top-left). Replaces ring chart spot. */}
             {isDesktop !== true && (
               <motion.div
-                initial={reduce ? false : { opacity: 0, y: 16, scale: 0.98 }}
-                animate={
-                  isLoaded || reduce
-                    ? { opacity: 1, y: 0, scale: 1 }
-                    : { opacity: 0, y: 16, scale: 0.98 }
-                }
-                transition={{ duration: 0.55, ease }}
-                className="hidden max-[1279px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[463px]:col-start-1 max-[463px]:col-end-2 max-[463px]:row-end-3 lg:hidden relative overflow-hidden"
+                initial={reduce ? false : { x: "-110vw" }}
+                animate={isLoaded || reduce ? { x: 0 } : { x: "-110vw" }}
+                transition={{ duration: 0.8, ease }}
+                className="hidden max-[1279px]:block col-start-1 col-end-6 row-start-1 row-end-2 max-[639px]:col-start-1 max-[639px]:col-end-2 max-[639px]:row-end-3 lg:hidden relative overflow-hidden"
                 style={{
                   borderRadius: RADIUS,
-                  background: "var(--cream)",
+                  ...WELCOME_SURFACE_COMPACT,
                   color: "var(--orange-deep)",
                   padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
                 }}
@@ -221,7 +231,8 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.14}
-              className="col-start-1 col-end-6 row-start-2 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-3 max-[463px]:row-end-4 lg:col-start-7 lg:col-end-13 lg:row-start-4 lg:row-end-7"
+              enterFrom="bottom"
+              className="col-start-1 col-end-6 row-start-2 row-end-4 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-3 max-[639px]:row-end-4 lg:col-start-6 lg:col-end-11 lg:row-start-4 lg:row-end-7"
             >
               <BioCollapsed />
             </BentoCard>
@@ -229,17 +240,13 @@ export function PortfolioShell({
             {/* WELCOME — desktop top-left hero (where the note used to live) */}
             {isDesktop !== false && (
               <motion.div
-                initial={reduce ? false : { opacity: 0, y: 16, scale: 0.98 }}
-                animate={
-                  isLoaded || reduce
-                    ? { opacity: 1, y: 0, scale: 1 }
-                    : { opacity: 0, y: 16, scale: 0.98 }
-                }
-                transition={{ duration: 0.55, ease }}
+                initial={reduce ? false : { x: "-110vw" }}
+                animate={isLoaded || reduce ? { x: 0 } : { x: "-110vw" }}
+                transition={{ duration: 0.8, ease }}
                 className="hidden lg:block lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:row-end-4 relative overflow-hidden"
                 style={{
                   borderRadius: RADIUS,
-                  background: "var(--cream)",
+                  ...WELCOME_SURFACE,
                   color: "var(--orange-deep)",
                   padding:
                     "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
@@ -255,23 +262,27 @@ export function PortfolioShell({
               expanded={expanded}
               onOpen={setExpanded}
               variant="sky"
+              bleed
               entered={isLoaded}
               enterDelay={0.32}
-              className="hidden lg:block lg:col-start-1 lg:col-end-2 lg:row-start-6 lg:row-end-7 lg:place-self-start lg:w-3/5 lg:max-h-full lg:aspect-square"
+              enterFrom="right"
+              className="hidden lg:block lg:col-start-11 lg:col-end-13 lg:row-start-4 lg:row-end-7"
             >
               <LetterCollapsed compact />
             </BentoCard>
 
             {/* SOCIAL — desktop: strip beside the small letter, below review */}
             <SocialCard
-              className="lg:col-start-2 lg:col-end-5 lg:row-start-6 lg:row-end-7"
+              entered={isLoaded}
+              enterDelay={0.42}
+              className="lg:col-start-1 lg:col-end-4 lg:row-start-6 lg:row-end-7"
             />
 
             {/* MOBILE/TABLET — note card + 5 social mini-cards
                 (tablet ≥464: col 2 row 4, shares row with testimonials, 3×2 grid)
                 (mobile <464: full-width row 5 as 3×2) */}
             <div
-              className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-6 max-[463px]:row-end-7 max-[463px]:self-auto max-[463px]:aspect-auto lg:hidden"
+              className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-6 max-[639px]:row-end-7 max-[639px]:self-auto max-[639px]:aspect-auto lg:hidden"
               style={{ gap: "clamp(6px, 1.6vw, 10px)", minWidth: 0, minHeight: 0 }}
             >
               <BentoCard
@@ -279,9 +290,11 @@ export function PortfolioShell({
                 expanded={expanded}
                 onOpen={setExpanded}
                 variant="sky"
+                bleed
                 layoutKey="card-letter-mobile"
                 entered={isLoaded}
                 enterDelay={0.28}
+                enterFrom="bottom"
               >
                 <LetterCollapsed />
               </BentoCard>
@@ -296,7 +309,8 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.28}
-              className="col-start-6 col-end-11 row-start-4 row-end-5 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-4 max-[463px]:row-end-5 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
+              enterFrom="top"
+              className="col-start-6 col-end-11 row-start-4 row-end-5 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-4 max-[639px]:row-end-5 lg:col-start-5 lg:col-end-10 lg:row-start-1 lg:row-end-4"
             >
               <AnalyticsCollapsed github={github} />
             </BentoCard>
@@ -309,7 +323,8 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.35}
-              className="col-start-6 col-end-11 row-start-3 row-end-4 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-5 max-[463px]:row-end-6 lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-4"
+              enterFrom="right"
+              className="col-start-6 col-end-11 row-start-3 row-end-4 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-5 max-[639px]:row-end-6 lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-4"
             >
               <ProjectsCollapsed />
             </BentoCard>
@@ -322,7 +337,8 @@ export function PortfolioShell({
               variant="cream"
               entered={isLoaded}
               enterDelay={0.21}
-              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[463px]:col-start-1 max-[463px]:col-end-3 max-[463px]:row-start-7 max-[463px]:row-end-8 lg:col-start-1 lg:col-end-5 lg:row-start-4 lg:row-end-6"
+              enterFrom="left"
+              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-7 max-[639px]:row-end-8 lg:col-start-1 lg:col-end-4 lg:row-start-4 lg:row-end-6"
             >
               <TestimonialsCollapsed items={testimonials} />
             </BentoCard>
@@ -382,7 +398,7 @@ export function PortfolioShell({
           key="boot"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.35, ease } }}
+          exit={{ opacity: 0, transition: { duration: 0.45, ease } }}
           className="fixed inset-0 z-100 grain flex items-center justify-center"
           style={{ background: "var(--ink)", color: "var(--cream)" }}
         >
@@ -399,7 +415,7 @@ export function PortfolioShell({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease, delay: 0.15 }}
             >
-              <BootBar duration={520} />
+              <BootBar duration={1450} />
             </motion.div>
             <motion.span
               className="t-mono-xs"

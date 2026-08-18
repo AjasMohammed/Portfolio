@@ -33,6 +33,17 @@ const LAYOUT_TRANSITION = {
   ease,
 } as const;
 
+/* Tiles slide in from just past the viewport edge and settle into the grid —
+   framer converts the vw/vh strings to px against the element, so the same
+   offset clears any screen size. */
+export type EnterFrom = "left" | "right" | "top" | "bottom";
+const ENTER_OFFSET: Record<EnterFrom, { x?: string; y?: string }> = {
+  left: { x: "-110vw" },
+  right: { x: "110vw" },
+  top: { y: "-110vh" },
+  bottom: { y: "110vh" },
+};
+
 export function BentoCard({
   id,
   expanded,
@@ -46,6 +57,7 @@ export function BentoCard({
   layoutKey,
   entered = true,
   enterDelay = 0,
+  enterFrom = "bottom",
 }: {
   id: CardId;
   expanded: CardId | null;
@@ -61,6 +73,8 @@ export function BentoCard({
   entered?: boolean;
   /** Per-tile stagger offset for the grid entrance. */
   enterDelay?: number;
+  /** Which viewport edge the tile slides in from. */
+  enterFrom?: EnterFrom;
 }) {
   const isHidden = expanded === id;
   const otherOpen = expanded !== null && expanded !== id;
@@ -74,10 +88,10 @@ export function BentoCard({
   const [enterDone, setEnterDone] = useState(reduce ?? false);
   useEffect(() => {
     if (!entered || enterDone) return;
-    const t = setTimeout(() => setEnterDone(true), (enterDelay + 0.6) * 1000);
+    const t = setTimeout(() => setEnterDone(true), (enterDelay + 0.9) * 1000);
     return () => clearTimeout(t);
   }, [entered, enterDone, enterDelay]);
-  const preEnter = { opacity: 0, y: 16, scale: 0.98 };
+  const preEnter = ENTER_OFFSET[enterFrom];
   // Bleed lets the portrait card's foreground escape above the tile. We only
   // want that while the tile is in its resting bento position — once it's the
   // source of an expand animation (isHidden) we must clip, or the foreground
@@ -109,13 +123,18 @@ export function BentoCard({
       initial={reduce ? false : preEnter}
       animate={
         entered || reduce
-          ? { opacity: otherOpen ? 0.25 : 1, scale: otherOpen ? 0.985 : 1, y: 0 }
+          ? {
+              opacity: otherOpen ? 0.25 : 1,
+              scale: otherOpen ? 0.985 : 1,
+              x: 0,
+              y: 0,
+            }
           : preEnter
       }
       whileHover={hoverable ? { scale: 1.012, y: -4 } : undefined}
       whileTap={interactive && !reduce ? { scale: 0.988 } : undefined}
       transition={{
-        duration: enterDone ? 0.32 : 0.55,
+        duration: enterDone ? 0.32 : 0.8,
         ease,
         delay: enterDone ? 0 : enterDelay,
         layout: LAYOUT_TRANSITION,

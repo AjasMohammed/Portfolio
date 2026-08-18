@@ -1,13 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
     ease,
     RADIUS,
     WHATSAPP_IMG,
     CONTENT_BASE_DELAY,
     SKY_BG,
+    LETTER_IMG,
+    CONTACT_IMG,
     LETTER_INK,
     LETTER_INK_SOFT,
 } from "../constants";
@@ -133,28 +136,16 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
 
             {/* Compact tile — used on mobile and when `compact` is set on lg */}
             <div
-                className={`${compact ? "flex" : "flex lg:hidden"} flex-col items-center justify-center w-full h-full gap-0.5 px-1.5 py-1.5`}
-                style={{ containerType: "inline-size" }}
+                className={`${compact ? "block" : "block lg:hidden"} relative w-full h-full`}
             >
-                <motion.p
-                    className="t-code text-center"
-                    style={{
-                        color: LETTER_INK_SOFT,
-                        fontSize: "clamp(28px, 85cqw, 96px)",
-                        fontWeight: 800,
-                        letterSpacing: "0.02em",
-                        lineHeight: 1,
-                    }}
-                    initial={reduce ? false : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                        duration: 0.6,
-                        ease,
-                        delay: CONTENT_BASE_DELAY + 0.1,
-                    }}
-                >
-                    !
-                </motion.p>
+                <Image
+                    src={LETTER_IMG}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1023px) 30vw, 22vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                    style={{ objectPosition: "50% 65%" }}
+                />
             </div>
         </>
     );
@@ -163,77 +154,140 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
 export function SocialCard({
     extraStyle,
     className,
+    entered = true,
+    enterDelay = 0,
 }: {
     extraStyle?: React.CSSProperties;
     className?: string;
+    entered?: boolean;
+    enterDelay?: number;
 }) {
     const reduce = useReducedMotion();
+    const [open, setOpen] = useState(false);
+    // Mirrors BentoCard's enterDone: drop the stagger delay once the slide-in
+    // has played so hover transitions stay snappy.
+    const [enterDone, setEnterDone] = useState(reduce ?? false);
+    useEffect(() => {
+        if (!entered || enterDone) return;
+        const t = setTimeout(() => setEnterDone(true), (enterDelay + 0.9) * 1000);
+        return () => clearTimeout(t);
+    }, [entered, enterDone, enterDelay]);
+
     return (
-        <div
-            className={`hidden lg:flex flex-col ${className ?? ""}`}
+        <motion.div
+            className={`group hidden lg:block relative overflow-hidden ${className ?? ""}`}
             style={{
-                gap: "clamp(4px, 0.5svh, 8px)",
+                borderRadius: RADIUS,
                 minWidth: 0,
                 minHeight: 0,
                 ...extraStyle,
             }}
+            initial={reduce ? false : { y: "110vh" }}
+            animate={entered || reduce ? { y: 0 } : { y: "110vh" }}
+            whileHover={reduce ? undefined : { scale: 1.012, y: -4 }}
+            transition={{
+                duration: enterDone ? 0.32 : 0.8,
+                ease,
+                delay: enterDone ? 0 : enterDelay,
+            }}
+            onMouseLeave={() => setOpen(false)}
+            onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
         >
-            <div
-                className="grid flex-1 place-items-center min-h-0"
-                style={{
-                    gridTemplateColumns: `repeat(${contactIcons.length}, minmax(0, 1fr))`,
-                    gap: "clamp(6px, 0.7vw, 12px)",
-                    minWidth: 0,
-                }}
-            >
-                {contactIcons.map((c, i) => (
-                <motion.a
-                    key={c.name}
-                    href={c.href}
-                    target={c.ext ? "_blank" : undefined}
-                    rel={c.ext ? "noreferrer" : undefined}
-                    aria-label={c.label}
-                    title={c.label}
-                    initial={reduce ? false : { opacity: 0, scale: 0.3, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{
-                        duration: 0.6,
-                        ease,
-                        delay: CONTENT_BASE_DELAY + 0.45 + i * 0.08,
-                    }}
-                    className="group relative flex aspect-square overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
-                    style={{
-                        width: "100%",
-                        maxHeight: "100%",
-                        background: "var(--cream)",
-                        color: "var(--orange-deep)",
-                        borderRadius: RADIUS,
-                        minWidth: 0,
-                        padding: "clamp(6px, 0.6svh, 12px) clamp(4px, 0.5vw, 10px)",
-                    }}
-                >
-                    {/* Magnetic inner — the icon + label lean toward the cursor
-                        while the tile itself stays put. */}
-                    <Magnetic
-                        className="flex w-full flex-col items-center justify-center min-w-0"
-                        style={{ gap: "clamp(3px, 0.4svh, 6px)" }}
+            <Image
+                src={CONTACT_IMG}
+                alt=""
+                fill
+                sizes="35vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            />
+
+            <AnimatePresence initial={false} mode="wait">
+                {!open ? (
+                    <motion.button
+                        key="closed"
+                        type="button"
+                        onClick={() => setOpen(true)}
+                        aria-expanded={false}
+                        className="absolute inset-0 flex items-center justify-between cursor-pointer text-left"
+                        style={{
+                            color: "var(--orange-deep)",
+                            padding: "clamp(10px,1.4svh,18px) clamp(14px,1.4vw,24px)",
+                        }}
+                        initial={reduce ? false : { opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={reduce ? undefined : { opacity: 0, y: -10 }}
+                        transition={{ duration: 0.34, ease }}
                     >
-                        <SocialIcon name={c.name} size={20} />
                         <span
-                            className="t-mono-xs truncate w-full text-center compact:hidden"
-                            style={{
-                                fontSize: "clamp(9px, 0.7vw, 12px)",
-                                letterSpacing: "0.12em",
-                                opacity: 0.75,
-                            }}
+                            className="t-display"
+                            style={{ fontSize: "clamp(20px,2vw,36px)", lineHeight: 1 }}
                         >
-                            {c.label}
+                            say hello
                         </span>
-                    </Magnetic>
-                </motion.a>
-                ))}
-            </div>
-        </div>
+                        <span
+                            className="t-mono-xs"
+                            style={{ letterSpacing: "0.18em", opacity: 0.75 }}
+                        >
+                            click for contacts →
+                        </span>
+                    </motion.button>
+                ) : (
+                    <motion.div
+                        key="open"
+                        className="absolute inset-0 grid place-items-stretch"
+                        style={{
+                            gridTemplateColumns: `repeat(${contactIcons.length}, minmax(0, 1fr))`,
+                            gap: "clamp(6px, 0.7vw, 12px)",
+                            padding: "clamp(8px,1svh,14px) clamp(8px,0.8vw,14px)",
+                        }}
+                        initial={reduce ? false : { opacity: 0, y: 10, scale: 0.985 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={reduce ? undefined : { opacity: 0, y: 8, scale: 0.985 }}
+                        transition={{ duration: 0.38, ease }}
+                    >
+                        {contactIcons.map((c, i) => (
+                            <motion.a
+                                key={c.name}
+                                href={c.href}
+                                target={c.ext ? "_blank" : undefined}
+                                rel={c.ext ? "noreferrer" : undefined}
+                                aria-label={c.label}
+                                title={c.label}
+                                autoFocus={i === 0}
+                                initial={reduce ? false : { opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.42, ease, delay: 0.06 + i * 0.055 }}
+                                className="group relative flex overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
+                                style={{
+                                    background: "var(--cream)",
+                                    color: "var(--orange-deep)",
+                                    borderRadius: RADIUS,
+                                    minWidth: 0,
+                                    padding: "clamp(6px, 0.6svh, 12px) clamp(4px, 0.5vw, 10px)",
+                                }}
+                            >
+                                <Magnetic
+                                    className="flex w-full flex-col items-center justify-center min-w-0"
+                                    style={{ gap: "clamp(3px, 0.4svh, 6px)" }}
+                                >
+                                    <SocialIcon name={c.name} size={20} />
+                                    <span
+                                        className="t-mono-xs truncate w-full text-center compact:hidden"
+                                        style={{
+                                            fontSize: "clamp(9px, 0.7vw, 12px)",
+                                            letterSpacing: "0.12em",
+                                            opacity: 0.75,
+                                        }}
+                                    >
+                                        {c.label}
+                                    </span>
+                                </Magnetic>
+                            </motion.a>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 }
 

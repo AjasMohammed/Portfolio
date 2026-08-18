@@ -10,15 +10,182 @@ import { SocialIcon } from "../social-icon";
 import { Counter } from "../stat";
 import { computeExperienceYears } from "./analytics-card";
 
+/* ── Dossier facts ────────────────────────────────────────────────────────
+   The collapsed tile is an ID card, not an essay: four scannable rows, all
+   derived from `profile`/`experiences` so nothing here can drift from the
+   expanded card. Short framework names only — the dossier column is ~240px
+   and "Django REST Framework" alone overruns it. */
+const CURRENT_ROLE =
+  experiences.find((e) => /present/i.test(e.period)) ?? experiences[0];
+const STACK = profile.skills.frameworks.filter((f) => f.length <= 8).slice(0, 2);
+const SINCE = CURRENT_ROLE.period.split(/\s*[-–]\s*/)[0];
+
+const SPECS = [
+  { k: "now", v: CURRENT_ROLE.company },
+  { k: "stack", v: STACK.join(" · ") },
+  { k: "since", v: SINCE },
+  { k: "base", v: profile.location },
+];
+
+/* Lead sentence only. The full summary lives in the expanded card — a tile
+   that gets truncated mid-word reads as a bug, not as a teaser. */
+const SUMMARY_LEAD = profile.summary.split(/(?<=\.)\s+/)[0];
+
+const RULE = "1px solid rgba(192,68,15,0.2)";
+
+function SpecList({ size = "clamp(10px,0.82vw,12.5px)" }: { size?: string }) {
+  return (
+    <dl className="grid min-w-0" style={{ gridTemplateColumns: "auto 1fr" }}>
+      {SPECS.map((row) => (
+        <div key={row.k} className="contents">
+          <dt
+            className="t-mono-xs"
+            style={{
+              opacity: 0.5,
+              borderTop: RULE,
+              paddingBlock: "clamp(3px,0.5svh,6px)",
+              paddingRight: "clamp(8px,1vw,14px)",
+              fontSize: "clamp(9px,0.68vw,11px)",
+            }}
+          >
+            {row.k}
+          </dt>
+          <dd
+            className="t-display-med min-w-0 text-right"
+            style={{
+              borderTop: RULE,
+              paddingBlock: "clamp(3px,0.5svh,6px)",
+              fontSize: size,
+              lineHeight: 1.25,
+              opacity: 0.92,
+              overflowWrap: "anywhere",
+            }}
+          >
+            {row.v}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/* ── Watermark ────────────────────────────────────────────────────────────
+   This tile is a data page — four fields, a stamp of years, a name set in
+   display type — so it carries what a data page carries: a guilloché seal.
+   Engine-turned rosettes are rings of overlapping circles struck by a
+   geometric lathe, and that's exactly how these are built: two plates of
+   circles, generated from the geometry rather than shipped as art, so there
+   is no image request and it stays crisp at any tile size.
+   At rest it's a watermark. Hover counter-rotates the plates and inks them
+   in, and the moiré where they cross slides as they turn — the document
+   authenticating under the cursor, the same "hovering pays you back" idea
+   the works tile's window cascade runs on.
+   Desktop only: the phone tile is one column of text with nothing behind. */
+const PLATES = [
+  // `radius` under `orbit` on purpose: the circles trace a band and leave the
+  // middle open, so the spec rows sitting over the seal's centre stay clean.
+  // Two plates of the same geometry with different counts — that mismatch is
+  // what makes the moiré, and what makes it crawl when they counter-rotate.
+  { n: 34, radius: 36, orbit: 64, w: 0.45, o: 0.055, oh: 0.15, spin: "13deg" },
+  { n: 25, radius: 36, orbit: 64, w: 0.45, o: 0.045, oh: 0.12, spin: "-19deg" },
+];
+
+/* The engraved edge — what tells you it's a seal and not a doily. */
+const TICKS = Array.from({ length: 24 }, (_, i) => i * 15);
+
+function BioSeal() {
+  return (
+    <div
+      aria-hidden
+      className="hidden lg:block absolute -z-10 pointer-events-none"
+      style={{
+        // Struck into the bottom-right corner and running off both edges, the
+        // way a seal is stamped at the foot of a document — the dossier's own
+        // rows keep the middle of the tile, which is theirs.
+        bottom: "-26%",
+        right: "-13%",
+        width: "clamp(180px, 52%, 300px)",
+        aspectRatio: "1",
+        // Feathered so the plates dissolve instead of ending on a hard arc.
+        maskImage:
+          "radial-gradient(closest-side, #000 64%, rgba(0,0,0,0.45) 86%, transparent 100%)",
+        WebkitMaskImage:
+          "radial-gradient(closest-side, #000 64%, rgba(0,0,0,0.45) 86%, transparent 100%)",
+      }}
+    >
+      <svg
+        className="h-full w-full"
+        viewBox="-120 -120 240 240"
+        fill="none"
+        stroke="var(--orange)"
+      >
+        <g
+          className="bio-ring"
+          style={{
+            ["--o" as string]: 0.07,
+            ["--oh" as string]: 0.17,
+            ["--spin" as string]: "-8deg",
+            ["--d" as string]: "0.02s",
+          }}
+        >
+          <circle r="112" strokeWidth="0.6" />
+          <circle r="106" strokeWidth="0.35" />
+          {TICKS.map((deg) => (
+            <line
+              key={deg}
+              x1="106"
+              y1="0"
+              x2="112"
+              y2="0"
+              strokeWidth="0.7"
+              transform={`rotate(${deg})`}
+            />
+          ))}
+        </g>
+
+        {PLATES.map((plate, i) => (
+          <g
+            key={plate.n}
+            className="bio-ring"
+            style={{
+              ["--o" as string]: plate.o,
+              ["--oh" as string]: plate.oh,
+              ["--spin" as string]: plate.spin,
+              ["--d" as string]: `${0.06 + i * 0.06}s`,
+            }}
+          >
+            {Array.from({ length: plate.n }, (_, k) => {
+              const a = ((k / plate.n) * Math.PI * 2).toFixed(4);
+              return (
+                <circle
+                  key={k}
+                  cx={(plate.orbit * Math.cos(+a)).toFixed(1)}
+                  cy={(plate.orbit * Math.sin(+a)).toFixed(1)}
+                  r={plate.radius}
+                  strokeWidth={plate.w}
+                />
+              );
+            })}
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 export function BioCollapsed() {
   const experienceYears = computeExperienceYears();
   const reduce = useReducedMotion();
 
   return (
     <>
-      {/* Desktop / lg+ — full editorial layout */}
-      <div className="hidden lg:flex flex-col w-full h-full gap-3 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]">
-        <div className="flex items-baseline justify-between gap-2 min-w-0">
+      <BioSeal />
+
+      {/* Desktop / lg+ — dossier: headline left, spec column right.
+          Everything on the left is indented past the portrait tile's foreground,
+          which bleeds ~30px over this card's left edge for its full height. */}
+      <div className="hidden lg:flex flex-col w-full h-full gap-[clamp(6px,0.9svh,12px)] origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]">
+        <div className="flex items-baseline justify-between gap-2 min-w-0 pl-[clamp(12px,1.4vw,22px)]">
           <p
             className="t-mono-xs"
             style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
@@ -32,196 +199,166 @@ export function BioCollapsed() {
             python
           </p>
         </div>
-        <div className="flex-1 flex flex-col justify-center min-h-0 gap-3" style={{ paddingTop: "clamp(10px,1.4svh,20px)" }}>
-          <div className="flex items-end gap-3 min-w-0 flex-wrap">
-            <motion.div
-              className="flex items-end gap-2 shrink-0"
-              initial={reduce ? false : { opacity: 0, y: 24, scale: 0.85 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.85, ease, delay: CONTENT_BASE_DELAY + 0.15 }}
-            >
-              <p
-                className="t-retro"
-                style={{
-                  fontSize: "clamp(78px,8.6vw,180px)",
-                  color: "var(--orange)",
-                  lineHeight: 0.82,
-                  textShadow:
-                    "4px 4px 0 rgba(192,68,15,0.22), 8px 8px 0 rgba(192,68,15,0.08)",
-                }}
-              >
-                <Counter to={experienceYears} startDelay={CONTENT_BASE_DELAY + 0.3} />+
-              </p>
-              <p
-                className="t-mono pb-3"
-                style={{
-                  opacity: 0.7,
-                  fontSize: "clamp(12px,1vw,16px)",
-                  letterSpacing: "0.08em",
-                  lineHeight: 1.15,
-                }}
-              >
-                years
-                <br />
-                building
-              </p>
-            </motion.div>
-            <h1
-              className="t-display min-w-0"
-              style={{ fontSize: "clamp(22px, 2.8vw, 46px)", lineHeight: 0.94 }}
-            >
-              <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Software developer.</SplitText>
-              <br />
-              <SplitText
-                className="t-serif"
-                style={{ color: "var(--orange)", fontStyle: "italic", fontSize: "clamp(18px, 2.4vw, 40px)", paddingBlock: "clamp(4px, 0.5svh, 8px)", display: "block" }}
-                delay={CONTENT_BASE_DELAY + 0.7}
-              >
-                Quietly built.
-              </SplitText>
-            </h1>
-          </div>
-        </div>
 
-        <motion.p
-          className="t-body max-w-prose compact:hidden"
-          style={{
-            // Fugaz One runs wide, so this blurb takes a third line and its
-            // top line rides up beside the portrait's bleed — indent clears it
-            fontSize: "clamp(12px, 0.9vw, 15px)",
-            lineHeight: 1.65,
-            paddingLeft: "18px",
-            borderTop: "1px solid rgba(244,235,216,0.18)",
-            paddingTop: "clamp(8px, 1svh, 12px)",
-          }}
-          initial={reduce ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 0.85, y: 0 }}
-          transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.95 }}
-        >
-          {profile.summary}
-        </motion.p>
-      </div>
-
-      {/* Mobile — diagonal 2×2 grid: stat top-left, title bottom-right */}
-      <div className="flex lg:hidden flex-col w-full h-full justify-center gap-3 px-3 py-3">
-        <div className="grid grid-cols-2 grid-rows-2 gap-2 flex-1 min-h-0">
-          {/* Row 1 / Col 1 — stat, top-left aligned */}
-          <motion.div
-            className="flex items-start justify-start gap-2"
-            initial={reduce ? false : { opacity: 0, y: 16, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.75, ease, delay: CONTENT_BASE_DELAY + 0.15 }}
-          >
-            <p
-              className="t-retro"
-              style={{
-                fontSize: "clamp(44px, 10vw, 130px)",
-                color: "var(--orange)",
-                lineHeight: 0.82,
-                textShadow:
-                  "3px 3px 0 rgba(192,68,15,0.22), 6px 6px 0 rgba(192,68,15,0.08)",
-              }}
-            >
-              <Counter to={experienceYears} startDelay={CONTENT_BASE_DELAY + 0.3} />+
-            </p>
-            <p
-              className="t-mono pt-2"
-              style={{
-                opacity: 0.7,
-                fontSize: "clamp(10px, 1.4vw, 16px)",
-                letterSpacing: "0.08em",
-                lineHeight: 1.15,
-              }}
-            >
-              years
-              <br />
-              building
-            </p>
-          </motion.div>
-
-          {/* Row 1 / Col 2 — intentionally empty (gives the diagonal breathing room) */}
-          <div aria-hidden />
-
-          {/* Row 2 / Col 1 — intentionally empty */}
-          <div aria-hidden />
-
-          {/* Row 2 / Col 2 — role title, bottom-right aligned */}
-          <div className="flex flex-col items-end justify-end text-right min-w-0">
+        <div className="flex-1 min-h-0 flex items-stretch gap-[clamp(12px,1.4vw,22px)]">
+          {/* Headline */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center pl-[clamp(12px,1.4vw,22px)]">
             <h1
               className="t-display"
               style={{
-                // cqw cap: the cell is ~half the card, so a vw clamp alone
-                // wraps "developer." mid-word on tablet widths
-                fontSize: "min(clamp(20px, 3.4vw, 38px), 5.6cqw)",
-                lineHeight: 0.95,
+                // cqw cap: the headline column is a little over half the card,
+                // so a vw clamp alone breaks "developer." across two lines.
+                fontSize: "min(clamp(22px,2.9vw,46px), 7.4cqw)",
+                lineHeight: 0.92,
               }}
             >
-              <SplitText delay={CONTENT_BASE_DELAY + 0.4}>Software</SplitText>
-              <SplitText delay={CONTENT_BASE_DELAY + 0.55}>developer.</SplitText>
+              <SplitText delay={CONTENT_BASE_DELAY + 0.2}>Software</SplitText>
+              <SplitText delay={CONTENT_BASE_DELAY + 0.4}>developer.</SplitText>
             </h1>
             <motion.p
-              className="t-serif mt-1"
+              className="t-serif"
               style={{
                 color: "var(--orange)",
-                fontSize: "clamp(11px, 2vw, 22px)",
-                lineHeight: 1.15,
-                fontStyle: "italic",
+                fontSize: "min(clamp(18px,2.2vw,36px), 5.8cqw)",
+                paddingTop: "clamp(4px,0.6svh,10px)",
               }}
-              initial={reduce ? false : { opacity: 0 }}
-              animate={{ opacity: 0.9 }}
-              transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
+              initial={reduce ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 0.95, y: 0 }}
+              transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
             >
               Quietly built.
             </motion.p>
           </div>
+
+          {/* Spec column — outlined numeral so it reads as a caption to the
+              headline, not as a second hero stat competing with the ring card. */}
+          <motion.div
+            className="shrink-0 flex flex-col justify-center gap-[clamp(8px,1.2svh,16px)] min-w-0"
+            style={{
+              width: "43%",
+              maxWidth: 280,
+              borderLeft: RULE,
+              paddingLeft: "clamp(10px,1.2vw,18px)",
+            }}
+            initial={reduce ? false : { opacity: 0, x: 14 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.55 }}
+          >
+            <div className="flex items-end gap-2 min-w-0">
+              <p
+                className="t-retro"
+                style={{
+                  fontSize: "min(clamp(34px,4vw,62px), 10cqw)",
+                  color: "transparent",
+                  WebkitTextStroke: "1.5px var(--orange)",
+                  lineHeight: 0.8,
+                }}
+              >
+                <Counter to={experienceYears} startDelay={CONTENT_BASE_DELAY + 0.7} />+
+              </p>
+              <p
+                className="t-mono-xs pb-1"
+                style={{ opacity: 0.6, fontSize: "clamp(9px,0.68vw,11px)", lineHeight: 1.3 }}
+              >
+                yrs
+                <br />
+                shipping
+              </p>
+            </div>
+            <SpecList />
+          </motion.div>
         </div>
 
-        {/* Key details — highest education + current role */}
-        <motion.div
-          className="flex flex-col gap-2 min-w-0"
-          initial={reduce ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.85 }}
+        <motion.p
+          className="compact:hidden pl-[clamp(12px,1.4vw,22px)]"
+          style={{
+            // Jost, not the display face: three lines of Fugaz One at the foot
+            // of the tile turn into a wall.
+            fontFamily: "var(--font-futura), system-ui, sans-serif",
+            fontSize: "clamp(11px,0.88vw,14px)",
+            lineHeight: 1.6,
+            letterSpacing: "0.025em",
+            borderTop: RULE,
+            paddingTop: "clamp(8px,1svh,12px)",
+          }}
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 0.82, y: 0 }}
+          transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.9 }}
         >
-          <div
-            className="min-w-0 pt-1.5"
-            style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
+          {SUMMARY_LEAD}
+        </motion.p>
+      </div>
+
+      {/* Mobile — same dossier, stacked: headline over stat over specs */}
+      <div className="flex lg:hidden flex-col w-full h-full justify-between gap-3 px-3 py-3">
+        <div className="flex items-baseline justify-between gap-2 min-w-0">
+          <p className="t-mono-xs" style={{ opacity: 0.7, letterSpacing: "0.18em" }}>
+            dev bio
+          </p>
+          <p className="t-mono-xs shrink-0" style={{ opacity: 0.55, letterSpacing: "0.18em" }}>
+            python
+          </p>
+        </div>
+
+        <div className="flex items-end justify-between gap-3 min-w-0">
+          <h1
+            className="t-display min-w-0"
+            style={{
+              // cqw cap: the stat shares this row, so a vw clamp alone wraps
+              // "developer." mid-word on tablet widths. 6.4cqw (not 7.4) keeps
+              // it intact down to 320px-wide phones.
+              fontSize: "min(clamp(16px,3.4vw,38px), 6.4cqw)",
+              lineHeight: 0.95,
+            }}
+          >
+            <SplitText delay={CONTENT_BASE_DELAY + 0.2}>Software</SplitText>
+            <SplitText delay={CONTENT_BASE_DELAY + 0.4}>developer.</SplitText>
+          </h1>
+          <motion.div
+            className="flex items-end gap-1.5 shrink-0"
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.55 }}
           >
             <p
-              className="t-mono mb-1"
-              style={{ opacity: 0.85, fontSize: "clamp(10px,1.2vw,13px)", letterSpacing: "0.08em" }}
-            >
-              <span style={{ opacity: 0.55 }}>$ </span>
-              details
-            </p>
-            <dl
-              className="t-code grid gap-x-[clamp(8px,1.4vw,16px)] gap-y-0.5 min-w-0"
+              className="t-retro"
               style={{
-                gridTemplateColumns: "auto 1fr",
-                fontSize: "clamp(10px,1.05vw,13px)",
-                lineHeight: 1.5,
-                paddingLeft: "1em",
-                letterSpacing: 0,
+                fontSize: "min(clamp(34px,9vw,64px), 16cqw)",
+                color: "transparent",
+                WebkitTextStroke: "1.5px var(--orange)",
+                lineHeight: 0.8,
               }}
             >
-              {[
-                { k: "Education", v: profile.education[0]?.degree ?? "" },
-                { k: "Company", v: experiences[0]?.company ?? "" },
-                { k: "Role", v: experiences[0]?.role ?? "" },
-                { k: "Location", v: experiences[0]?.location ?? profile.location },
-              ].map((row) => (
-                <div key={row.k} className="contents">
-                  <dt style={{ opacity: 0.55 }}>{row.k}</dt>
-                  <dd
-                    className="min-w-0"
-                    style={{ opacity: 0.9, overflowWrap: "break-word", wordBreak: "break-word" }}
-                  >
-                    {row.v}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+              <Counter to={experienceYears} startDelay={CONTENT_BASE_DELAY + 0.7} />+
+            </p>
+            <p
+              className="t-mono-xs pb-1"
+              style={{ opacity: 0.6, fontSize: "clamp(9px,1.6vw,11px)", lineHeight: 1.3 }}
+            >
+              yrs
+              <br />
+              shipping
+            </p>
+          </motion.div>
+        </div>
+
+        <motion.p
+          className="t-serif"
+          style={{ color: "var(--orange)", fontSize: "clamp(16px,4vw,26px)" }}
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 0.95 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
+        >
+          Quietly built.
+        </motion.p>
+
+        <motion.div
+          className="min-w-0"
+          initial={reduce ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.9 }}
+        >
+          <SpecList size="clamp(10px,2.4vw,14px)" />
         </motion.div>
       </div>
     </>
@@ -275,6 +412,36 @@ export function ContactIconRow({ size = 18 }: { size?: number }) {
   );
 }
 
+/* Small mono section label — "experience · 04" style. The count is data, not
+   decoration: it tells you the list is complete before you read it. */
+function SectionLabel({
+  text,
+  right,
+}: {
+  text: string;
+  right?: string;
+}) {
+  return (
+    <div className="flex items-baseline justify-between mb-2">
+      <p
+        className="t-mono opacity-70"
+        style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
+      >
+        <span style={{ opacity: 0.55 }}>$ </span>
+        {text}
+      </p>
+      {right && (
+        <p
+          className="t-mono-xs opacity-60"
+          style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
+        >
+          {right}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function BioExpanded({ github }: { github: GithubData }) {
   const experienceYears = computeExperienceYears();
 
@@ -283,118 +450,107 @@ export function BioExpanded({ github }: { github: GithubData }) {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full overflow-y-auto scrollbar-styled-ink lg:grid lg:grid-cols-[1.2fr_1fr]"
-      style={{ gap: "clamp(16px,1.6svh,28px)" }}
+      className="flex flex-col h-full overflow-y-auto scrollbar-styled-ink lg:grid lg:grid-cols-[1.15fr_1fr]"
+      style={{ gap: "clamp(16px,2.2vw,44px)" }}
     >
+      {/* ── Left — identity ─────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-4 min-w-0 lg:justify-between"
+        className="flex flex-col gap-[clamp(10px,1.4svh,18px)] min-w-0 lg:justify-between"
       >
-        <div className="flex flex-col gap-[clamp(8px,0.9svh,14px)] min-w-0">
+        <div className="flex flex-col gap-[clamp(8px,1.1svh,16px)] min-w-0">
           <p
             className="t-mono-xs"
-            style={{ opacity: 0.65, fontSize: "clamp(10px,2.6vw,14px)", letterSpacing: "0.22em" }}
+            style={{ opacity: 0.65, fontSize: "clamp(10px,2.6vw,13px)", letterSpacing: "0.22em" }}
           >
-            dev bio · since 2024
+            dev bio · dossier
           </p>
-          <div className="flex items-end gap-3 flex-wrap min-w-0">
-            <div className="flex items-end gap-2 shrink-0">
+
+          {/* Masthead — headline left, outlined stat right, mirroring the tile */}
+          <div className="flex items-start justify-between gap-4 min-w-0">
+            <h2
+              className="t-display min-w-0"
+              style={{ fontSize: "clamp(26px,5vw,66px)", lineHeight: 0.92 }}
+            >
+              <SplitText delay={0.1}>Software</SplitText>
+              <SplitText delay={0.28}>developer.</SplitText>
+            </h2>
+            <div className="flex items-end gap-2 shrink-0 pt-1">
               <p
                 className="t-retro"
                 style={{
-                  fontSize: "clamp(64px,14vw,200px)",
-                  color: "var(--orange)",
-                  lineHeight: 0.82,
-                  textShadow:
-                    "4px 4px 0 rgba(192,68,15,0.22), 8px 8px 0 rgba(192,68,15,0.08)",
+                  fontSize: "clamp(40px,5vw,92px)",
+                  color: "transparent",
+                  WebkitTextStroke: "clamp(1.3px,0.13vw,2px) var(--orange)",
+                  lineHeight: 0.8,
                 }}
               >
                 <Counter to={experienceYears} />+
               </p>
               <p
-                className="t-mono pb-2"
-                style={{
-                  opacity: 0.75,
-                  fontSize: "clamp(11px,2.6vw,17px)",
-                  letterSpacing: "0.08em",
-                  lineHeight: 1.15,
-                }}
+                className="t-mono-xs pb-1"
+                style={{ opacity: 0.6, fontSize: "clamp(9px,2vw,11px)", lineHeight: 1.3 }}
               >
-                years
+                yrs
                 <br />
-                building
+                shipping
               </p>
             </div>
-            <h2
-              className="t-display min-w-0"
-              style={{ fontSize: "clamp(22px, 6.5vw, 68px)", lineHeight: 0.92 }}
-            >
-              <SplitText delay={0.15}>Software developer.</SplitText>
-              <br />
-              <SplitText
-                className="t-serif"
-                style={{
-                  color: "var(--orange)",
-                  fontStyle: "italic",
-                  fontSize: "clamp(15px, 4.2vw, 56px)",
-                }}
-                delay={0.4}
-              >
-                Patient backends,
-              </SplitText>
-              <br />
-              <SplitText
-                style={{ fontSize: "clamp(15px, 4.2vw, 56px)" }}
-                delay={0.65}
-              >
-                honest interfaces.
-              </SplitText>
-            </h2>
           </div>
+
+          <p
+            className="t-serif"
+            style={{
+              color: "var(--orange)",
+              fontSize: "clamp(18px,2.6vw,38px)",
+              lineHeight: 1.02,
+            }}
+          >
+            Patient backends, honest interfaces.
+          </p>
+
           <p
             className="max-w-prose"
             style={{
-              opacity: 0.9,
+              opacity: 0.88,
               fontFamily: "var(--font-futura), system-ui, sans-serif",
-              fontSize: "clamp(13px,3.4vw,20px)",
-              lineHeight: 1.55,
-              letterSpacing: "0.035em",
-              borderLeft: "2px solid rgba(192,68,15,0.32)",
-              paddingLeft: "clamp(10px,2.6vw,18px)",
-              marginTop: "clamp(6px,0.8svh,12px)",
+              fontSize: "clamp(13px,3.2vw,17px)",
+              lineHeight: 1.6,
+              letterSpacing: "0.03em",
+              borderTop: RULE,
+              paddingTop: "clamp(8px,1.1svh,14px)",
             }}
           >
             {profile.summary}
           </p>
 
-          <div className="flex flex-col gap-2 min-w-0" style={{ marginTop: "clamp(8px,1svh,12px)" }}>
-            <p
-              className="t-mono opacity-70"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-            >
-              <span style={{ opacity: 0.55 }}>$ </span>
-              i can build
-            </p>
+          <div className="flex flex-col gap-1 min-w-0" style={{ marginTop: "clamp(4px,0.6svh,10px)" }}>
+            <SectionLabel
+              text="i can build"
+              right={`${String(profile.capabilities.length).padStart(2, "0")} kinds`}
+            />
             <ul
-              className="grid min-w-0 gap-x-[clamp(10px,1.6vw,20px)]"
+              className="grid min-w-0 gap-x-[clamp(12px,1.8vw,28px)]"
               style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
             >
-              {profile.capabilities.map((item) => (
+              {profile.capabilities.map((item, i) => (
                 <li
                   key={item}
-                  className="flex items-center gap-[clamp(6px,1vw,12px)] min-w-0"
-                  style={{
-                    borderTop: "1px solid rgba(192,68,15,0.22)",
-                    paddingBlock: "clamp(3px,0.45svh,6px)",
-                  }}
+                  className="flex items-baseline gap-[clamp(6px,1vw,12px)] min-w-0"
+                  style={{ borderTop: RULE, paddingBlock: "clamp(3px,0.5svh,7px)" }}
                 >
+                  <span
+                    className="t-code shrink-0"
+                    style={{ color: "var(--orange)", opacity: 0.65, fontSize: "clamp(9px,0.66vw,11px)" }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span
                     className="t-display-med min-w-0"
                     style={{
-                      fontSize: "clamp(11px,1.35vw,15px)",
-                      lineHeight: 1.05,
+                      fontSize: "clamp(11px,1.3vw,15px)",
+                      lineHeight: 1.1,
                       overflowWrap: "break-word",
-                      wordBreak: "break-word",
                     }}
                   >
                     {item}
@@ -402,50 +558,51 @@ export function BioExpanded({ github }: { github: GithubData }) {
                 </li>
               ))}
             </ul>
-            <p
-              className="max-w-prose"
-              style={{
-                opacity: 0.8,
-                fontFamily: "var(--font-futura), system-ui, sans-serif",
-                fontSize: "clamp(11px,2.4vw,14px)",
-                lineHeight: 1.45,
-                letterSpacing: "0.025em",
-                marginTop: "clamp(4px,0.5svh,8px)",
-              }}
-            >
-              <span
-                className="t-mono-xs"
-                style={{
-                  color: "var(--orange)",
-                  opacity: 0.85,
-                  marginRight: "0.5em",
-                  letterSpacing: "0.18em",
-                }}
-              >
-                psst —
-              </span>
-              secretly a vibe coder too. cursor and claude code in the loop, so things ship faster without the patience tax.
-            </p>
           </div>
         </div>
+
+        <p
+          className="max-w-prose compact:hidden"
+          style={{
+            opacity: 0.8,
+            fontFamily: "var(--font-futura), system-ui, sans-serif",
+            fontSize: "clamp(11px,2.4vw,14px)",
+            lineHeight: 1.45,
+            letterSpacing: "0.025em",
+          }}
+        >
+          <span
+            className="t-mono-xs"
+            style={{ color: "var(--orange)", opacity: 0.85, marginRight: "0.5em", letterSpacing: "0.18em" }}
+          >
+            psst —
+          </span>
+          secretly a vibe coder too. cursor and claude code in the loop, so things ship faster without the patience tax.
+        </p>
       </motion.div>
 
+      {/* ── Right — record ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 min-w-0 lg:justify-between"
+        className="flex flex-col gap-[clamp(12px,1.8svh,26px)] min-w-0 lg:justify-between"
       >
-        <div>
-          <p
-            className="t-mono opacity-70 mb-2"
-            style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-          >
-            experience
-          </p>
-          <ul className="flex flex-col gap-[clamp(6px,1svh,10px)]">
+        <div className="min-w-0">
+          <SectionLabel
+            text="experience"
+            right={String(experiences.length).padStart(2, "0")}
+          />
+          <ul className="flex flex-col">
             {experiences.map((e) => (
-              <li key={e.company}>
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="t-display-med truncate py-1" style={{ fontSize: "clamp(13px,3.4vw,18px)" }}>
+              <li
+                key={e.company}
+                className="min-w-0"
+                style={{ borderTop: RULE, paddingBlock: "clamp(5px,0.8svh,9px)" }}
+              >
+                <div className="flex items-baseline justify-between gap-3 min-w-0">
+                  <p
+                    className="t-display-med min-w-0"
+                    style={{ fontSize: "clamp(13px,3.4vw,17px)", lineHeight: 1.15 }}
+                  >
                     {e.role}
                   </p>
                   <p
@@ -456,14 +613,13 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   </p>
                 </div>
                 <p
-                  className="truncate"
                   style={{
                     color: "var(--orange)",
                     fontFamily: "var(--font-futura), system-ui, sans-serif",
                     letterSpacing: "0.04em",
-                    lineHeight: 0.92,
-                    fontSize: "clamp(11px,2.8vw,15px)",
-                    paddingBlock: "clamp(2px,0.4svh,5px)",
+                    lineHeight: 1.3,
+                    fontSize: "clamp(11px,2.8vw,14px)",
+                    overflowWrap: "break-word",
                   }}
                 >
                   @ {e.company} · {e.location}
@@ -474,20 +630,21 @@ export function BioExpanded({ github }: { github: GithubData }) {
         </div>
 
         <div className="min-w-0">
-          <p
-            className="t-mono opacity-70 mb-2"
-            style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-          >
-            education
-          </p>
-          <ul className="flex flex-col gap-[clamp(6px,1svh,10px)]">
+          <SectionLabel
+            text="education"
+            right={String(profile.education.length).padStart(2, "0")}
+          />
+          <ul className="flex flex-col">
             {profile.education.map((e) => (
-              <li key={`${e.institution}-${e.degree}`} className="min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  {/* long degree names — narrow width step + wrap instead of clipping */}
+              <li
+                key={`${e.institution}-${e.degree}`}
+                className="min-w-0"
+                style={{ borderTop: RULE, paddingBlock: "clamp(5px,0.8svh,9px)" }}
+              >
+                <div className="flex items-baseline justify-between gap-3 min-w-0">
                   <p
-                    className="t-display-med py-1"
-                    style={{ fontSize: "clamp(12px,3.2vw,15px)" }}
+                    className="t-display-med min-w-0"
+                    style={{ fontSize: "clamp(12px,3.2vw,15px)", lineHeight: 1.15 }}
                   >
                     {e.degree}
                   </p>
@@ -501,56 +658,38 @@ export function BioExpanded({ github }: { github: GithubData }) {
                   )}
                 </div>
                 <p
-                  className="truncate"
                   style={{
                     color: "var(--orange)",
                     fontFamily: "var(--font-futura), system-ui, sans-serif",
                     letterSpacing: "0.04em",
-                    lineHeight: 0.92,
-                    fontSize: "clamp(11px,2.8vw,15px)",
-                    paddingBlock: "clamp(2px,0.4svh,5px)",
+                    lineHeight: 1.3,
+                    fontSize: "clamp(11px,2.8vw,14px)",
+                    overflowWrap: "break-word",
                   }}
                 >
                   @ {e.institution}
                   {e.location ? ` · ${e.location}` : ""}
+                  {e.grade ? ` · ${e.grade}` : ""}
                 </p>
-                {e.grade && (
-                  <p
-                    className="t-mono-xs opacity-55 mt-0.5"
-                    style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-                  >
-                    {e.grade}
-                  </p>
-                )}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Contact block — icons + values */}
         <div className="min-w-0">
-          <div className="flex items-baseline justify-between mb-2">
-            <p
-              className="t-mono opacity-70"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-            >
-              reach me
-            </p>
-            <p
-              className="t-mono-xs opacity-60"
-              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-            >
-              {github.user ? `${github.user.followers} followers` : "online"}
-            </p>
-          </div>
-          <ul className="flex flex-col gap-0.5">
+          <SectionLabel
+            text="reach me"
+            right={github.user ? `${github.user.followers} followers` : "online"}
+          />
+          <ul className="flex flex-col">
             {contactIcons.map((c) => (
-              <li key={c.name} style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}>
+              <li key={c.name} style={{ borderTop: RULE }}>
                 <a
                   href={c.href}
                   target={c.ext ? "_blank" : undefined}
                   rel={c.ext ? "noreferrer" : undefined}
-                  className="flex items-center justify-between gap-3 py-1.5 min-w-0 group"
+                  className="flex items-center justify-between gap-3 min-w-0 group"
+                  style={{ paddingBlock: "clamp(5px,0.7svh,8px)" }}
                 >
                   <span className="inline-flex items-center gap-2 min-w-0 shrink-0">
                     <span style={{ color: "var(--orange)" }}>

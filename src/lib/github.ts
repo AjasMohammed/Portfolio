@@ -269,6 +269,11 @@ function isHiddenRepo(repo: GithubRepo): boolean {
   return HIDDEN_REPO_SLUGS.has(repo.full_name.toLowerCase());
 }
 
+// Languages dropped from the language stats (donut, legends, percentages) —
+// a stray experiment repo shouldn't advertise its language as part of the
+// profile. Repo rows still show these repos; only the aggregate hides them.
+const HIDDEN_LANGUAGES = new Set(["Rust"]);
+
 // Follow pagination so stars/languages/year histograms stay correct past 100
 // repos. Capped at 3 pages — far above the current account size, while still
 // bounding the request volume per revalidation.
@@ -306,7 +311,7 @@ export async function getGithubData(username: string): Promise<GithubData> {
 
   const langCounts = new Map<string, number>();
   for (const r of ownedRepos) {
-    if (!r.language) continue;
+    if (!r.language || HIDDEN_LANGUAGES.has(r.language)) continue;
     langCounts.set(r.language, (langCounts.get(r.language) ?? 0) + 1);
   }
   const topLanguages = [...langCounts.entries()]

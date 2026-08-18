@@ -37,7 +37,10 @@
   --font-sans: var(--font-futura);
   --font-display: var(--font-fugaz);
   --font-serif: var(--font-instrument-serif);
-  --font-mono: var(--font-jetbrains-mono);
+  /* System monospace — JetBrains Mono was a ~90KB download for a 6%-opacity
+     ASCII backdrop and two tiny code labels; ui-monospace is indistinguishable
+     there. */
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
   --font-secondary: var(--font-futura);
 }
 
@@ -121,7 +124,7 @@ body {
   font-size: clamp(10px, 0.65vw, 12px);
 }
 
-/* Pure monospaced — for code-like content (still JetBrains Mono) */
+/* Pure monospaced — for code-like content (system monospace) */
 .t-code {
   font-family: var(--font-mono), monospace;
   letter-spacing: 0;
@@ -260,6 +263,10 @@ body {
   padding-top: 0.06em;
   will-change: transform, opacity;
 }
+/* Opt-out for one-line headlines: words flow inline instead of stacking. */
+.split-inline .split-line {
+  display: inline-block;
+}
 
 /* Text-rotate cursor blink */
 @keyframes caret {
@@ -283,6 +290,11 @@ body {
   border-radius: 9999px;
   background: currentColor;
   animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
 }
 
 /* Underline-on-hover for links */
@@ -336,5 +348,33 @@ body {
   }
   .bento-card--hover:hover {
     box-shadow: var(--hover-shadow);
+  }
+}
+
+/* ── Bio tile watermark ────────────────────────────────────────────────
+   The dossier's seal: concentric guilloché rosettes that counter-rotate and
+   ink in when the tile is hovered — the document authenticating under the
+   cursor, the same "hover rewards the pointer" idea the works tile uses.
+   `--spin`, `--o`/`--oh` and `--d` are set per-ring on the element. */
+.bio-ring {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform: rotate(0deg);
+  opacity: var(--o);
+  transition:
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.55s ease-out;
+  transition-delay: var(--d, 0s);
+}
+.group:hover .bio-ring {
+  transform: rotate(var(--spin));
+  opacity: var(--oh);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bio-ring {
+    transition: opacity 0.55s ease-out;
+  }
+  .group:hover .bio-ring {
+    transform: rotate(0deg);
   }
 }

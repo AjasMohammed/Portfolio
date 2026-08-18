@@ -112,7 +112,7 @@ export function ImageInner() {
             style={{ x: bgX, y: bgY, willChange: "transform" }}
           >
             <Image
-              src="/images/background.png"
+              src="/images/background.webp"
               alt=""
               aria-hidden
               fill
@@ -163,7 +163,7 @@ export function ImageInner() {
             style={{ transform: "translateY(14%)" }}
           >
             <Image
-              src="/images/foreground-2.png"
+              src="/images/foreground-2.webp"
               alt="Illustrated portrait of Ajas Mohammed"
               fill
               // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px

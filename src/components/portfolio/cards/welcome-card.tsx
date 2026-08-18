@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { experiences, profile } from "@/data/profile";
 import { ease, CONTENT_BASE_DELAY } from "../constants";
 
 const TITLE_TEXT =
@@ -26,25 +27,85 @@ const TITLE_START = 0.4; // seconds after CONTENT_BASE_DELAY
 const BOOT_START =
   TITLE_START + (TITLE_TEXT.length * TYPING_SPEED_MS) / 1000 + 0.25;
 
+/* ── Presence — the card's live half ──────────────────────────────────────
+   A portfolio that ticks reads as someone's desk, not a printed page. All
+   three signals below are real: the clock runs in my timezone, the status
+   comes from whichever role in `experiences` is still open, and the mount
+   time is measured rather than typed in. */
+
+const CITY = profile.location.split(",")[0].toLowerCase();
+const CURRENT_ROLE =
+  experiences.find((e) => /present/i.test(e.period)) ?? experiences[0];
+const STATUS = `building at ${CURRENT_ROLE.company.toLowerCase()}`;
+const CLOCK_PLACEHOLDER = "--:--:--";
+
+/* One interval drives both live readings: the wall clock, and the mount timing
+   the boot log reports. Empty until mounted on purpose — a server-rendered time
+   is already stale when it hydrates, and the mismatch is a hydration error. */
+function usePresence() {
+  const [live, setLive] = useState<{ clock: string; mountMs: number } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Kolkata",
+    });
+    // Measured from when the HTML finished arriving, not from navigation start:
+    // the row claims how long the bento took to come up, and server render plus
+    // network latency aren't that. `responseEnd` is always set before any client
+    // JS runs, so there's no zero-baseline case to guard.
+    const nav = performance.getEntriesByType(
+      "navigation",
+    )[0] as PerformanceNavigationTiming | undefined;
+    const mountMs = Math.max(0, performance.now() - (nav?.responseEnd ?? 0));
+    const tick = () => setLive({ clock: fmt.format(new Date()), mountMs });
+    // The first reading goes through rAF rather than a direct call: it lands on
+    // the next paint (so the clock never visibly sits on its placeholder) without
+    // setting state synchronously inside the effect body.
+    const raf = requestAnimationFrame(tick);
+    const id = setInterval(tick, 1000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
+  }, []);
+
+  return {
+    clock: live?.clock ?? CLOCK_PLACEHOLDER,
+    mountMs: live?.mountMs ?? null,
+  };
+}
+
 type BootRow = { mark: string; label: string; time: string; pending?: boolean };
 
-const BASE_BOOT_ROWS: BootRow[] = [
-  { mark: "✓", label: "palette loaded", time: ".12s" },
-  { mark: "✓", label: "typography ready", time: ".04s" },
-  { mark: "✓", label: "bento mounted", time: ".28s" },
-  { mark: "→", label: "awaiting click", time: "…", pending: true },
-];
-
-function buildBootRows(visits: number | null | undefined): BootRow[] {
-  if (typeof visits !== "number") return BASE_BOOT_ROWS;
-  const visitorRow: BootRow = {
-    mark: "✓",
-    label: `visitor #${visits.toLocaleString()} logged`,
-    time: ".03s",
-  };
-  // Insert just before the pending "awaiting click" row.
-  const last = BASE_BOOT_ROWS[BASE_BOOT_ROWS.length - 1];
-  return [...BASE_BOOT_ROWS.slice(0, -1), visitorRow, last];
+function buildBootRows(
+  visits: number | null | undefined,
+  mountMs: number | null,
+): BootRow[] {
+  const rows: BootRow[] = [
+    { mark: "✓", label: "palette loaded", time: ".12s" },
+    { mark: "✓", label: "typography ready", time: ".04s" },
+    {
+      mark: "✓",
+      label: "bento mounted",
+      // Matches the hand-written rows' format (".28s"), just measured.
+      time: mountMs == null ? "…" : `${(mountMs / 1000).toFixed(2)}s`.replace(/^0/, ""),
+    },
+  ];
+  if (typeof visits === "number") {
+    rows.push({
+      mark: "✓",
+      label: `visitor #${visits.toLocaleString()} logged`,
+      time: ".03s",
+    });
+  }
+  rows.push({ mark: "→", label: "awaiting click", time: "…", pending: true });
+  return rows;
 }
 
 function TypingTitle({
@@ -130,11 +191,19 @@ export function WelcomeCollapsed({
   compact = false,
   visits,
 }: { compact?: boolean; visits?: number | null } = {}) {
+  // A dispatcher, not a branch inside one component — the two variants each own
+  // a clock interval, and only the mounted one should be ticking.
+  return compact ? (
+    <WelcomeCompact visits={visits} />
+  ) : (
+    <WelcomeFull visits={visits} />
+  );
+}
+
+function WelcomeFull({ visits }: { visits?: number | null }) {
   const reduce = useReducedMotion();
-
-  if (compact) return <WelcomeCompact visits={visits} />;
-
-  const bootRows = buildBootRows(visits);
+  const { clock, mountMs } = usePresence();
+  const bootRows = buildBootRows(visits, mountMs);
 
   return (
     <div className="flex flex-col w-full h-full origin-left transition-transform duration-500 ease-out group-hover:scale-[0.97]">
@@ -163,14 +232,18 @@ export function WelcomeCollapsed({
         </p>
         <span className="flex-1" />
         <p
-          className="t-mono-xs shrink-0 inline-flex items-center gap-1"
+          className="t-mono-xs shrink-0 inline-flex items-baseline gap-[0.5ch]"
           style={{
             fontSize: "clamp(9px,0.7vw,12px)",
             letterSpacing: "0.16em",
-            opacity: 0.55,
+            opacity: 0.6,
           }}
         >
-          <span aria-hidden>⌥</span> main
+          <span>{CITY}</span>
+          <span aria-hidden style={{ opacity: 0.5 }}>
+            ·
+          </span>
+          <span style={{ fontVariantNumeric: "tabular-nums" }}>{clock}</span>
         </p>
       </div>
 
@@ -303,7 +376,7 @@ export function WelcomeCollapsed({
           }}
         >
           <span style={{ opacity: 0.65 }}>$</span>
-          <span>make yourself at home</span>
+          <span className="truncate">{STATUS}</span>
           <span
             aria-hidden
             className="welcome-caret"
@@ -319,14 +392,22 @@ export function WelcomeCollapsed({
           />
         </p>
         <p
-          className="t-mono-xs shrink-0"
+          className="t-mono-xs shrink-0 inline-flex items-center gap-[0.6ch]"
           style={{
             fontSize: "clamp(9px,0.7vw,12px)",
             letterSpacing: "0.16em",
-            opacity: 0.5,
+            opacity: 0.7,
           }}
         >
-          UTF-8 · ✓
+          <span
+            className="live-dot"
+            style={{
+              color: "var(--orange)",
+              width: "clamp(5px,0.45vw,7px)",
+              height: "clamp(5px,0.45vw,7px)",
+            }}
+          />
+          available
         </p>
       </motion.div>
 
@@ -336,6 +417,8 @@ export function WelcomeCollapsed({
 }
 
 function WelcomeCompact({ visits }: { visits?: number | null }) {
+  const { clock } = usePresence();
+
   return (
     <div className="flex flex-col h-full w-full justify-between gap-[clamp(4px,1vw,8px)]">
       {/* Top — small file label + traffic dots */}
@@ -390,8 +473,8 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
         }}
       >
         <p className="truncate">
-          <span style={{ color: "var(--orange)", opacity: 0.9 }}>[✓]</span>{" "}
-          <span style={{ opacity: 0.8 }}>bento mounted · ready</span>
+          <span style={{ color: "var(--orange)", opacity: 0.9 }}>[●]</span>{" "}
+          <span style={{ opacity: 0.8 }}>{STATUS}</span>
         </p>
         {typeof visits === "number" && (
           <p className="truncate">
@@ -407,17 +490,24 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
         </p>
       </div>
 
-      {/* Bottom — tap hint */}
-      <p
-        className="t-mono-xs shrink-0"
+      {/* Bottom — tap hint, with the live clock riding the same row so presence
+          costs no extra height on a card this short. */}
+      <div
+        className="t-mono-xs shrink-0 flex items-baseline justify-between gap-2"
         style={{
           fontSize: "clamp(8px,2.2vw,10px)",
           letterSpacing: "0.16em",
           opacity: 0.55,
         }}
       >
-        ↳ tap a tile
-      </p>
+        <span className="truncate">↳ tap a tile</span>
+        <span
+          className="shrink-0"
+          style={{ fontVariantNumeric: "tabular-nums" }}
+        >
+          {CITY} {clock}
+        </span>
+      </div>
 
       <style>{WELCOME_STYLES}</style>
     </div>

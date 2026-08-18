@@ -43,7 +43,7 @@ export function BootBar({ duration = 1050 }: { duration?: number }) {
         letterSpacing: "0.12em",
         fontSize: "clamp(10px,0.8vw,13px)",
         opacity: 0.7,
-        fontFamily: "var(--font-jetbrains-mono), ui-monospace, monospace",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
       }}
     >
       <span style={{ opacity: 0.55 }}>[</span>

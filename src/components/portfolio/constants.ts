@@ -1,6 +1,11 @@
 export const ease = [0.22, 1, 0.36, 1] as const;
 export const RADIUS = "clamp(8px, 0.9vw, 14px)";
+/* The one gutter. Page padding, header/bento/footer rows, and the tiles inside
+   the bento all ride this value — change it here or the grid drifts apart. */
+export const GAP = "clamp(8px, 1.2svh, 14px)";
 export const WHATSAPP_IMG = "/images/rooftop-kochi.webp";
+export const LETTER_IMG = "/images/letter-flower.webp";
+export const CONTACT_IMG = "/images/contact-arches.webp";
 
 export const CONTENT_BASE_DELAY = 0.65;
 

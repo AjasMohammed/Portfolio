@@ -22,7 +22,6 @@ import { Counter } from "../stat";
 import {
   ContributionHeatmap,
   ContributionLegend,
-  formatMostActiveDay,
 } from "../contribution-heatmap";
 import { formatRelative } from "./projects-card";
 
@@ -441,7 +440,6 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
   const yearsOnGithub = joinedYear ? new Date().getFullYear() - joinedYear : null;
   const heroYears = yearsOnGithub ?? computeExperienceYears();
   const maxYear = Math.max(1, ...years.map((y) => y.count));
-  const groups = skillGroups();
   const reduce = useReducedMotion();
 
   // Mirrors the `compact:` custom-variant in globals.css. The ring chart size is a JS prop,
@@ -489,6 +487,45 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           </h2>
         </div>
 
+        {/* Mini language bar — fills the middle of the tall phone tile; the
+            tablet tile is a short row and only fits headings + activity. */}
+        <motion.div
+          className="hidden max-[639px]:flex flex-col gap-1.5"
+          initial={reduce ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease, delay: CONTENT_BASE_DELAY + 0.7 }}
+        >
+          <p
+            className="t-mono-xs"
+            style={{ opacity: 0.75, fontSize: "clamp(10px, 1.2vw, 14px)", letterSpacing: "0.16em" }}
+          >
+            languages
+          </p>
+          <LanguageBar data={langPct} />
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {langPct.slice(0, 3).map((l, i) => (
+              <p
+                key={l.name}
+                className="t-mono-xs inline-flex items-center gap-1"
+                style={{ opacity: 0.65, fontSize: "clamp(9px, 1.1vw, 12px)" }}
+              >
+                <span
+                  aria-hidden
+                  className="inline-block rounded-full"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    background:
+                      langDots[l.name] ??
+                      (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)"),
+                  }}
+                />
+                {l.name} {l.pct}%
+              </p>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Mini activity chart */}
         <motion.div
           className="flex flex-col gap-1"
@@ -525,7 +562,8 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         </motion.div>
       </div>
 
-      {/* Desktop / lg+ — full 3-column dashboard */}
+      {/* Desktop / lg+ — poster heading + mini stat strip, language donut right.
+          The full stack listing, repos and heatmap live in the expanded view. */}
       <div className="hidden lg:flex flex-col w-full h-full gap-3 min-w-0">
       <div className="flex items-baseline justify-between gap-2">
         <p
@@ -543,81 +581,59 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
         </p>
       </div>
 
-      {/* 3-column body — collapses to 2 cols on compact (landscape-short) since the right
-          "the stack" column is hidden there. */}
-      <div
-        className="grid flex-1 min-h-0 gap-[clamp(14px,1.6vw,28px)] grid-cols-[1fr_0.9fr_1.15fr] compact:grid-cols-[1.1fr_1fr]"
-        style={{ paddingTop: "clamp(12px,1.6svh,22px)" }}
-      >
-        {/* Left: hero retro number + activity chart */}
+      <div className="grid flex-1 min-h-0 items-center gap-[clamp(16px,2vw,40px)] grid-cols-[1.1fr_0.9fr]">
+        {/* Left: poster heading + stat mini-strip */}
         <motion.div
-          className="flex flex-col justify-between min-w-0 min-h-0"
+          className="flex flex-col justify-center gap-[clamp(14px,2.4svh,28px)] compact:gap-2 min-w-0 min-h-0"
           initial={colHidden}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.2 }}
         >
-          <div className="flex items-end gap-3 min-w-0">
-            <p
-              className="t-retro"
-              style={{
-                fontSize: "clamp(72px,8.4vw,180px)",
-                textShadow:
-                  "4px 4px 0 rgba(192,68,15,0.22), 8px 8px 0 rgba(192,68,15,0.08)",
-              }}
+          <h2
+            className="t-display min-w-0 text-[clamp(30px,3.2vw,58px)] compact:text-[clamp(22px,2.4vw,34px)]"
+            style={{ lineHeight: 0.95 }}
+          >
+            <SplitText delay={CONTENT_BASE_DELAY + 0.3}>The</SplitText>
+            <SplitText
+              className="t-serif"
+              style={{ color: "var(--orange)", fontWeight: 400 }}
+              delay={CONTENT_BASE_DELAY + 0.45}
             >
-              <Counter to={heroYears} startDelay={CONTENT_BASE_DELAY + 0.35} />
-            </p>
-            <p
-              className="t-display shrink-0 pb-2"
-              style={{
-                opacity: 0.85,
-                writingMode: "vertical-rl",
-                transform: "rotate(180deg)",
-                fontSize: "clamp(14px,1.2vw,22px)",
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-              }}
-            >
-              years
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <p
-              className="t-mono"
-              style={{ opacity: 0.7, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
-            >
-              activity · pushed
-            </p>
-            <ActivityBars years={years} maxYear={maxYear} />
-            <div
-              className="grid"
-              style={{
-                gridTemplateColumns: `repeat(${Math.max(1, years.length)}, minmax(0, 1fr))`,
-                opacity: 0.65,
-              }}
-            >
-              {years.map((y, i) => (
-                <motion.span
-                  key={y.year}
-                  className="t-mono text-center"
-                  style={{ fontSize: "clamp(10px,0.78vw,13px)" }}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: CONTENT_BASE_DELAY + 0.9 + i * 0.05,
-                    ease,
-                  }}
+              stack.
+            </SplitText>
+          </h2>
+          <ul className="grid grid-cols-1 min-w-0">
+            {[{ k: "years building", v: heroYears }].map((s, i) => (
+              <motion.li
+                key={s.k}
+                className="min-w-0 pt-1.5 compact:pt-1"
+                style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
+                initial={reduce ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: CONTENT_BASE_DELAY + 0.7 + i * 0.08,
+                  ease,
+                }}
+              >
+                <p
+                  className="t-mono-xs truncate"
+                  style={{ opacity: 0.65, fontSize: "clamp(9px,0.7vw,11px)", letterSpacing: "0.1em" }}
                 >
-                  &apos;{String(y.year).slice(2)}
-                </motion.span>
-              ))}
-            </div>
-          </div>
+                  {s.k}
+                </p>
+                <p
+                  className="t-num text-[clamp(20px,1.9vw,34px)] compact:text-[clamp(15px,1.5vw,22px)]"
+                  style={{ fontWeight: 700, lineHeight: 1.15 }}
+                >
+                  <Counter to={s.v} startDelay={CONTENT_BASE_DELAY + 0.75 + i * 0.08} />
+                </p>
+              </motion.li>
+            ))}
+          </ul>
         </motion.div>
 
-        {/* Middle: language ring chart */}
+        {/* Right: language ring chart */}
         <motion.div
           className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)]"
           style={{ borderLeft: "1px solid rgba(192,68,15,0.22)" }}
@@ -625,16 +641,12 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.35 }}
         >
-          <div className="flex items-baseline justify-between gap-2">
-            {/* Label only: this column is the narrowest of the three, and the
-                donut's center already prints the tracked-language count. */}
-            <p
-              className="t-mono truncate"
-              style={{ opacity: 0.75, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
-            >
-              languages
-            </p>
-          </div>
+          <p
+            className="t-mono truncate"
+            style={{ opacity: 0.75, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
+          >
+            languages
+          </p>
           <div className="flex-1 min-h-0 flex items-center justify-center p-[clamp(8px,1.2vw,18px)] compact:p-1">
             <LanguageDonut
               data={langPct}
@@ -643,7 +655,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
             />
           </div>
           <ul className="flex flex-wrap gap-x-2 gap-y-0.5 mt-auto min-w-0">
-            {langPct.slice(0, 4).map((l, i) => (
+            {langPct.slice(0, 3).map((l, i) => (
               <motion.li
                 key={l.name}
                 className="inline-flex items-center gap-1.5 t-mono-xs min-w-0"
@@ -666,65 +678,6 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
             ))}
           </ul>
         </motion.div>
-
-        {/* Right: the stack — dropped on compact (Nest Hub) where the row budget can't fit it */}
-        <motion.div
-          className="flex flex-col gap-2 min-w-0 min-h-0 pl-[clamp(12px,1.2vw,22px)] compact:hidden"
-          style={{ borderLeft: "1px solid rgba(192,68,15,0.22)" }}
-          initial={colHidden}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease, delay: CONTENT_BASE_DELAY + 0.5 }}
-        >
-          <div className="flex items-baseline justify-between gap-2">
-            <p
-              className="t-mono truncate"
-              style={{ opacity: 0.75, fontSize: "clamp(11px,0.85vw,14px)", letterSpacing: "0.08em" }}
-            >
-              the stack
-            </p>
-            <p
-              className="t-mono-xs shrink-0"
-              style={{ opacity: 0.6, fontSize: "clamp(10px,0.78vw,13px)" }}
-            >
-              {groups.reduce((n, g) => n + g.items.length, 0)} total
-            </p>
-          </div>
-          <ul className="flex flex-col gap-1.5 overflow-hidden min-h-0">
-            {groups.map((g, i) => (
-              <motion.li
-                key={g.key}
-                className="min-w-0 pt-1.5"
-                style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
-                initial={{ opacity: 0, x: 14 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  duration: 0.45,
-                  delay: CONTENT_BASE_DELAY + 0.95 + i * 0.08,
-                  ease,
-                }}
-              >
-                <p
-                  className="t-mono"
-                  style={{ opacity: 0.7, fontSize: "clamp(10px,0.75vw,12px)", letterSpacing: "0.08em" }}
-                >
-                  <span style={{ opacity: 0.55 }}>$ </span>
-                  {g.key.toLowerCase()}
-                </p>
-                <p
-                  className="t-code line-clamp-2"
-                  style={{
-                    fontSize: "clamp(10px,0.8vw,13px)",
-                    lineHeight: 1.5,
-                    opacity: 0.85,
-                    letterSpacing: 0,
-                  }}
-                >
-                  {g.items.map((it) => it.toLowerCase()).join(" · ")}
-                </p>
-              </motion.li>
-            ))}
-          </ul>
-        </motion.div>
       </div>
     </div>
     </>
@@ -737,165 +690,232 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
     [github],
   );
   const maxYear = Math.max(1, ...years.map((y) => y.count));
-  const u = github.user;
   // Count what's actually listed — `public_repos` counts forks and hidden
   // repos, so it would disagree with the list right below it.
   const repoCount = github.ownedRepos.length;
   const groups = skillGroups();
-  // The middle column is repos-only now that curated projects have their own
-  // tile — show more of them rather than leaving the column half empty.
-  const liveRepos = github.ownedRepos.slice(0, 24);
+  const liveRepos = github.ownedRepos.slice(0, 12);
+  const contrib = github.contributions;
+
+  const stats: { k: string; v: number | string }[] = [
+    {
+      k: "years",
+      v: joinedYear
+        ? new Date().getFullYear() - joinedYear
+        : computeExperienceYears(),
+    },
+    { k: "joined", v: joinedYear ?? "—" },
+  ];
 
   return (
     <motion.div
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled-ink gap-[clamp(16px,1.8vw,32px)] compact:gap-3 lg:grid lg:grid-cols-[0.95fr_1.15fr_1.25fr] lg:grid-rows-[auto_auto] compact:grid-cols-[0.55fr_1.3fr_1.5fr]"
+      className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled-ink gap-[clamp(14px,2.2svh,26px)] compact:gap-2.5"
     >
-      {/* Left: hero retro number + stat list (spans both rows on lg) */}
+      {/* Header: one-line display heading + live github link */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 min-w-0 lg:row-span-2 lg:justify-between"
+        className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"
       >
-        <div
-          className="grid grid-cols-2 gap-x-3 items-start lg:flex lg:flex-col lg:gap-0 pt-[clamp(8px,2.2svh,32px)] compact:pt-1"
+        <h2
+          className="split-inline min-w-0 text-[clamp(28px,7.5vw,44px)] lg:text-[clamp(30px,3.2vw,56px)] compact:text-[clamp(20px,2.2vw,30px)]"
+          style={{ lineHeight: 0.95, fontWeight: 700, letterSpacing: "-0.02em" }}
         >
-          {joinedYear && (
-            <div className="col-start-1 row-start-1 flex items-end gap-2 min-w-0">
-              <p
-                className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)] compact:text-[clamp(28px,3vw,40px)]"
-                style={{
-                  textShadow:
-                    "3px 3px 0 rgba(192,68,15,0.22), 6px 6px 0 rgba(192,68,15,0.08)",
-                }}
-              >
-                <Counter to={new Date().getFullYear() - joinedYear} />
-              </p>
-              <p
-                className="t-mono pb-2"
-                style={{ opacity: 0.8, fontSize: "clamp(11px,2.6vw,16px)", letterSpacing: "0.08em" }}
-              >
-                years
-              </p>
-            </div>
-          )}
-          <div
-            className="col-start-1 row-start-2 mt-3 flex items-end gap-2 min-w-0"
-            style={{ paddingTop: "clamp(6px,0.8svh,10px)" }}
+          <SplitText delay={0.1}>Built</SplitText>{" "}
+          <SplitText
+            className="t-serif"
+            style={{ color: "var(--orange)", fontWeight: 400 }}
+            delay={0.24}
           >
-            <p
-              className="t-retro text-[clamp(44px,11vw,140px)] lg:text-[clamp(36px,4.2vw,96px)]"
-              style={{
-                textShadow:
-                  "3px 3px 0 rgba(192,68,15,0.22), 6px 6px 0 rgba(192,68,15,0.08)",
-              }}
-            >
-              <Counter to={repoCount} />
-            </p>
-            <p
-              className="t-mono pb-2"
-              style={{ opacity: 0.8, fontSize: "clamp(11px,2.6vw,16px)", letterSpacing: "0.08em" }}
-            >
-              public repos
-            </p>
-          </div>
-          <h2
-            className="col-start-2 row-start-2 self-start mt-3 text-left lg:mt-4 lg:pl-[clamp(12px,2vw,32px)] min-w-0 text-[clamp(26px,8vw,84px)] lg:text-[clamp(28px,4.4vw,72px)] compact:text-[clamp(20px,2.6vw,32px)] compact:mt-1"
-            style={{
-              lineHeight: 0.9,
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            <SplitText className="block" delay={0.1}>Built</SplitText>
-            <SplitText
-              className="block text-center t-serif"
-              style={{ color: "var(--orange)", fontWeight: 400 }}
-              delay={0.28}
-            >
-              over
-            </SplitText>
-            <SplitText className="block text-center" delay={0.46}>the years.</SplitText>
-          </h2>
-        </div>
-        <ul className="flex flex-col gap-2 compact:gap-0.5">
-          {[
-            { k: "followers", v: u?.followers ?? 0 },
-            { k: "following", v: u?.following ?? 0 },
-            { k: "total stars", v: github.totalStars },
-            { k: "joined", v: joinedYear ?? "—" },
-            ...(github.contributions
-              ? [
-                  {
-                    k: "contributions · 1y",
-                    v: github.contributions.totalContributions,
-                  },
-                  ...(github.contributions.mostActiveDay
-                    ? [
-                        {
-                          k: "most active",
-                          v: formatMostActiveDay(
-                            github.contributions.mostActiveDay.date,
-                          ),
-                        },
-                      ]
-                    : []),
-                  {
-                    k: "longest streak",
-                    v: `${github.contributions.longestStreak}d`,
-                  },
-                ]
-              : []),
-          ].map((s) => (
-            <li
-              key={s.k}
-              className="flex items-baseline justify-between gap-3 pt-1.5 compact:pt-1"
-              style={{ borderTop: "1px solid rgba(192,68,15,0.2)" }}
-            >
-              <span
-                className="t-mono opacity-75 text-[clamp(9px,2.2vw,12px)] compact:text-[9px]"
-                style={{ letterSpacing: "0.08em" }}
-              >
-                {s.k}
-              </span>
-              <span
-                className="t-num text-[clamp(13px,3vw,18px)] compact:text-[11px]"
-                style={{ fontWeight: 700 }}
-              >
-                {typeof s.v === "number" ? <Counter to={s.v} /> : s.v}
-              </span>
-            </li>
-          ))}
-        </ul>
+            over
+          </SplitText>{" "}
+          <SplitText delay={0.38}>the years.</SplitText>
+        </h2>
+        <a
+          href={profile.social.githubUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="t-mono-xs opacity-70 link-line inline-flex items-center gap-1.5 shrink-0"
+          style={{ fontSize: "clamp(10px,2.4vw,13px)" }}
+        >
+          <span className="live-dot" />
+          <SocialIcon name="github" size={12} /> @{profile.social.githubUser} ↗
+        </a>
       </motion.div>
 
-      {/* Middle: live GitHub repos */}
-      <motion.div
+      {/* Stat strip — 2-up on phones, 3-up small tablets, one band on lg */}
+      <motion.ul
         variants={fadeUp}
-        className="flex flex-col min-w-0 gap-3"
+        className="grid grid-cols-2 lg:max-w-[min(420px,36%)] gap-x-[clamp(12px,1.6vw,28px)] gap-y-[clamp(8px,1.2svh,14px)]"
       >
-        <div className="flex flex-col">
-          <div className="flex items-baseline justify-between mb-2">
+        {stats.map((s) => (
+          <li
+            key={s.k}
+            className="min-w-0 pt-1.5 compact:pt-1"
+            style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
+          >
             <p
-              className="t-mono opacity-70 inline-flex items-center gap-1.5"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
+              className="t-mono-xs truncate"
+              style={{
+                opacity: 0.65,
+                fontSize: "clamp(9px,2.2vw,11px)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              {s.k}
+            </p>
+            <p
+              className="t-num text-[clamp(20px,5.5vw,28px)] lg:text-[clamp(20px,1.9vw,34px)] compact:text-[clamp(15px,1.5vw,22px)]"
+              style={{ fontWeight: 700, lineHeight: 1.15 }}
+            >
+              {typeof s.v === "number" ? <Counter to={s.v} /> : s.v}
+            </p>
+          </li>
+        ))}
+      </motion.ul>
+
+      {/* Body: skills | languages | repos — stacks on phones, 2-col on md, 3-col band on lg */}
+      <div className="grid gap-x-[clamp(18px,2.4vw,36px)] gap-y-[clamp(16px,2.4svh,26px)] md:grid-cols-2 lg:grid-cols-[1.25fr_0.95fr_1.05fr] lg:flex-1">
+        {/* Skills — terminal listing */}
+        <motion.div variants={fadeUp} className="flex flex-col min-w-0 gap-2">
+          <div className="flex items-baseline justify-between">
+            <p
+              className="t-mono opacity-75"
+              style={{ fontSize: "clamp(11px,2.6vw,14px)", letterSpacing: "0.08em" }}
+            >
+              skills
+            </p>
+            <p
+              className="t-mono-xs opacity-55"
+              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
+            >
+              {groups.reduce((n, g) => n + g.items.length, 0)} total
+            </p>
+          </div>
+          <div className="flex flex-col gap-[clamp(8px,1.2svh,14px)] min-w-0">
+            {groups.map((g) => (
+              <div
+                key={g.key}
+                className="min-w-0 pt-1.5"
+                style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
+              >
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <p
+                    className="t-mono opacity-85"
+                    style={{
+                      fontSize: "clamp(10px,2.4vw,13px)",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    <span style={{ opacity: 0.55 }}>$ </span>
+                    {g.key.toLowerCase()}
+                  </p>
+                  <p
+                    className="t-mono-xs opacity-50"
+                    style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
+                  >
+                    {String(g.items.length).padStart(2, "0")}
+                  </p>
+                </div>
+                <p
+                  className="t-code wrap-break-word"
+                  style={{
+                    fontSize: "clamp(11px,2.6vw,13px)",
+                    lineHeight: 1.6,
+                    opacity: 0.85,
+                    paddingLeft: "1em",
+                    letterSpacing: 0,
+                  }}
+                >
+                  {g.items.map((it) => it.toLowerCase()).join(" · ")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Languages — donut + full legend */}
+        <motion.div variants={fadeUp} className="flex flex-col min-w-0 gap-2">
+          <div className="flex items-baseline justify-between">
+            <p
+              className="t-mono opacity-75"
+              style={{ fontSize: "clamp(11px,2.6vw,14px)", letterSpacing: "0.08em" }}
+            >
+              languages · github
+            </p>
+            <p
+              className="t-mono-xs opacity-55"
+              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
+            >
+              {langPct.length} tracked
+            </p>
+          </div>
+          <div
+            className="flex items-center gap-[clamp(12px,2vw,24px)] min-w-0 pt-1.5"
+            style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
+          >
+            <div className="shrink-0 p-[clamp(6px,1vw,12px)] compact:hidden">
+              <LanguageDonut data={langPct} size={110} centerLabel={langPct.length} />
+            </div>
+            <ul className="flex flex-col gap-1.5 min-w-0 flex-1">
+              {langPct.map((l, i) => (
+                <li
+                  key={l.name}
+                  className="flex items-baseline justify-between gap-2 min-w-0"
+                >
+                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                    <span
+                      className="inline-block w-2 h-2 rounded-full shrink-0"
+                      style={{
+                        background:
+                          langDots[l.name] ??
+                          (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)"),
+                      }}
+                    />
+                    <span
+                      className="t-display-med truncate"
+                      style={{ fontSize: "clamp(11px,2.8vw,16px)" }}
+                    >
+                      {l.name}
+                    </span>
+                  </span>
+                  <span
+                    className="t-num shrink-0"
+                    style={{ fontSize: "clamp(11px,2.8vw,16px)" }}
+                  >
+                    {l.pct}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <LanguageBar data={langPct} height={6} />
+        </motion.div>
+
+        {/* Repos — live list; full-width row on md, own column on lg */}
+        <motion.div
+          variants={fadeUp}
+          className="flex flex-col min-w-0 gap-2 md:col-span-2 lg:col-span-1"
+        >
+          <div className="flex items-baseline justify-between">
+            <p
+              className="t-mono opacity-75 inline-flex items-center gap-1.5"
+              style={{ fontSize: "clamp(11px,2.6vw,14px)", letterSpacing: "0.08em" }}
             >
               <span className="live-dot" /> repos · live
             </p>
-            <a
-              href={profile.social.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="t-mono-xs opacity-70 link-line inline-flex items-center gap-1"
+            <p
+              className="t-mono-xs opacity-55"
               style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
             >
-              <SocialIcon name="github" size={12} /> @{profile.social.githubUser} ↗
-            </a>
+              {Math.min(liveRepos.length, repoCount)} of {repoCount}
+            </p>
           </div>
           <ul
-            className="grid gap-x-[clamp(8px,2vw,16px)] gap-y-[clamp(4px,0.6svh,8px)] overflow-hidden"
-            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-x-[clamp(10px,2vw,18px)] pt-1.5"
+            style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
           >
             {liveRepos.map((r) => (
               <li key={r.id} className="min-w-0">
@@ -903,16 +923,18 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
                   href={r.html_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-baseline justify-between gap-2 py-0.5 group"
+                  className="flex items-baseline justify-between gap-2 py-[clamp(2px,0.4svh,4px)] group"
                 >
                   <span className="inline-flex items-baseline gap-1.5 min-w-0">
                     <span
                       className="inline-block w-1.5 h-1.5 rounded-full shrink-0 translate-y-px"
-                      style={{ background: langDots[r.language ?? ""] ?? "var(--orange-soft)" }}
+                      style={{
+                        background: langDots[r.language ?? ""] ?? "var(--orange-soft)",
+                      }}
                     />
                     <span
                       className="t-display-med truncate link-line"
-                      style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
+                      style={{ fontSize: "clamp(11px,2.6vw,14px)" }}
                     >
                       {r.name}
                     </span>
@@ -927,134 +949,21 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
               </li>
             ))}
           </ul>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
-      {/* Right: the stack, then GitHub languages donut */}
+      {/* Bottom band: contribution heatmap, full width */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col min-w-0 gap-3"
-      >
-        <div className="flex flex-col">
-          <div className="flex items-baseline justify-between mb-3">
-            <p
-              className="t-mono opacity-75"
-              style={{ fontSize: "clamp(11px,1.4vw,15px)", letterSpacing: "0.08em" }}
-            >
-              skills
-            </p>
-            <p
-              className="t-mono-xs opacity-60"
-              style={{ fontSize: "clamp(9px,1vw,13px)" }}
-            >
-              {groups.reduce((n, g) => n + g.items.length, 0)} total
-            </p>
-          </div>
-
-          {/* Terminal-style listing — one category per row, used on all screens */}
-          <div className="flex flex-col gap-3 min-w-0">
-            {groups.map((g) => (
-              <div
-                key={g.key}
-                className="min-w-0 pt-2"
-                style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
-              >
-                <div className="flex items-baseline justify-between mb-1">
-                  <p
-                    className="t-mono opacity-85"
-                    style={{
-                      fontSize: "clamp(11px,1.4vw,15px)",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    <span style={{ opacity: 0.55 }}>$ </span>
-                    {g.key.toLowerCase()}
-                  </p>
-                  <p
-                    className="t-mono-xs opacity-50"
-                    style={{ fontSize: "clamp(9px,1vw,13px)" }}
-                  >
-                    {String(g.items.length).padStart(2, "0")}
-                  </p>
-                </div>
-                <p
-                  className="t-code wrap-break-word"
-                  style={{
-                    fontSize: "clamp(11px,1.1vw,14px)",
-                    lineHeight: 1.6,
-                    opacity: 0.85,
-                    paddingLeft: "1em",
-                    letterSpacing: 0,
-                  }}
-                >
-                  {g.items.map((it) => it.toLowerCase()).join(" · ")}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="pt-3" style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}>
-          <div className="flex items-baseline justify-between mb-3">
-            <p
-              className="t-mono opacity-70"
-              style={{ fontSize: "clamp(10px,2.6vw,14px)" }}
-            >
-              languages · github
-            </p>
-            <p
-              className="t-mono-xs opacity-60"
-              style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
-            >
-              {langPct.length} tracked
-            </p>
-          </div>
-          <div className="flex items-center gap-[clamp(10px,2.4vw,22px)] min-w-0">
-            <div className="shrink-0 p-[clamp(8px,1.6vw,16px)]">
-              <LanguageDonut
-                data={langPct}
-                size={120}
-                centerLabel={langPct.length}
-              />
-            </div>
-            <ul className="flex flex-col gap-1.5 min-w-0 flex-1">
-              {langPct.map((l, i) => (
-                <li key={l.name} className="flex items-baseline justify-between gap-2 min-w-0">
-                  <span className="inline-flex items-center gap-1.5 min-w-0">
-                    <span
-                      className="inline-block w-2 h-2 rounded-full shrink-0"
-                      style={{ background: langDots[l.name] ?? (i % 2 === 0 ? "var(--orange-deep)" : "var(--orange-soft)") }}
-                    />
-                    <span
-                      className="t-display-med truncate"
-                      style={{ fontSize: "clamp(11px,2.8vw,18px)" }}
-                    >
-                      {l.name}
-                    </span>
-                  </span>
-                  <span className="t-num shrink-0" style={{ fontSize: "clamp(11px,2.8vw,18px)" }}>
-                    {l.pct}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-        </div>
-      </motion.div>
-
-      {/* Bottom band: contribution heatmap — spans middle + right columns on lg */}
-      <motion.div
-        variants={fadeUp}
-        className="flex flex-col min-w-0 gap-2 lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:pt-3"
+        className="flex flex-col min-w-0 gap-2 pt-2.5 compact:pt-1.5"
         style={{ borderTop: "1px solid rgba(192,68,15,0.22)" }}
       >
-        <div className="flex items-baseline justify-between">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
           <p
             className="t-mono opacity-70 inline-flex items-center gap-1.5"
-            style={{ fontSize: "clamp(10px,1vw,14px)" }}
+            style={{ fontSize: "clamp(10px,2.4vw,14px)" }}
           >
-            {github.contributions ? (
+            {contrib ? (
               <>
                 <span className="live-dot" /> contributions · 1y
               </>
@@ -1063,28 +972,32 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             )}
           </p>
           <p
-            className="t-mono-xs opacity-60"
-            style={{ fontSize: "clamp(9px,0.85vw,12px)" }}
+            className="t-mono-xs opacity-60 min-w-0"
+            style={{ fontSize: "clamp(9px,2.2vw,12px)" }}
           >
-            {github.contributions
-              ? `${github.contributions.totalContributions} total · ${github.contributions.daysActive} active days · streak ${github.contributions.currentStreak}d · longest ${github.contributions.longestStreak}d`
+            {contrib
+              ? `${contrib.totalContributions} total · ${contrib.daysActive} active days · streak ${contrib.currentStreak}d · longest ${contrib.longestStreak}d`
               : `${years.length} yrs`}
           </p>
         </div>
-        {github.contributions ? (
+        {contrib ? (
           <div className="flex flex-col gap-2 min-w-0">
-            <div className="w-full max-w-full overflow-x-auto scrollbar-styled-ink">
-              <ContributionHeatmap
-                contributions={github.contributions}
-                cellSize={14}
-                gap={3}
-              />
+            <div className="w-full max-w-full overflow-x-auto overflow-y-hidden scrollbar-styled-ink">
+              <div className="w-fit mx-auto">
+                <ContributionHeatmap contributions={contrib} cellSize={14} gap={3} />
+              </div>
             </div>
-            <ContributionLegend cellSize={12} />
+            <div className="w-fit mx-auto">
+              <ContributionLegend cellSize={10} />
+            </div>
           </div>
         ) : (
           <>
-            <ActivityBars years={years} maxYear={maxYear} height="clamp(56px,10svh,150px)" />
+            <ActivityBars
+              years={years}
+              maxYear={maxYear}
+              height="clamp(56px,10svh,150px)"
+            />
             <div
               className="grid mt-1"
               style={{

@@ -139,7 +139,7 @@ export function BackgroundField({
       style={{
         margin: 0,
         zIndex: 0,
-        fontFamily: "var(--font-jetbrains-mono), ui-monospace, monospace",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
         fontSize: "clamp(11px, 1vw, 15px)",
         lineHeight: 1.2,
         letterSpacing: "0.12em",

@@ -3,7 +3,6 @@ import {
   Archivo,
   Fugaz_One,
   Instrument_Serif,
-  JetBrains_Mono,
   Jost,
 } from "next/font/google";
 import "./globals.css";
@@ -21,11 +20,6 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   weight: "400",
   style: ["normal", "italic"],
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -101,7 +95,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jost.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
+      className={`${jost.variable} ${instrumentSerif.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">{children}</body>
     </html>
