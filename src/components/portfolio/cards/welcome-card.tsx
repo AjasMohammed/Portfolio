@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { experiences, profile } from "@/data/profile";
+import { CURRENT_ROLE, profile } from "@/data/profile";
 import { ease, CONTENT_BASE_DELAY } from "../constants";
+import { LiveClock } from "../stat";
 
 const TITLE_TEXT =
   "come in, the bento's freshly tiled. nothing here bites — poke any tile and the bento fills in the rest.";
@@ -34,51 +35,31 @@ const BOOT_START =
    time is measured rather than typed in. */
 
 const CITY = profile.location.split(",")[0].toLowerCase();
-const CURRENT_ROLE =
-  experiences.find((e) => /present/i.test(e.period)) ?? experiences[0];
 const STATUS = `building at ${CURRENT_ROLE.company.toLowerCase()}`;
-const CLOCK_PLACEHOLDER = "--:--:--";
+/* Measured once per page load, on whichever welcome variant mounts first —
+   from when the HTML finished arriving, not navigation start: the row claims
+   how long the bento took to come up, and server render plus network latency
+   aren't that. Module-level so a variant switch minutes later (resize across
+   the lg boundary) reports the boot-time figure, not elapsed wall time.
+   The wall clock is a separate <LiveClock/> leaf so nothing here ticks. */
+let measuredMountMs: number | null = null;
 
-/* One interval drives both live readings: the wall clock, and the mount timing
-   the boot log reports. Empty until mounted on purpose — a server-rendered time
-   is already stale when it hydrates, and the mismatch is a hydration error. */
-function usePresence() {
-  const [live, setLive] = useState<{ clock: string; mountMs: number } | null>(
-    null,
-  );
-
+function useMountMs() {
+  const [ms, setMs] = useState<number | null>(null);
   useEffect(() => {
-    const fmt = new Intl.DateTimeFormat("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Kolkata",
-    });
-    // Measured from when the HTML finished arriving, not from navigation start:
-    // the row claims how long the bento took to come up, and server render plus
-    // network latency aren't that. `responseEnd` is always set before any client
-    // JS runs, so there's no zero-baseline case to guard.
-    const nav = performance.getEntriesByType(
-      "navigation",
-    )[0] as PerformanceNavigationTiming | undefined;
-    const mountMs = Math.max(0, performance.now() - (nav?.responseEnd ?? 0));
-    const tick = () => setLive({ clock: fmt.format(new Date()), mountMs });
-    // The first reading goes through rAF rather than a direct call: it lands on
-    // the next paint (so the clock never visibly sits on its placeholder) without
-    // setting state synchronously inside the effect body.
-    const raf = requestAnimationFrame(tick);
-    const id = setInterval(tick, 1000);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearInterval(id);
-    };
+    if (measuredMountMs === null) {
+      const nav = performance.getEntriesByType(
+        "navigation",
+      )[0] as PerformanceNavigationTiming | undefined;
+      // `responseEnd` is always set before any client JS runs.
+      measuredMountMs = Math.max(0, performance.now() - (nav?.responseEnd ?? 0));
+    }
+    // Deliver on the next paint rather than synchronously inside the effect
+    // (same pattern as LiveClock's first reading).
+    const raf = requestAnimationFrame(() => setMs(measuredMountMs));
+    return () => cancelAnimationFrame(raf);
   }, []);
-
-  return {
-    clock: live?.clock ?? CLOCK_PLACEHOLDER,
-    mountMs: live?.mountMs ?? null,
-  };
+  return ms;
 }
 
 type BootRow = { mark: string; label: string; time: string; pending?: boolean };
@@ -192,7 +173,7 @@ export function WelcomeCollapsed({
   visits,
 }: { compact?: boolean; visits?: number | null } = {}) {
   // A dispatcher, not a branch inside one component — the two variants each own
-  // a clock interval, and only the mounted one should be ticking.
+  // typing timers, and only the mounted one should be running them.
   return compact ? (
     <WelcomeCompact visits={visits} />
   ) : (
@@ -202,11 +183,13 @@ export function WelcomeCollapsed({
 
 function WelcomeFull({ visits }: { visits?: number | null }) {
   const reduce = useReducedMotion();
-  const { clock, mountMs } = usePresence();
+  const mountMs = useMountMs();
   const bootRows = buildBootRows(visits, mountMs);
 
+  // No group-hover on the root: the welcome tile isn't clickable, and its
+  // shell wrapper has no `group` ancestor — a hover scale would be a dead class.
   return (
-    <div className="flex flex-col w-full h-full origin-left transition-transform duration-500 ease-out group-hover:scale-[0.97]">
+    <div className="flex flex-col w-full h-full">
       {/* ─── File tab ─── */}
       <div
         className="flex items-center gap-[clamp(6px,0.7vw,10px)] shrink-0"
@@ -243,7 +226,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
           <span aria-hidden style={{ opacity: 0.5 }}>
             ·
           </span>
-          <span style={{ fontVariantNumeric: "tabular-nums" }}>{clock}</span>
+          <span style={{ fontVariantNumeric: "tabular-nums" }}><LiveClock /></span>
         </p>
       </div>
 
@@ -417,7 +400,6 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
 }
 
 function WelcomeCompact({ visits }: { visits?: number | null }) {
-  const { clock } = usePresence();
 
   return (
     <div className="flex flex-col h-full w-full justify-between gap-[clamp(4px,1vw,8px)]">
@@ -505,7 +487,7 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
           className="shrink-0"
           style={{ fontVariantNumeric: "tabular-nums" }}
         >
-          {CITY} {clock}
+          {CITY} <LiveClock />
         </span>
       </div>
 

@@ -200,6 +200,11 @@ export const experiences: ExperienceItem[] = [
   },
 ];
 
+/* The role the tiles present as "now" — derived here once so the welcome and
+   bio cards can't drift apart on what "current" means. */
+export const CURRENT_ROLE =
+  experiences.find((e) => /present/i.test(e.period)) ?? experiences[0];
+
 /* Freelance builds only — client sites that are live and public. Employer work
    (Learnabble, Neusler) stays described in `experiences`. */
 export const projects: ProjectItem[] = [

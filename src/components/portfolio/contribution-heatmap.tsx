@@ -282,12 +282,3 @@ export function ContributionLegend({ cellSize = 10 }: { cellSize?: number }) {
   );
 }
 
-export function formatMostActiveDay(iso: string): string {
-  const d = new Date(iso + "T00:00:00Z");
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}

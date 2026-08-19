@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { experiences, profile } from "@/data/profile";
+import { CURRENT_ROLE, experiences, profile } from "@/data/profile";
 import type { GithubData } from "@/lib/github";
 import { ease, CONTENT_BASE_DELAY } from "../constants";
 import { SplitText } from "../split-text";
@@ -15,8 +15,6 @@ import { computeExperienceYears } from "./analytics-card";
    derived from `profile`/`experiences` so nothing here can drift from the
    expanded card. Short framework names only — the dossier column is ~240px
    and "Django REST Framework" alone overruns it. */
-const CURRENT_ROLE =
-  experiences.find((e) => /present/i.test(e.period)) ?? experiences[0];
 const STACK = profile.skills.frameworks.filter((f) => f.length <= 8).slice(0, 2);
 const SINCE = CURRENT_ROLE.period.split(/\s*[-–]\s*/)[0];
 

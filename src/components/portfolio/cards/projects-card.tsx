@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { projects, type ProjectItem } from "@/data/profile";
 import { CONTENT_BASE_DELAY, ease } from "../constants";
+import { LiveClock } from "../stat";
 
 /* ───────────────────────── PROJECTS · PREVIEWS ───────────────────────── */
 
@@ -369,24 +370,6 @@ function TileLinks({ project }: { project: ProjectItem }) {
   );
 }
 
-function useDeskClock() {
-  const [clock, setClock] = useState("--:--:--");
-  useEffect(() => {
-    const fmt = new Intl.DateTimeFormat("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Kolkata",
-    });
-    const tick = () => setClock(fmt.format(new Date()));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-  return clock;
-}
-
 function WindowChromeBar({
   project,
   onOpen,
@@ -546,6 +529,33 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
         </span>
       </div>
 
+      {/* The write-up — the desk window only shows chrome, so the selling copy
+          lives here. Compact: three short rows above the embed. */}
+      <div className="flex flex-col gap-1 min-w-0 shrink-0 compact:hidden">
+        <p
+          className="t-serif"
+          style={{ color: "var(--orange)", fontSize: "clamp(13px,1.1vw,17px)", lineHeight: 1.35 }}
+        >
+          {project.description}
+        </p>
+        {project.highlights.length > 0 && (
+          <p
+            className="t-mono-xs"
+            style={{ opacity: 0.7, fontSize: "clamp(9px,0.72vw,12px)", lineHeight: 1.5, letterSpacing: "0.06em" }}
+          >
+            {project.highlights.join("  ·  ")}
+          </p>
+        )}
+        {project.technologies.length > 0 && (
+          <p
+            className="t-mono-xs"
+            style={{ color: "var(--orange)", opacity: 0.8, fontSize: "clamp(9px,0.72vw,12px)", letterSpacing: "0.12em" }}
+          >
+            {project.technologies.join(" · ")}
+          </p>
+        )}
+      </div>
+
       <LivePreview
         project={project}
         sizes="92vw"
@@ -563,7 +573,6 @@ export function ProjectsExpanded() {
   const [z, setZ] = useState<Record<string, number>>({});
   const topZ = useRef(projects.length);
   const deskRef = useRef<HTMLDivElement | null>(null);
-  const clock = useDeskClock();
 
   const focusedProject = projects.find((p) => p.name === focused) ?? null;
   const bringToFront = (name: string) =>
@@ -600,7 +609,7 @@ export function ProjectsExpanded() {
           all live
         </span>
         <span className="t-mono-xs shrink-0" style={{ opacity: 0.6, fontSize: CHROME_FONT }}>
-          {clock}
+          <LiveClock />
         </span>
       </motion.div>
 
@@ -725,6 +734,19 @@ export function ProjectsExpanded() {
                   >
                     {p.description}
                   </p>
+                  {p.technologies.length > 0 && (
+                    <p
+                      className="t-mono-xs"
+                      style={{
+                        color: "var(--orange)",
+                        opacity: 0.8,
+                        fontSize: "clamp(9px,2.2vw,12px)",
+                        letterSpacing: "0.12em",
+                      }}
+                    >
+                      {p.technologies.join(" · ")}
+                    </p>
+                  )}
                   <TileLinks project={p} />
                 </div>
               </article>

@@ -7,6 +7,7 @@ import {
   motion,
   useReducedMotion,
 } from "framer-motion";
+import Lenis from "lenis";
 import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
 import {
@@ -69,11 +70,37 @@ export function PortfolioShell({
   const lite = perfTier === "low";
   const letterOpen = expanded === "letter";
   const sectionRef = useRef<HTMLElement | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
+
+  // The page itself never scrolls (html/body are overflow:hidden) — the bento
+  // section is the scroller, and only below lg. `autoToggle` watches its
+  // overflow so Lenis idles on desktop where the grid is overflow-visible, and
+  // `allowNestedScroll` leaves expanded-card panels on native scrolling.
+  // ponytail: no lenis.css import — its `iframe { pointer-events: none }` rule
+  // would kill the live site previews in the projects card, and the only other
+  // rule that matters here (scroll-behavior) is never set on the section.
+  useEffect(() => {
+    const wrapper = sectionRef.current;
+    if (reduce || !wrapper) return;
+    const lenis = new Lenis({
+      wrapper,
+      autoRaf: true,
+      autoToggle: true,
+      allowNestedScroll: true,
+    });
+    lenisRef.current = lenis;
+    return () => {
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  }, [reduce]);
 
   useEffect(() => {
-    if (expanded && sectionRef.current) {
-      sectionRef.current.scrollTop = 0;
-    }
+    if (!expanded) return;
+    // scrollTo keeps Lenis's own animated position in sync; a raw scrollTop
+    // write would leave it mid-animation and snap back on the next frame.
+    if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
+    else if (sectionRef.current) sectionRef.current.scrollTop = 0;
   }, [expanded]);
 
   useEffect(() => {
@@ -183,13 +210,13 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_0.5fr_1.275fr_1.275fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_minmax(64px,0.5fr)_1.275fr_1.275fr] lg:overflow-visible`}
           style={{
             gap: GAP,
           }}
         >
           <LayoutGroup>
-            {/* IMAGE — top-right (tablet) / col 2 rows 1–2 (mobile <464) / tall bottom-middle (desktop) */}
+            {/* IMAGE — top-right (tablet) / col 2 rows 1–2 (mobile <640) / tall bottom-middle (desktop) */}
             <BentoCard
               id="image"
               expanded={expanded}
@@ -223,7 +250,7 @@ export function PortfolioShell({
               </motion.div>
             )}
 
-            {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <464) / bottom right (desktop) */}
+            {/* BIO — col 1 row 2 (tablet) / full-width row 3 (mobile <640) / bottom right (desktop) */}
             <BentoCard
               id="bio"
               expanded={expanded}
@@ -268,7 +295,7 @@ export function PortfolioShell({
               enterFrom="right"
               className="hidden lg:block lg:col-start-11 lg:col-end-13 lg:row-start-5 lg:row-end-7"
             >
-              <LetterCollapsed compact />
+              <LetterCollapsed />
             </BentoCard>
 
             {/* SOCIAL — desktop: strip beside the small letter, below review */}
@@ -279,8 +306,8 @@ export function PortfolioShell({
             />
 
             {/* MOBILE/TABLET — note card + 5 social mini-cards
-                (tablet ≥464: col 2 row 4, shares row with testimonials, 3×2 grid)
-                (mobile <464: full-width row 5 as 3×2) */}
+                (tablet ≥640: col 2 row 4, shares row with testimonials, 3×2 grid)
+                (mobile <640: full-width row 5 as 3×2) */}
             <div
               className="col-start-6 col-end-11 row-start-5 row-end-6 self-start aspect-3/2 grid grid-cols-3 grid-rows-2 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-6 max-[639px]:row-end-7 max-[639px]:self-auto max-[639px]:aspect-auto lg:hidden"
               style={{ gap: "clamp(6px, 1.6vw, 10px)", minWidth: 0, minHeight: 0 }}
@@ -301,7 +328,7 @@ export function PortfolioShell({
               <SocialMobileCells />
             </div>
 
-            {/* SKILLS · GITHUB — col 2 row 4 (tablet) / full-width row 4 (mobile <464) / wide top (desktop) */}
+            {/* SKILLS · GITHUB — col 2 row 4 (tablet) / full-width row 4 (mobile <640) / wide top (desktop) */}
             <BentoCard
               id="skills"
               expanded={expanded}
@@ -315,7 +342,7 @@ export function PortfolioShell({
               <AnalyticsCollapsed github={github} />
             </BentoCard>
 
-            {/* PROJECTS · previews — col 2 row 3 (tablet) / full-width row 5 (mobile <464) / narrow top-right (desktop) */}
+            {/* PROJECTS · previews — col 2 row 3 (tablet) / full-width row 5 (mobile <640) / narrow top-right (desktop) */}
             <BentoCard
               id="projects"
               expanded={expanded}
@@ -329,7 +356,7 @@ export function PortfolioShell({
               <ProjectsCollapsed />
             </BentoCard>
 
-            {/* TESTIMONIALS — col 1 rows 3–4 (tablet) / full-width row 6 (mobile <464) / bottom-right (desktop) */}
+            {/* TESTIMONIALS — col 1 rows 3–4 (tablet) / full-width row 6 (mobile <640) / bottom-right (desktop) */}
             <BentoCard
               id="testimonials"
               expanded={expanded}

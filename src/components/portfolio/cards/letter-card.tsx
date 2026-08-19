@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
     ease,
@@ -21,137 +21,52 @@ import { Magnetic } from "../magnetic";
 import { innerPadding } from "../card";
 import { contactIcons } from "./bio-card";
 
-export function LetterCollapsed({ compact = false }: { compact?: boolean } = {}) {
+export function LetterCollapsed() {
     const reduce = useReducedMotion();
     const vid = useRef<HTMLVideoElement>(null);
+    const wrap = useRef<HTMLDivElement>(null);
+    // The tile is mounted twice (desktop + mobile grids) with one hidden by
+    // CSS, and display:none does NOT stop a <video preload autoPlay> from
+    // pulling the full 2MB file. Only mount the video once this copy is
+    // actually visible; reduced-motion keeps the still image forever.
+    const [showVideo, setShowVideo] = useState(false);
+    useEffect(() => {
+        if (reduce || !wrap.current) return;
+        const io = new IntersectionObserver(([e]) => {
+            // Width guard: Chrome reports a display:none target as a zero-rect
+            // at the viewport origin, which "intersects" — a real box means
+            // this copy is the one actually on screen.
+            if (e.isIntersecting && e.boundingClientRect.width > 0) {
+                setShowVideo(true);
+                io.disconnect();
+            }
+        });
+        io.observe(wrap.current);
+        return () => io.disconnect();
+    }, [reduce]);
+
     // ponytail: autoplay only survives muted, so unmute on hover instead.
     const sound = (on: boolean) => {
         const v = vid.current;
         if (!v) return;
         v.muted = !on;
-        if (on) {
-            v.volume = 0.6;
+        if (on) v.volume = 0.6;
+        // Unmuting without user activation makes Chrome pause the video and
+        // reject play(); fall back to muted playback so the loop never freezes.
+        v.play().catch(() => {
+            v.muted = true;
             v.play().catch(() => {});
-        }
+        });
     };
+
     return (
-        <>
-            {/* Desktop / lg+ — 2x2 editorial grid */}
-            <div className={`${compact ? "hidden" : "hidden lg:grid"} grid-cols-2 grid-rows-2 w-full h-full gap-2 min-w-0 origin-left transition-transform duration-500 ease-out group-hover:scale-[0.94]`}>
-                {/* Top-left: soft serif invite, words stair-stepped left → right within the cell */}
-                <div
-                    className="t-serif self-start justify-self-stretch flex flex-col w-full min-w-0"
-                    style={{
-                        color: LETTER_INK_SOFT,
-                        fontSize: "clamp(20px, 2.4vw, 38px)",
-                        fontWeight: 700,
-                        letterSpacing: "-0.01em",
-                        wordSpacing: "0.4em",
-                        lineHeight: 1.25,
-                    }}
-                >
-                    <motion.div
-                        className="text-left whitespace-nowrap"
-                        initial={reduce ? false : { opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            duration: 0.6,
-                            ease,
-                            delay: CONTENT_BASE_DELAY + 0.15,
-                        }}
-                    >
-                        if
-                    </motion.div>
-                    <motion.div
-                        className="text-left whitespace-nowrap"
-                        initial={reduce ? false : { opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            duration: 0.6,
-                            ease,
-                            delay: CONTENT_BASE_DELAY + 0.25,
-                        }}
-                    >
-                        you
-                    </motion.div>
-                    <motion.div
-                        className="text-left whitespace-nowrap"
-                        initial={reduce ? false : { opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            duration: 0.6,
-                            ease,
-                            delay: CONTENT_BASE_DELAY + 0.35,
-                        }}
-                    >
-                        have a
-                    </motion.div>
-                    <motion.div
-                        className="text-left whitespace-nowrap"
-                        initial={reduce ? false : { opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            duration: 0.6,
-                            ease,
-                            delay: CONTENT_BASE_DELAY + 0.45,
-                        }}
-                    >
-                        moment
-                    </motion.div>
-                </div>
-
-                {/* Top-right: section label */}
-                <p
-                    className="t-mono-xs self-start justify-self-end text-right"
-                    style={{
-                        opacity: 0.7,
-                        fontSize: "clamp(10px,0.78vw,13px)",
-                        letterSpacing: "0.18em",
-                    }}
-                >
-                    !
-                </p>
-
-                {/* Bottom-left: click hint */}
-                <motion.p
-                    className="t-mono self-end justify-self-start"
-                    style={{
-                        letterSpacing: "0.08em",
-                        fontSize: "clamp(10px,0.78vw,13px)",
-                        opacity: 0.85,
-                    }}
-                    initial={reduce ? false : { opacity: 0, y: 6 }}
-                    animate={{ opacity: 0.85, y: 0 }}
-                    transition={{
-                        duration: 0.6,
-                        ease,
-                        delay: CONTENT_BASE_DELAY + 0.5,
-                    }}
-                >
-                    click to read →
-                </motion.p>
-
-                {/* Bottom-right: main headline */}
-                <h3
-                    className="t-display min-w-0 self-end justify-self-end text-right"
-                    style={{
-                        fontSize: "clamp(18px, 2vw, 34px)",
-                        lineHeight: 1.05,
-                        overflowWrap: "break-word",
-                    }}
-                >
-                    <SplitText delay={CONTENT_BASE_DELAY + 0.25}>
-                        For you, then.
-                    </SplitText>
-                </h3>
-            </div>
-
-            {/* Compact tile — used on mobile and when `compact` is set on lg */}
-            <div
-                className={`${compact ? "block" : "block lg:hidden"} relative w-full h-full`}
-                onMouseEnter={() => sound(true)}
-                onMouseLeave={() => sound(false)}
-            >
+        <div
+            ref={wrap}
+            className="relative w-full h-full"
+            onMouseEnter={() => sound(true)}
+            onMouseLeave={() => sound(false)}
+        >
+            {showVideo ? (
                 <video
                     ref={vid}
                     src={LETTER_VIDEO}
@@ -165,8 +80,20 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                     style={{ objectPosition: "50% 65%" }}
                 />
-            </div>
-        </>
+            ) : (
+                <Image
+                    src={LETTER_IMG}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1280px) 20vw, 40vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                    style={{ objectPosition: "50% 65%" }}
+                />
+            )}
+            {/* The visible face is decorative video/image — this names the
+                BentoCard button for screen readers. */}
+            <span className="sr-only">a note for you — click to read</span>
+        </div>
     );
 }
 
@@ -192,6 +119,21 @@ export function SocialCard({
         return () => clearTimeout(t);
     }, [entered, enterDone, enterDelay]);
 
+    // Keyboard path: opening unmounts the focused button (focus falls to
+    // <body>, taking the Escape handler with it), so focus moves into the
+    // panel on mount and back onto the button when Escape closes it. Stable
+    // callbacks — inline refs re-run every render.
+    const returnFocus = useRef(false);
+    const focusFirstLink = useCallback((el: HTMLDivElement | null) => {
+        el?.querySelector("a")?.focus();
+    }, []);
+    const refocusButton = useCallback((el: HTMLButtonElement | null) => {
+        if (el && returnFocus.current) {
+            returnFocus.current = false;
+            el.focus();
+        }
+    }, []);
+
     return (
         <motion.div
             className={`group hidden lg:block relative overflow-hidden ${className ?? ""}`}
@@ -210,7 +152,12 @@ export function SocialCard({
                 delay: enterDone ? 0 : enterDelay,
             }}
             onMouseLeave={() => setOpen(false)}
-            onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
+            onKeyDown={(e) => {
+                if (e.key === "Escape" && open) {
+                    returnFocus.current = true;
+                    setOpen(false);
+                }
+            }}
         >
             <Image
                 src={CONTACT_IMG}
@@ -225,6 +172,7 @@ export function SocialCard({
                     <motion.button
                         key="closed"
                         type="button"
+                        ref={refocusButton}
                         onClick={() => setOpen(true)}
                         aria-expanded={false}
                         className="absolute inset-0 flex flex-col items-start justify-center gap-1 cursor-pointer text-left"
@@ -253,6 +201,7 @@ export function SocialCard({
                 ) : (
                     <motion.div
                         key="open"
+                        ref={focusFirstLink}
                         className="absolute inset-0 grid place-items-stretch"
                         style={{
                             gridTemplateColumns: `repeat(${contactIcons.length}, minmax(0, 1fr))`,
@@ -290,8 +239,9 @@ export function SocialCard({
                                     style={{ gap: "clamp(3px, 0.4svh, 6px)" }}
                                 >
                                     {/* ponytail: icon only — the strip is 2 columns wide now,
-                                        labels only truncated to one letter. title/aria-label carry the name. */}
-                                    <SocialIcon name={c.name} size={20} />
+                                        labels only truncated to one letter. title/aria-label carry the name.
+                                        Sized by viewport: a fixed 20px overflows the ~29px cells at 1280w. */}
+                                    <SocialIcon name={c.name} size="clamp(13px, 1.15vw, 20px)" />
                                 </Magnetic>
                             </motion.a>
                         ))}

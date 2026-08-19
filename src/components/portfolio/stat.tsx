@@ -27,6 +27,34 @@ export function Stat({
   );
 }
 
+/* Kochi wall clock as a leaf — it owns the 1s interval, so the tick re-renders
+   only this text node, never the card embedding it. Renders the placeholder on
+   the server and first client paint (a server-rendered time is stale by
+   hydration, and the mismatch is a hydration error). */
+const IST_CLOCK = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZone: "Asia/Kolkata",
+});
+
+export function LiveClock({ placeholder = "--:--:--" }: { placeholder?: string }) {
+  const [now, setNow] = useState<string | null>(null);
+  useEffect(() => {
+    const tick = () => setNow(IST_CLOCK.format(new Date()));
+    // First reading via rAF: lands on the next paint without setting state
+    // synchronously inside the effect body.
+    const raf = requestAnimationFrame(tick);
+    const id = setInterval(tick, 1000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
+  }, []);
+  return <>{now ?? placeholder}</>;
+}
+
 export function Counter({ to, startDelay = 0 }: { to: number; startDelay?: number }) {
   const [n, setN] = useState(0);
   useEffect(() => {
