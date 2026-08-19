@@ -183,7 +183,7 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_1.1fr_1.1fr_0.85fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_0.5fr_1.275fr_1.275fr] lg:overflow-visible`}
           style={{
             gap: GAP,
           }}
@@ -266,7 +266,7 @@ export function PortfolioShell({
               entered={isLoaded}
               enterDelay={0.32}
               enterFrom="right"
-              className="hidden lg:block lg:col-start-11 lg:col-end-13 lg:row-start-4 lg:row-end-7"
+              className="hidden lg:block lg:col-start-11 lg:col-end-13 lg:row-start-5 lg:row-end-7"
             >
               <LetterCollapsed compact />
             </BentoCard>
@@ -275,7 +275,7 @@ export function PortfolioShell({
             <SocialCard
               entered={isLoaded}
               enterDelay={0.42}
-              className="lg:col-start-1 lg:col-end-4 lg:row-start-6 lg:row-end-7"
+              className="lg:col-start-11 lg:col-end-13 lg:row-start-4 lg:row-end-5"
             />
 
             {/* MOBILE/TABLET — note card + 5 social mini-cards
@@ -338,7 +338,7 @@ export function PortfolioShell({
               entered={isLoaded}
               enterDelay={0.21}
               enterFrom="left"
-              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-7 max-[639px]:row-end-8 lg:col-start-1 lg:col-end-4 lg:row-start-4 lg:row-end-6"
+              className="col-start-1 col-end-6 row-start-4 row-end-6 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-7 max-[639px]:row-end-8 lg:col-start-1 lg:col-end-4 lg:row-start-4 lg:row-end-7"
             >
               <TestimonialsCollapsed items={testimonials} />
             </BentoCard>

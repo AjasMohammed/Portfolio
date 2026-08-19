@@ -4,6 +4,7 @@ export const RADIUS = "clamp(8px, 0.9vw, 14px)";
    the bento all ride this value — change it here or the grid drifts apart. */
 export const GAP = "clamp(8px, 1.2svh, 14px)";
 export const WHATSAPP_IMG = "/images/rooftop-kochi.webp";
+export const LETTER_VIDEO = "/videos/letter-wind.mp4";
 export const LETTER_IMG = "/images/letter-flower.webp";
 export const CONTACT_IMG = "/images/contact-arches.webp";
 

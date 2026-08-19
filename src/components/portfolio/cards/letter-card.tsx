@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
     ease,
     RADIUS,
     WHATSAPP_IMG,
+    LETTER_VIDEO,
     CONTENT_BASE_DELAY,
     SKY_BG,
     LETTER_IMG,
@@ -22,6 +23,17 @@ import { contactIcons } from "./bio-card";
 
 export function LetterCollapsed({ compact = false }: { compact?: boolean } = {}) {
     const reduce = useReducedMotion();
+    const vid = useRef<HTMLVideoElement>(null);
+    // ponytail: autoplay only survives muted, so unmute on hover instead.
+    const sound = (on: boolean) => {
+        const v = vid.current;
+        if (!v) return;
+        v.muted = !on;
+        if (on) {
+            v.volume = 0.6;
+            v.play().catch(() => {});
+        }
+    };
     return (
         <>
             {/* Desktop / lg+ — 2x2 editorial grid */}
@@ -137,13 +149,20 @@ export function LetterCollapsed({ compact = false }: { compact?: boolean } = {})
             {/* Compact tile — used on mobile and when `compact` is set on lg */}
             <div
                 className={`${compact ? "block" : "block lg:hidden"} relative w-full h-full`}
+                onMouseEnter={() => sound(true)}
+                onMouseLeave={() => sound(false)}
             >
-                <Image
-                    src={LETTER_IMG}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1023px) 30vw, 22vw"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                <video
+                    ref={vid}
+                    src={LETTER_VIDEO}
+                    poster={LETTER_IMG}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                     style={{ objectPosition: "50% 65%" }}
                 />
             </div>
@@ -197,7 +216,7 @@ export function SocialCard({
                 src={CONTACT_IMG}
                 alt=""
                 fill
-                sizes="35vw"
+                sizes="20vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
             />
 
@@ -208,7 +227,7 @@ export function SocialCard({
                         type="button"
                         onClick={() => setOpen(true)}
                         aria-expanded={false}
-                        className="absolute inset-0 flex items-center justify-between cursor-pointer text-left"
+                        className="absolute inset-0 flex flex-col items-start justify-center gap-1 cursor-pointer text-left"
                         style={{
                             color: "var(--orange-deep)",
                             padding: "clamp(10px,1.4svh,18px) clamp(14px,1.4vw,24px)",
@@ -220,7 +239,7 @@ export function SocialCard({
                     >
                         <span
                             className="t-display"
-                            style={{ fontSize: "clamp(20px,2vw,36px)", lineHeight: 1 }}
+                            style={{ fontSize: "clamp(18px,1.6vw,28px)", lineHeight: 1 }}
                         >
                             say hello
                         </span>
@@ -270,17 +289,9 @@ export function SocialCard({
                                     className="flex w-full flex-col items-center justify-center min-w-0"
                                     style={{ gap: "clamp(3px, 0.4svh, 6px)" }}
                                 >
+                                    {/* ponytail: icon only — the strip is 2 columns wide now,
+                                        labels only truncated to one letter. title/aria-label carry the name. */}
                                     <SocialIcon name={c.name} size={20} />
-                                    <span
-                                        className="t-mono-xs truncate w-full text-center compact:hidden"
-                                        style={{
-                                            fontSize: "clamp(9px, 0.7vw, 12px)",
-                                            letterSpacing: "0.12em",
-                                            opacity: 0.75,
-                                        }}
-                                    >
-                                        {c.label}
-                                    </span>
                                 </Magnetic>
                             </motion.a>
                         ))}
