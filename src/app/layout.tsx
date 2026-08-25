@@ -6,6 +6,7 @@ import {
   Jost,
 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 // Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
@@ -101,6 +102,7 @@ export default function RootLayout({
       <body className="h-full bg-ink text-cream">
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
