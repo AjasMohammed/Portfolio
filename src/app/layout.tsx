@@ -5,6 +5,7 @@ import {
   Instrument_Serif,
   Jost,
 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
@@ -97,7 +98,10 @@ export default function RootLayout({
       lang="en"
       className={`${jost.variable} ${instrumentSerif.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
     >
-      <body className="h-full bg-ink text-cream">{children}</body>
+      <body className="h-full bg-ink text-cream">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
