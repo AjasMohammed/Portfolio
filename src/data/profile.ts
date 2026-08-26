@@ -268,6 +268,6 @@ export const projects: ProjectItem[] = [
     ],
     technologies: ["Next.js", "React", "Tailwind CSS", "Cloudflare Workers"],
     preview: "/images/projects/aurora-salon.webp",
-    url: "https://seoul-salon.ajasmohammed33.workers.dev/",
+    url: "https://seoulmakeoverstudio.com/",
   },
 ];

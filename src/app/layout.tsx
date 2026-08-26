@@ -82,6 +82,9 @@ export const metadata: Metadata = {
     description:
       "Single-screen portfolio of Ajas Mohammed — software developer writing Python that ages well: backends, APIs, and quiet interfaces.",
   },
+  verification: {
+    google: "7M8wKixViOGe6HT-Lc3kyCq547cslHl1Y7gBZMWM3MY",
+  },
   robots: {
     index: true,
     follow: true,
