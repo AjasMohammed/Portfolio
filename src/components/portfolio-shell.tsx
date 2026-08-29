@@ -10,6 +10,7 @@ import {
 import Lenis from "lenis";
 import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
+import type { ProjectItem } from "@/data/profile";
 import {
   ease,
   GAP,
@@ -52,10 +53,12 @@ const WELCOME_SURFACE_COMPACT: React.CSSProperties = {
 export function PortfolioShell({
   github,
   testimonials,
+  projects,
   visits,
 }: {
   github: GithubData;
   testimonials: Testimonial[];
+  projects: ProjectItem[];
   visits: number | null;
 }) {
   const [expanded, setExpanded] = useState<CardId | null>(null);
@@ -165,7 +168,12 @@ export function PortfolioShell({
   return (
     <>
     <main
-      className={`relative ${lite ? "grain-lite" : "grain"} h-svh max-h-screen w-svw overflow-hidden text-cream`}
+      // The grain is a viewport-sized `mix-blend-mode: overlay` layer, so it
+      // re-composites over the whole screen on every frame anything under it
+      // repaints — which during an expand is the FLIP, the backdrop and eight
+      // dimming tiles at once. At 0.07 opacity nobody sees it go; everyone
+      // feels it stop.
+      className={`relative ${lite || expanded ? "grain-lite" : "grain"} h-svh max-h-screen w-svw overflow-hidden text-cream`}
       style={{
         background: letterOpen ? SKY_BG : "var(--ink)",
         transition: "background 0.45s cubic-bezier(0.22,1,0.36,1)",
@@ -210,7 +218,7 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_minmax(64px,0.5fr)_1.275fr_1.275fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "bento-dim" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_minmax(64px,0.5fr)_1.275fr_1.275fr] lg:overflow-visible`}
           style={{
             gap: GAP,
           }}
@@ -353,7 +361,7 @@ export function PortfolioShell({
               enterFrom="right"
               className="col-start-6 col-end-11 row-start-3 row-end-4 max-[639px]:col-start-1 max-[639px]:col-end-3 max-[639px]:row-start-5 max-[639px]:row-end-6 lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-4"
             >
-              <ProjectsCollapsed />
+              <ProjectsCollapsed items={projects} />
             </BentoCard>
 
             {/* TESTIMONIALS — col 1 rows 3–4 (tablet) / full-width row 6 (mobile <640) / bottom-right (desktop) */}
@@ -395,6 +403,7 @@ export function PortfolioShell({
                   id={expanded}
                   github={github}
                   testimonials={testimonials}
+                  projects={projects}
                   onClose={() => setExpanded(null)}
                   layoutKey={
                     expanded === "letter" && isDesktop === false

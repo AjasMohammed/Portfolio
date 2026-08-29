@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { TESTIMONIALS_CACHE_TAG } from "@/lib/testimonials";
+import { PROJECTS_CACHE_TAG } from "@/lib/projects";
 
 export const runtime = "nodejs";
 
@@ -30,12 +31,12 @@ async function handle(request: Request) {
   }
   // "max" = stale-while-revalidate; the old `{ expire: 0 }` reproduced the
   // deprecated blocking cache-miss behavior.
-  revalidateTag(TESTIMONIALS_CACHE_TAG, "max");
+  // Both sheets bust together — one secret, one webhook to wire up in each
+  // sheet's Apps Script, and a stale projects list costs nothing to refresh.
+  const tags = [TESTIMONIALS_CACHE_TAG, PROJECTS_CACHE_TAG];
+  for (const tag of tags) revalidateTag(tag, "max");
   revalidatePath("/");
-  return NextResponse.json({
-    ok: true,
-    revalidated: { tag: TESTIMONIALS_CACHE_TAG, path: "/" },
-  });
+  return NextResponse.json({ ok: true, revalidated: { tags, path: "/" } });
 }
 
 export const GET = handle;

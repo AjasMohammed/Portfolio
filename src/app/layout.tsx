@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { CURRENT_ROLE, profile } from "@/data/profile";
 import "./globals.css";
 
 // Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
@@ -45,6 +46,55 @@ const archivo = Archivo({
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+/* Person + WebSite structured data, derived from `profile`/`experiences` so it
+   can't drift from what the tiles render.
+
+   The `@id` and `sameAs` matter more here than usual: another Ajas Mohammed
+   publishes a portfolio too, so the github/linkedin pair is what tells a
+   crawler which one this is. Keep sameAs pointing at profiles that are
+   unambiguously this person. */
+const [city, country] = profile.location.split(",").map((s) => s.trim());
+
+const personLd = {
+  "@type": "Person",
+  "@id": `${siteUrl}/#person`,
+  name: profile.name,
+  url: siteUrl,
+  jobTitle: CURRENT_ROLE.role,
+  description: profile.summary,
+  email: `mailto:${profile.email}`,
+  telephone: profile.phone,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: city,
+    addressCountry: country,
+  },
+  worksFor: { "@type": "Organization", name: CURRENT_ROLE.company },
+  alumniOf: profile.education.map((e) => ({
+    "@type": "EducationalOrganization",
+    name: e.institution,
+  })),
+  knowsAbout: Object.values(profile.skills).flat(),
+  // Empty strings would emit `sameAs: [""]`, which is worse than omitting it.
+  sameAs: [profile.social.githubUrl, profile.social.linkedinUrl, profile.social.twitterUrl].filter(Boolean),
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    personLd,
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: `${profile.name} — Portfolio`,
+      inLanguage: "en",
+      author: { "@id": `${siteUrl}/#person` },
+      publisher: { "@id": `${siteUrl}/#person` },
+    },
+  ],
+};
 
 // "Software Developer" everywhere — matches the on-page header, bio heading,
 // and current job title. "Python developer" stays in keywords/description for
@@ -103,6 +153,10 @@ export default function RootLayout({
       className={`${jost.variable} ${instrumentSerif.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         {children}
         <Analytics />
         <SpeedInsights />

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
+import type { ProjectItem } from "@/data/profile";
 import { ease, RADIUS, SKY_BG } from "./constants";
 import type { CardId, Variant } from "./types";
 import { fadeUp } from "./animations";
@@ -82,15 +83,6 @@ export function BentoCard({
   const interactive = !otherOpen && !isHidden;
   const reduce = useReducedMotion();
 
-  // The entrance (rise + fade, staggered per tile) shares the `animate` prop
-  // with the dim-when-other-open state, so the stagger delay must drop to 0
-  // once the entrance has played — otherwise every dim/undim would lag by it.
-  const [enterDone, setEnterDone] = useState(reduce ?? false);
-  useEffect(() => {
-    if (!entered || enterDone) return;
-    const t = setTimeout(() => setEnterDone(true), (enterDelay + 0.9) * 1000);
-    return () => clearTimeout(t);
-  }, [entered, enterDone, enterDelay]);
   const preEnter = ENTER_OFFSET[enterFrom];
   // Bleed lets the portrait card's foreground escape above the tile. We only
   // want that while the tile is in its resting bento position — once it's the
@@ -121,22 +113,16 @@ export function BentoCard({
     <motion.div
       layoutId={layoutKey ?? `card-${id}`}
       initial={reduce ? false : preEnter}
-      animate={
-        entered || reduce
-          ? {
-              opacity: otherOpen ? 0.25 : 1,
-              scale: otherOpen ? 0.985 : 1,
-              x: 0,
-              y: 0,
-            }
-          : preEnter
-      }
+      // Entrance only. The dim-when-another-card-is-open state used to live
+      // here too, but it fired on every tile at the exact moment the FLIP
+      // started — it's a `.bento-dim` CSS transition now (see globals.css).
+      animate={entered || reduce ? { x: 0, y: 0 } : preEnter}
       whileHover={hoverable ? { scale: 1.012, y: -4 } : undefined}
       whileTap={interactive && !reduce ? { scale: 0.988 } : undefined}
       transition={{
-        duration: enterDone ? 0.32 : 0.8,
+        duration: 0.8,
         ease,
-        delay: enterDone ? 0 : enterDelay,
+        delay: enterDelay,
         layout: LAYOUT_TRANSITION,
       }}
       style={{
@@ -148,7 +134,10 @@ export function BentoCard({
         minHeight: 0,
         // `contain: paint` forces overflow:hidden — skip it on bleed tiles
         // (e.g. the portrait card whose foreground escapes the card bounds).
-        contain: allowBleed ? undefined : "paint",
+        // `layout` on top of it walls each tile's reflows off from the grid,
+        // so the expanded card mounting its content can't invalidate layout
+        // for the eight tiles sitting behind it.
+        contain: allowBleed ? undefined : "layout paint",
         ["--hover-shadow" as string]: hoverShadow,
         ...extraStyle,
       }}
@@ -205,12 +194,14 @@ export function ExpandedCard({
   id,
   github,
   testimonials,
+  projects,
   onClose,
   layoutKey,
 }: {
   id: CardId;
   github: GithubData;
   testimonials: Testimonial[];
+  projects: ProjectItem[];
   onClose: () => void;
   layoutKey?: string;
 }) {
@@ -285,7 +276,10 @@ export function ExpandedCard({
         borderRadius: RADIUS,
         background: surface.bg,
         color: surface.fg,
-        contain: "paint",
+        // Size comes from `inset-0`, never from the content — so the whole
+        // expanded tree (four draggable windows, their screenshots) can lay
+        // itself out without dirtying anything outside this box.
+        contain: "layout paint",
       }}
     >
       <button
@@ -346,7 +340,7 @@ export function ExpandedCard({
             {id === "image" && <ImageExpanded />}
             {id === "bio" && <BioExpanded github={github} />}
             {id === "skills" && <AnalyticsExpanded github={github} />}
-            {id === "projects" && <ProjectsExpanded />}
+            {id === "projects" && <ProjectsExpanded items={projects} />}
             {id === "testimonials" && <TestimonialsExpanded items={testimonials} />}
           </motion.div>
         ))}

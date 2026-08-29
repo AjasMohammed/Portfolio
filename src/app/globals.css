@@ -378,3 +378,31 @@ body {
     transform: rotate(0deg);
   }
 }
+
+/* ── Expand dim — every tile recedes while a card is open ──────────────
+   One class on the grid, not a framer `animate` per tile. Eight JS-driven
+   animations writing inline styles every frame is eight rAF callbacks
+   fighting the shared-layout FLIP for the frames it needs most, and each
+   one promotes its own compositing layer at the same instant.
+   `scale` is the standalone property, not `transform`, so it composes with
+   the inline transform framer owns for the entrance/hover instead of
+   clobbering it. Both properties animate on the compositor. */
+.bento-card {
+  transition:
+    opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    scale 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bento-dim .bento-card {
+  /* `!important` earns its keep here: framer-motion writes an inline
+     `opacity` on every `layoutId` node to crossfade the shared-layout pair,
+     so an ordinary rule never wins. The one tile that crossfade actually
+     concerns is the expand source, and that one is `visibility: hidden`
+     throughout — its opacity was never doing anything. */
+  opacity: 0.25 !important;
+  scale: 0.985;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bento-card {
+    transition: none;
+  }
+}

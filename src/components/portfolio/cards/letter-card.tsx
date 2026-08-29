@@ -6,12 +6,12 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
     ease,
     RADIUS,
-    WHATSAPP_IMG,
     LETTER_VIDEO,
     CONTENT_BASE_DELAY,
-    SKY_BG,
+    SKY_GRADIENT,
     LETTER_IMG,
     CONTACT_IMG,
+    LETTER_PORTRAIT_IMG,
     LETTER_INK,
     LETTER_INK_SOFT,
 } from "../constants";
@@ -20,6 +20,7 @@ import { SocialIcon } from "../social-icon";
 import { Magnetic } from "../magnetic";
 import { innerPadding } from "../card";
 import { contactIcons } from "./bio-card";
+import { AsciiSky } from "../ascii-sky";
 
 export function LetterCollapsed() {
     const reduce = useReducedMotion();
@@ -304,14 +305,19 @@ export function LetterExpanded() {
     return (
         <div
             className="relative h-full w-full overflow-hidden"
-            style={{ background: SKY_BG, color: LETTER_INK }}
+            style={{ background: SKY_GRADIENT, color: LETTER_INK }}
         >
+            <AsciiSky />
+            {/* Cutout leans on the bottom-left, under the letter column.
+                Desktop only — on mobile the text stacks into that space. */}
             <Image
-                src={WHATSAPP_IMG}
-                alt="Ajas on a rooftop in Kochi, looking up at clouds"
-                fill
-                sizes="(max-width: 1279px) 100vw, 80vw"
-                className="object-cover"
+                src={LETTER_PORTRAIT_IMG}
+                alt=""
+                width={1071}
+                height={1469}
+                sizes="34vw"
+                aria-hidden
+                className="hidden lg:block pointer-events-none select-none absolute -bottom-[16%] -left-[3%] h-[110%] w-auto"
             />
             <div
                 className="relative z-10 h-full grid min-h-0 overflow-auto lg:overflow-hidden grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-rows-none lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(320px,46%,560px))]"

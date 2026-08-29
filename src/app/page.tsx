@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { PortfolioShell } from "@/components/portfolio-shell";
 import { getGithubData } from "@/lib/github";
 import { getTestimonials } from "@/lib/testimonials";
+import { getProjects } from "@/lib/projects";
 import { getVisitCount } from "@/lib/visits";
 import { profile } from "@/data/profile";
 
@@ -18,15 +19,17 @@ const getCachedVisitCount = unstable_cache(
 );
 
 export default async function Home() {
-  const [github, testimonials, visits] = await Promise.all([
+  const [github, testimonials, projects, visits] = await Promise.all([
     getGithubData(profile.social.githubUser),
     getTestimonials(),
+    getProjects(),
     getCachedVisitCount(),
   ]);
   return (
     <PortfolioShell
       github={github}
       testimonials={testimonials}
+      projects={projects}
       visits={visits}
     />
   );

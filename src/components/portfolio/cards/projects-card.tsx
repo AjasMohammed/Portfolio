@@ -3,11 +3,44 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { projects, type ProjectItem } from "@/data/profile";
+import { type ProjectItem } from "@/data/profile";
 import { CONTENT_BASE_DELAY, ease } from "../constants";
 import { LiveClock } from "../stat";
 
 /* ───────────────────────── PROJECTS · PREVIEWS ───────────────────────── */
+
+/* A project's screenshot, with whatever should stand in when there isn't one.
+   `preview` is often a URL rendered on demand by a screenshot service rather
+   than a file in the repo, so a load failure is a real case, not a typo — the
+   fallback has to cover it or the tile shows an empty box. */
+function ProjectShot({
+  project,
+  sizes,
+  fallback,
+  alt = "",
+  objectTop = true,
+}: {
+  project: ProjectItem;
+  sizes: string;
+  fallback: React.ReactNode;
+  alt?: string;
+  /** Screenshots are tall; anchoring top keeps the site's header in frame. */
+  objectTop?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (!project.preview || failed) return <>{fallback}</>;
+  return (
+    <Image
+      src={project.preview}
+      alt={alt}
+      fill
+      sizes={sizes}
+      draggable={false}
+      onError={() => setFailed(true)}
+      className={`object-cover ${objectTop ? "object-top" : ""}`}
+    />
+  );
+}
 
 /* Cover art stands in until a screenshot exists in `preview`. It's built from
    the project's own initial so it reads as deliberate art, not a broken image. */
@@ -36,24 +69,21 @@ function PreviewFrame({
           "linear-gradient(135deg, rgba(192,68,15,0.16), rgba(192,68,15,0.04) 55%, rgba(192,68,15,0.12))",
       }}
     >
-      {project.preview ? (
-        <Image
-          src={project.preview}
-          alt={`${project.name} preview`}
-          fill
-          sizes={sizes}
-          className="object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span
-            className="t-retro"
-            style={{ fontSize: "26cqw", lineHeight: 1, opacity: 0.22 }}
-          >
-            {project.name.charAt(0)}
-          </span>
-        </div>
-      )}
+      <ProjectShot
+        project={project}
+        sizes={sizes}
+        alt={`${project.name} preview`}
+        fallback={
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span
+              className="t-retro"
+              style={{ fontSize: "26cqw", lineHeight: 1, opacity: 0.22 }}
+            >
+              {project.name.charAt(0)}
+            </span>
+          </div>
+        }
+      />
     </div>
   );
 }
@@ -186,7 +216,40 @@ function LivePreview({
    Cycled so a longer or shorter project list still labels every window. */
 const WORK_KINDS = ["freelance", "contract", "personal", "concept"];
 
-export function ProjectsCollapsed() {
+/* ─── collapsed stack: the real pages, not a drawing of one ──────────────
+   Each window in the cascade frames its own screenshot, anchored top-left so
+   the part in frame is the site's header. Windows without a screenshot keep
+   the wireframe below. */
+
+/** Windows are 115% of the stack box, so only their top-left corner is in frame. */
+const STACK_OVERSIZE = 1.15;
+
+function StackWireframe({ kind }: { kind: string }) {
+  return (
+    <div className="px-2 pt-2 flex flex-col gap-1.5">
+      <p
+        className="t-mono-xs"
+        style={{
+          color: "var(--orange)",
+          opacity: 0.75,
+          letterSpacing: "0.16em",
+          fontSize: "clamp(8px,0.62vw,11px)",
+        }}
+      >
+        {kind}
+      </p>
+      {[70, 46, 58].map((w, b) => (
+        <span
+          key={b}
+          className="block rounded-full"
+          style={{ width: `${w}%`, height: 4, background: "rgba(192,68,15,0.18)" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function ProjectsCollapsed({ items }: { items: ProjectItem[] }) {
   return (
     <motion.div
       className="flex flex-col w-full h-full min-w-0 gap-[clamp(4px,0.8svh,12px)]"
@@ -242,33 +305,33 @@ export function ProjectsCollapsed() {
         animate="rest"
         whileHover="hover"
       >
-        {projects.map((p, i) => (
+        {items.map((p, i) => (
           <motion.div
             key={p.name}
-            className="absolute overflow-hidden"
+            className="absolute overflow-hidden flex flex-col"
             variants={{
-              rest: { x: 0, y: 0, opacity: 0.4 + i * 0.18 },
+              rest: { x: 0, y: 0 },
               // Fan down-right so every corner stays legible, and lift the
               // whole stack a little so the frontmost one isn't cropped.
-              hover: {
-                x: i * 16,
-                y: i * 12 - 10,
-                opacity: Math.min(1, 0.55 + i * 0.18),
-              },
+              hover: { x: i * 16, y: i * 12 - 10 },
             }}
             transition={{ duration: 0.4, ease }}
             style={{
               top: `${i * 15}%`,
               left: `${i * 11}%`,
-              width: "115%",
-              height: "115%",
+              width: `${STACK_OVERSIZE * 100}%`,
+              height: `${STACK_OVERSIZE * 100}%`,
+              // Later windows sit in front, so they have to paint over the one
+              // behind — the depth cue is the drop shadow, not transparency.
+              zIndex: i + 1,
               borderRadius: 8,
               border: "1px solid rgba(192,68,15,0.3)",
-              background: "rgba(255,247,232,0.92)",
+              background: "var(--cream-soft)",
+              boxShadow: "0 10px 30px rgba(35,21,16,0.20)",
             }}
           >
             <div
-              className="flex gap-1 px-2 py-1.5"
+              className="flex gap-1 px-2 py-1.5 shrink-0"
               style={{ background: "rgba(192,68,15,0.12)" }}
             >
               {["#e06c4a", "#e8b04b", "#7fb069"].map((c) => (
@@ -280,31 +343,16 @@ export function ProjectsCollapsed() {
               ))}
             </div>
 
-            {/* Only the top-left corner of each window is in frame, so the
-                label and the wireframe bars live there. */}
-            <div className="px-2 pt-2 flex flex-col gap-1.5">
-              <p
-                className="t-mono-xs"
-                style={{
-                  color: "var(--orange)",
-                  opacity: 0.75,
-                  letterSpacing: "0.16em",
-                  fontSize: "clamp(8px,0.62vw,11px)",
-                }}
-              >
-                {WORK_KINDS[i % WORK_KINDS.length]}
-              </p>
-              {[70, 46, 58].map((w, b) => (
-                <span
-                  key={b}
-                  className="block rounded-full"
-                  style={{
-                    width: `${w}%`,
-                    height: 4,
-                    background: "rgba(192,68,15,0.18)",
-                  }}
-                />
-              ))}
+            {/* Decorative: the expanded card names this work properly, so the
+                stack stays out of the accessibility tree. */}
+            <div className="relative flex-1 min-h-0 overflow-hidden" aria-hidden>
+              <ProjectShot
+                project={p}
+                sizes="(min-width: 768px) 30vw, 90vw"
+                /* Only the top-left corner of each window is in frame, so the
+                   label and the wireframe bars live there. */
+                fallback={<StackWireframe kind={WORK_KINDS[i % WORK_KINDS.length]} />}
+              />
             </div>
           </motion.div>
         ))}
@@ -436,7 +484,9 @@ function DeskWindow({
       onDoubleClick={onOpen}
       initial={{ opacity: 0, y: 28, rotate: index % 2 ? 1.6 : -1.6 }}
       animate={{ opacity: 1, y: 0, rotate: 0 }}
-      transition={{ duration: 0.5, delay: 0.15 + index * 0.1, ease }}
+      // Tight: these only start once the card has finished FLIPping open, so
+      // a long stagger here is dead time tacked onto the end of the expand.
+      transition={{ duration: 0.42, delay: 0.04 + index * 0.05, ease }}
       className="absolute flex flex-col min-w-0 overflow-hidden cursor-grab active:cursor-grabbing select-none"
       style={{
         ...spot,
@@ -449,18 +499,7 @@ function DeskWindow({
     >
       <WindowChromeBar project={project} onOpen={onOpen} />
       <div className="relative aspect-video overflow-hidden">
-        {project.preview ? (
-          <Image
-            src={project.preview}
-            alt={`${project.name} preview`}
-            fill
-            sizes="45vw"
-            draggable={false}
-            className="object-cover object-top"
-          />
-        ) : (
-          <PreviewFrame project={project} sizes="45vw" rounded={false} />
-        )}
+        <PreviewFrame project={project} sizes="45vw" rounded={false} />
       </div>
       {/* status bar — name plate under the page, like an old file window */}
       <div
@@ -546,14 +585,6 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
             {project.highlights.join("  ·  ")}
           </p>
         )}
-        {project.technologies.length > 0 && (
-          <p
-            className="t-mono-xs"
-            style={{ color: "var(--orange)", opacity: 0.8, fontSize: "clamp(9px,0.72vw,12px)", letterSpacing: "0.12em" }}
-          >
-            {project.technologies.join(" · ")}
-          </p>
-        )}
       </div>
 
       <LivePreview
@@ -567,14 +598,35 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
   );
 }
 
-export function ProjectsExpanded() {
+/* The desk and the stacked cards are the same four projects rendered twice,
+   with CSS hiding one of them. `display: none` still costs the whole mount —
+   eight framer nodes and eight next/image components built, reconciled and
+   style-recalculated — and it all lands in the single commit that fires the
+   instant the expand animation finishes, which is exactly the frame that can
+   least afford it. Branching in JS builds one. Reading layout at mount is
+   safe here: this card only ever exists after a click. */
+function useIsDesk() {
+  const query = "(min-width: 768px)";
+  const [desk, setDesk] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const sync = () => setDesk(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  return desk;
+}
+
+export function ProjectsExpanded({ items }: { items: ProjectItem[] }) {
+  const isDesk = useIsDesk();
   const [focused, setFocused] = useState<string | null>(null);
   /* Draw order: clicking or dragging a window hands it the next z on top. */
   const [z, setZ] = useState<Record<string, number>>({});
-  const topZ = useRef(projects.length);
+  const topZ = useRef(items.length);
   const deskRef = useRef<HTMLDivElement | null>(null);
 
-  const focusedProject = projects.find((p) => p.name === focused) ?? null;
+  const focusedProject = items.find((p) => p.name === focused) ?? null;
   const bringToFront = (name: string) =>
     setZ((cur) => ({ ...cur, [name]: ++topZ.current }));
 
@@ -622,6 +674,7 @@ export function ProjectsExpanded() {
       ) : (
         <>
           {/* the desk — md+ only; windows scatter and drag inside it */}
+          {isDesk && (
           <div
             ref={deskRef}
             className="relative flex-1 min-h-0 hidden md:block overflow-hidden"
@@ -632,7 +685,7 @@ export function ProjectsExpanded() {
                 "radial-gradient(rgba(192,68,15,0.13) 1px, transparent 1px) 0 0 / 14px 14px, var(--cream-soft)",
             }}
           >
-            {projects.map((p, i) => (
+            {items.map((p, i) => (
               <DeskWindow
                 key={p.name}
                 project={p}
@@ -661,7 +714,7 @@ export function ProjectsExpanded() {
               >
                 ~/works
               </span>
-              {projects.map((p) => (
+              {items.map((p) => (
                 <button
                   key={p.name}
                   type="button"
@@ -687,10 +740,11 @@ export function ProjectsExpanded() {
               ))}
             </div>
           </div>
+          )}
 
-          {/* below md the desk doesn't fit a finger — same windows, stacked */}
+          {!isDesk && (
           <div className="flex flex-col gap-3 md:hidden pb-2">
-            {projects.map((p) => (
+            {items.map((p) => (
               <article
                 key={p.name}
                 className="flex flex-col min-w-0 overflow-hidden"
@@ -702,17 +756,7 @@ export function ProjectsExpanded() {
               >
                 <WindowChromeBar project={p} />
                 <div className="relative aspect-video overflow-hidden">
-                  {p.preview ? (
-                    <Image
-                      src={p.preview}
-                      alt={`${p.name} preview`}
-                      fill
-                      sizes="92vw"
-                      className="object-cover object-top"
-                    />
-                  ) : (
-                    <PreviewFrame project={p} sizes="92vw" rounded={false} />
-                  )}
+                  <PreviewFrame project={p} sizes="92vw" rounded={false} />
                 </div>
                 <div className="flex flex-col gap-1.5 p-3">
                   <p
@@ -734,24 +778,12 @@ export function ProjectsExpanded() {
                   >
                     {p.description}
                   </p>
-                  {p.technologies.length > 0 && (
-                    <p
-                      className="t-mono-xs"
-                      style={{
-                        color: "var(--orange)",
-                        opacity: 0.8,
-                        fontSize: "clamp(9px,2.2vw,12px)",
-                        letterSpacing: "0.12em",
-                      }}
-                    >
-                      {p.technologies.join(" · ")}
-                    </p>
-                  )}
                   <TileLinks project={p} />
                 </div>
               </article>
             ))}
           </div>
+          )}
         </>
       )}
     </div>
