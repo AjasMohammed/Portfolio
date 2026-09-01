@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import {
-  Archivo,
-  Fugaz_One,
-  Instrument_Serif,
-  Jost,
-} from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Fugaz_One, Instrument_Serif, Jost } from "next/font/google";
+import localFont from "next/font/local";
 import { CURRENT_ROLE, profile } from "@/data/profile";
 import "./globals.css";
 
@@ -35,13 +29,20 @@ const fugaz = Fugaz_One({
   subsets: ["latin"],
 });
 
-// Archivo variable (width axis) — numeral face for stats. Still Black/125%
-// for the big stat numbers, where a weight axis actually matters.
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["wdth"],
+// Headline face — Vercel's Geist Pixel, Square cut. SIL OFL, so the one woff2
+// is vendored rather than pulled from the `geist` package, which routes every
+// cut through one module and preloads all five (132KB) to use one.
+//
+// Square is the solidest of the five cuts; Grid/Circle/Triangle/Line are dotted
+// and go faint at headline weight. Despite the name and the vendor's monospace
+// fallback list it is a PROPORTIONAL display face — '.' is 0.19em, '@' 0.836em
+// — so it can't stand in for --font-mono, and its 0.038em pixel unit falls
+// below one device pixel under ~24px. Headlines only; see --font-pixel.
+const geistPixel = localFont({
+  src: "../../public/fonts/GeistPixel-Square.woff2",
+  variable: "--font-geist-pixel-square",
+  weight: "500",
+  adjustFontFallback: false,
 });
 
 const siteUrl =
@@ -150,7 +151,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jost.variable} ${instrumentSerif.variable} ${archivo.variable} ${fugaz.variable} h-full antialiased`}
+      className={`${jost.variable} ${instrumentSerif.variable} ${fugaz.variable} ${geistPixel.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">
         <script
@@ -158,8 +159,6 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

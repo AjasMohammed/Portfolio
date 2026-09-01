@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getVisitCount, logVisit } from "@/lib/visits";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "nodejs";
 
@@ -40,15 +41,6 @@ function cap(s: string | undefined | null, max: number): string | undefined {
   return t.length > max ? t.slice(0, max) : t;
 }
 
-function decodeIfEncoded(v: string | undefined): string | undefined {
-  if (!v) return v;
-  try {
-    return decodeURIComponent(v);
-  } catch {
-    return v;
-  }
-}
-
 export async function POST(request: Request) {
   // Local dev shares the production Redis via .env — read the counter but
   // don't inflate it. Set VISITS_LOG_IN_DEV=1 to test the write path.
@@ -75,20 +67,23 @@ export async function POST(request: Request) {
   const ua = h.get("user-agent") ?? "";
   const { device, browser, os } = parseUA(ua);
 
-  const country =
-    h.get("x-vercel-ip-country") ??
-    h.get("cf-ipcountry") ??
-    h.get("x-country-code") ??
-    undefined;
-  const city =
-    decodeIfEncoded(h.get("x-vercel-ip-city") ?? undefined) ??
-    h.get("cf-ipcity") ??
-    undefined;
-  const region =
-    h.get("x-vercel-ip-country-region") ??
-    h.get("cf-region") ??
-    h.get("x-vercel-ip-country-region-code") ??
-    undefined;
+  // Cloudflare puts geo on the request's `cf` object, not on headers — only
+  // country is mirrored as a header (cf-ipcountry). There is no cf-ipcity or
+  // cf-region header, so city/region have to come from `cf` or not at all.
+  // Wrapped because getCloudflareContext() only resolves inside workerd.
+  // Narrowed to the three fields logged rather than pulling in
+  // @cloudflare/workers-types — its globals redefine fetch/Response and turn
+  // res.json() into `unknown` across the client components.
+  let cf: { country?: string; city?: string; region?: string } | undefined;
+  try {
+    cf = getCloudflareContext().cf as typeof cf;
+  } catch {
+    // Not on Workers (build-time analysis, `next start`) — headers only.
+  }
+
+  const country = cf?.country ?? h.get("cf-ipcountry") ?? undefined;
+  const city = cf?.city ?? undefined;
+  const region = cf?.region ?? undefined;
 
   const acceptLang = h.get("accept-language")?.split(",")[0]?.trim();
   const referer = h.get("referer") ?? undefined;

@@ -7,20 +7,33 @@ import { useReducedMotion } from "framer-motion";
    cloudlets on a jittered grid, coverage decided by large-scale noise, edges
    feathered by small-scale noise, lit from top-left. Field is periodic in x,
    rendered once per layer to an offscreen canvas, then scrolled. Two layers
-   for parallax. Generated at runtime (~50ms) so it fits any aspect. */
+   for parallax. Generated at runtime (~50ms) so it fits any aspect: all the
+   sizes below are physical px, so the sky scales by fitting more or fewer
+   cloudlets, never by shrinking them. */
 
-const GLYPHS = "..:11000@@"; // per brightness digit 0-9
-const ALPHAS = [0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.9, 0.96, 1];
-const CHAR_ASPECT = 0.6;
-const FONT = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
+export const GLYPHS = "..:11000@@"; // per brightness digit 0-9
+export const ALPHAS = [0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.9, 0.96, 1];
+export const CHAR_ASPECT = 0.6;
+// Must stay a real monospace: CHAR_ASPECT below hard-codes the cell width, so a
+// proportional face (Geist Pixel included, despite its name) collides glyphs.
+export const FONT = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
 const SHADOW = [200, 220, 242]; // cool blue-grey on the unlit side
 
-// [font (fraction of W), cloudlets across, coverage lo/hi, alpha, speed (W/s), seed]
+// [glyph px, cloudlet px, coverage lo/hi, alpha, speed px/s, seed]
 // Front layer: bigger, brighter, faster. Back layer: finer, dimmer, slower.
+// Every size here is physical px, so a phone gets the same glyph and cloudlet
+// size as a desktop and simply fits fewer of them. They used to be fractions
+// of the width, which at 360px shrank cloudlets 6x (clouds read as static) and
+// floored both layers onto the same 3px glyph, flattening the parallax. The
+// numbers below are what those fractions resolved to at 1440w — the width the
+// sky was tuned on — so the desktop look is unchanged.
 const LAYERS: [number, number, number, number, number, number, number][] = [
-    [0.003, 20, 0.55, 0.72, 0.38, 0.002, 3],
-    [0.0037, 13, 0.46, 0.64, 1, 0.0042, 11],
+    [4.2, 70, 0.55, 0.72, 0.38, 2.8, 3],
+    [5.2, 108, 0.46, 0.64, 1, 5.9, 11],
 ];
+/* Large-scale coverage blobs and small-scale edge feathering, also in px. */
+const COVER_PX = 350;
+const FEATHER_PX = 35;
 
 function hash(ix: number, iy: number, seed: number) {
     let n = (ix * 374761393 + iy * 668265263 + seed * 1442695041) | 0;
@@ -58,11 +71,27 @@ function fbm(x: number, y: number, px: number, seed: number, oct: number) {
 }
 
 // One digit per cell (-1 = sky), periodic across cols.
-function field(cols: number, rows: number, nx: number, lo: number, hi: number, seed: number) {
+function field(
+    cols: number,
+    rows: number,
+    nx: number,
+    lo: number,
+    hi: number,
+    seed: number,
+    W: number,
+    H: number,
+) {
     const sx = cols / nx; // cloudlet spacing in cells
     const sy = sx * CHAR_ASPECT; // same spacing in rows (cells are tall)
     const ny = Math.ceil(rows / sy);
-    const out = new Int8Array(cols * rows);
+    // Noise frequencies come off the box's px size, and y off x, so blobs stay
+    // round instead of stretching with the aspect ratio. x has to be a whole
+    // number of cycles: it doubles as the lattice period that keeps the field
+    // seamless when it scrolls.
+    const covX = Math.max(2, Math.round(W / COVER_PX));
+    const covY = covX * (H / W);
+    const featX = Math.max(4, Math.round(W / FEATHER_PX));
+    const featY = featX * (H / W);
     const dens = new Float32Array(cols * rows);
     for (let r = 0; r < rows; r++) {
         const gy = r / sy;
@@ -86,10 +115,10 @@ function field(cols: number, rows: number, nx: number, lo: number, hi: number, s
                 }
             }
             // coverage: soft-thresholded large-scale noise
-            const m = fbm(c / cols * 4, r / rows * 2.2, 4, seed + 50, 3);
+            const m = fbm((c / cols) * covX, (r / rows) * covY, covX, seed + 50, 3);
             const cov = Math.min(1, Math.max(0, (m - lo) / (hi - lo)));
             // feathering
-            const f = 0.72 + 0.5 * fbm(c / cols * 40, r / rows * 24, 40, seed + 90, 3);
+            const f = 0.72 + 0.5 * fbm((c / cols) * featX, (r / rows) * featY, featX, seed + 90, 3);
             // slightly denser toward the top-right, like the reference sky
             const bias = 0.8 + 0.2 * (c / cols) * (1 - r / rows);
             dens[r * cols + c] = Math.min(1, d * bias * 1.6) * smooth(cov) * f; // x1.6 saturates cores
@@ -120,13 +149,14 @@ function shade(dens: Float32Array, cols: number, rows: number) {
 type Layer = { cache: HTMLCanvasElement; w: number; h: number; speed: number };
 
 function buildLayer(W: number, H: number, dpr: number, spec: (typeof LAYERS)[number]): Layer {
-    const [f, nx, lo, hi, alpha, sp, seed] = spec;
-    const font = Math.max(3, W * f);
+    const [font, cloudPx, lo, hi, alpha, speed, seed] = spec;
     const cellW = font * CHAR_ASPECT;
     const cols = Math.ceil(W / cellW);
     const rows = Math.ceil(H / font);
-    const grid = field(cols, rows, nx, lo, hi, seed);
-    return drawGrid(grid, cols, rows, cellW, font, dpr, alpha, sp * W);
+    // Cloudlets across = how many of them fit, so each keeps one physical size.
+    const nx = Math.max(3, Math.round(W / cloudPx));
+    const grid = field(cols, rows, nx, lo, hi, seed, W, H);
+    return drawGrid(grid, cols, rows, cellW, font, dpr, alpha, speed);
 }
 
 function drawGrid(
@@ -188,13 +218,21 @@ export function AsciiSky() {
 
         const build = () => {
             const b = host.getBoundingClientRect();
-            W = b.width;
-            H = b.height;
-            dpr = window.devicePixelRatio || 1;
+            const w = Math.round(b.width);
+            const h = Math.round(b.height);
+            const d = window.devicePixelRatio || 1;
+            // A zero box (mounted while display:none) would build a 0-cell grid
+            // and leave drawImage with a zero-size source.
+            if (w < 1 || h < 1) return false;
+            if (w === W && h === H && d === dpr) return false;
+            W = w;
+            H = h;
+            dpr = d;
             canvas.width = Math.max(1, Math.floor(W * dpr));
             canvas.height = Math.max(1, Math.floor(H * dpr));
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             layers = LAYERS.map((spec) => buildLayer(W, H, dpr, spec));
+            return true;
         };
 
         const frame = (t: number) => {
@@ -211,15 +249,22 @@ export function AsciiSky() {
         };
 
         build();
+        // Regenerating both fields costs ~50ms, and ResizeObserver fires on
+        // every frame of a phone's URL-bar show/hide — coalesce to one per
+        // frame (build() itself drops the ones where nothing actually moved).
+        let pending = 0;
         const ro = new ResizeObserver(() => {
-            build();
-            if (reduce) frame(0);
+            cancelAnimationFrame(pending);
+            pending = requestAnimationFrame(() => {
+                if (build() && reduce) frame(0);
+            });
         });
         ro.observe(host);
         raf = requestAnimationFrame(frame);
 
         return () => {
             cancelAnimationFrame(raf);
+            cancelAnimationFrame(pending);
             ro.disconnect();
         };
     }, [reduce]);

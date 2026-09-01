@@ -34,11 +34,19 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# wrangler's local secret/env file
+.dev.vars
 # …but the setup documentation must reach the repo
 !.env.example
 
-# vercel
-.vercel
+# cloudflare workers (opennext adapter)
+.open-next/
+.wrangler/
+# `npm run cf-typegen` output. Not committed: the workerd runtime globals it
+# pulls in override the DOM lib project-wide (fetch/Response.json() go
+# `unknown`), breaking the client components. Generate it only if you start
+# reading typed bindings off getCloudflareContext().env.
+cloudflare-env.d.ts
 
 # typescript
 *.tsbuildinfo

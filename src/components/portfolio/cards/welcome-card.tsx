@@ -257,7 +257,6 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
             className="t-body"
             style={{
               fontSize: "clamp(14px,1.5vw,22px)",
-              fontWeight: 500,
               lineHeight: 1.45,
               letterSpacing: 0,
               borderLeft: "1px solid rgba(192,68,15,0.22)",
@@ -427,7 +426,6 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
         className="t-body flex-1 min-h-0 flex items-center"
         style={{
           fontSize: "clamp(14px,3.8vw,18px)",
-          fontWeight: 500,
           lineHeight: 1.4,
           letterSpacing: 0,
         }}

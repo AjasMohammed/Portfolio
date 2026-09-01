@@ -99,11 +99,17 @@ export function PortfolioShell({
   }, [reduce]);
 
   useEffect(() => {
-    if (!expanded) return;
-    // scrollTo keeps Lenis's own animated position in sync; a raw scrollTop
-    // write would leave it mid-animation and snap back on the next frame.
-    if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
-    else if (sectionRef.current) sectionRef.current.scrollTop = 0;
+    // Open: the dialog sits at the section's scroll origin. Close: the
+    // section was `overflow: clip` while expanded (offset reset to 0, Lenis
+    // stopped), so resync Lenis or its first wheel after closing jumps to a
+    // stale target. scrollTo keeps Lenis's own animated position in sync; a
+    // raw scrollTop write would leave it mid-animation and snap back on the
+    // next frame. `force` — Lenis is stopped via autoToggle at this point.
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true, force: true });
+    } else if (sectionRef.current) {
+      sectionRef.current.scrollTop = 0;
+    }
   }, [expanded]);
 
   useEffect(() => {
@@ -218,9 +224,19 @@ export function PortfolioShell({
         {/* ─── BENTO ─── */}
         <section
           ref={sectionRef}
-          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 overflow-hidden max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "bento-dim" : "max-[639px]:overflow-y-auto"} max-[1279px]:overflow-y-auto lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_minmax(64px,0.5fr)_1.275fr_1.275fr] lg:overflow-visible`}
+          className={`col-span-12 relative grid grid-cols-10 grid-rows-[minmax(150px,5fr)_minmax(120px,4fr)_minmax(120px,4fr)_minmax(150px,5fr)_minmax(180px,6fr)] min-h-0 max-[639px]:grid-cols-[3fr_2fr] max-[639px]:grid-rows-[clamp(110px,28vw,140px)_clamp(110px,28vw,140px)_clamp(260px,68vw,360px)_clamp(260px,68vw,360px)_clamp(130px,34vw,170px)_clamp(150px,36vw,180px)_clamp(200px,52vw,260px)] ${expanded ? "overflow-clip bento-dim" : "overflow-hidden max-[1279px]:overflow-y-auto"} lg:grid-cols-12 lg:grid-rows-[1fr_1fr_1fr_minmax(64px,0.5fr)_1.275fr_1.275fr] lg:overflow-visible`}
           style={{
             gap: GAP,
+            // Below lg the section is the scroller and the expanded card is
+            // `absolute inset-0` inside it — sized to the scrollport, so any
+            // section scroll drags the dialog away and exposes the tiles
+            // underneath. `overflow-clip` while expanded makes the section a
+            // non-scroll-container (native and programmatic scroll both dead).
+            // Lenis `autoToggle` only notices via `transitionend` on overflow —
+            // this is the rule from lenis.css, which isn't imported (see above).
+            transitionProperty: "overflow",
+            transitionDuration: "1ms",
+            transitionBehavior: "allow-discrete",
           }}
         >
           <LayoutGroup>

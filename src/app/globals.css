@@ -41,6 +41,11 @@
      ASCII backdrop and two tiny code labels; ui-monospace is indistinguishable
      there. */
   --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+  /* Geist Pixel (Square). Despite the name and the vendor's mono fallback list
+     it is PROPORTIONAL — '.' is 0.19em, '@' 0.836em — so it must never back
+     --font-mono or the ASCII grids warp. Display sizes only: the pixel unit is
+     0.038em, which turns to mush below ~24px. */
+  --font-pixel: var(--font-geist-pixel-square), var(--font-fugaz), sans-serif;
   --font-secondary: var(--font-futura);
 }
 
@@ -70,28 +75,32 @@ body {
   opacity: 0.35;
 }
 
-/* ── Typographic system — Fugaz One titles + copy, Archivo numerals ──── */
-/* Single-weight face: never ask for 700 here or the browser fakes it. Big
-   headings get their weight from size; the two display tiers differ by
-   tracking alone. */
+/* ── Typographic system — Geist Pixel headlines, Fugaz One copy, Archivo
+   numerals ──── */
+/* Top display tier — Geist Pixel.
+
+   The file is static: no weight axis, one cut, and next/font declares it at 500.
+   So 900 here is synthetic bold, and that is deliberate — the Square cut is a
+   monoline with open counters, so the browser's emboldening thickens it evenly
+   instead of filling it in. Every pixel tier below runs 900 for the same reason.
+   Any lighter cut (Grid/Circle/Triangle/Line) would break under this; they are
+   dotted, and the dots merge. */
 .t-display {
-  font-family: var(--font-fugaz), sans-serif;
-  /* Fugaz One only ships 400, so `font-weight: 900` alone gets a synthetic
-     bold the browser barely renders on an already-black face. The stroke is
-     what actually fattens the letterforms. */
+  font-family: var(--font-pixel), sans-serif;
   font-weight: 900;
-  -webkit-text-stroke: 0.022em currentColor;
-  paint-order: stroke fill;
+  -webkit-text-stroke: 0;
   letter-spacing: 0.015em;
   line-height: 0.95;
   text-transform: uppercase;
 }
 
-/* Display medium — same cut, wider tracking so card/list headings stay open
-   at 14–20px */
+/* Display medium — same pixel cut as .t-display, wider tracking so card/list
+   headings stay open at 14–20px. That is under the ~24px where the 0.038em dot
+   unit still resolves, so the strokes thin out; the extra tracking is what keeps
+   them apart. */
 .t-display-med {
-  font-family: var(--font-fugaz), sans-serif;
-  font-weight: 400;
+  font-family: var(--font-pixel), sans-serif;
+  font-weight: 900;
   letter-spacing: 0.03em;
   line-height: 1;
   text-transform: uppercase;
@@ -132,39 +141,46 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-/* Main copy — Fugaz One. A heavy display face doing running-text duty, so it
-   gets extra leading and tracking to keep the dense strokes from closing up.
-   Jost sits behind it as the fallback. */
+/* Main copy — Geist Pixel, and the only tier that runs it mixed-case. Lowercase
+   forms are shorter than the caps everywhere else, so the 0.038em pixel unit is
+   working with roughly half the height at the same font-size: this is the tier
+   that degrades first if sizes ever come down. Tracking is up from 0.02em for
+   that reason — the dots need air at x-height to stay separate. */
 .t-body {
-  font-family: var(--font-fugaz), var(--font-futura), system-ui, sans-serif;
-  font-weight: 400;
+  font-family: var(--font-pixel), system-ui, sans-serif;
+  font-weight: 900;
   font-size: clamp(14px, 1.05vw, 17px);
   line-height: 1.7;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-transform: none;
 }
 
-/* Numerals for stats */
+/* Numerals for stats. No font-stretch (the pixel face has no width axis) and no
+   "tnum" — it ships neither the feature nor uniform digit widths ('1' is 0.494em
+   against '4' at 0.684em).
+   ponytail: <Counter> count-ups therefore reflow a few px as digits change.
+   Only visible during the ~1s animation on 1–2 digit stats; give the element a
+   ch-based min-width if it ever lands on a longer number. */
 .t-num {
-  font-family: var(--font-archivo), sans-serif;
-  font-weight: 700;
-  font-stretch: 112%;
+  font-family: var(--font-pixel), sans-serif;
+  font-weight: 900;
   letter-spacing: 0;
-  font-feature-settings: "tnum" 1;
   line-height: 0.95;
   text-transform: uppercase;
 }
 
-/* Retro chunky display — Archivo Black italic for huge stat numbers */
+/* Huge stat numbers — the pixel cut at display size. Was Archivo Black italic.
+   Synthetic bold is fine on this face (see .t-display) but synthetic oblique is
+   not — a skewed dot grid is the one thing that reads as broken rather than
+   styled — so font-style stays pinned to normal. Tracking goes positive: the
+   negative value was closing up Archivo's wide Black cut. */
 .t-retro {
-  font-family: var(--font-archivo), sans-serif;
+  font-family: var(--font-pixel), sans-serif;
   font-weight: 900;
-  font-stretch: 125%;
-  letter-spacing: -0.02em;
-  font-feature-settings: "tnum" 1;
+  font-style: normal;
+  letter-spacing: 0.01em;
   line-height: 0.82;
   text-transform: uppercase;
-  font-style: italic;
   -webkit-text-stroke: 0;
 }
 

@@ -624,7 +624,7 @@ export function AnalyticsCollapsed({ github }: { github: GithubData }) {
                 </p>
                 <p
                   className="t-num text-[clamp(20px,1.9vw,34px)] compact:text-[clamp(15px,1.5vw,22px)]"
-                  style={{ fontWeight: 700, lineHeight: 1.15 }}
+                  style={{ lineHeight: 1.15 }}
                 >
                   <Counter to={s.v} startDelay={CONTENT_BASE_DELAY + 0.75 + i * 0.08} />
                 </p>
@@ -721,7 +721,12 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
       >
         <h2
           className="split-inline min-w-0 text-[clamp(28px,7.5vw,44px)] lg:text-[clamp(30px,3.2vw,56px)] compact:text-[clamp(20px,2.2vw,30px)]"
-          style={{ lineHeight: 0.95, fontWeight: 700, letterSpacing: "-0.02em" }}
+          style={{
+            fontFamily: "var(--font-pixel), sans-serif",
+            fontWeight: 900,
+            lineHeight: 0.95,
+            letterSpacing: "0.01em",
+          }}
         >
           <SplitText delay={0.1}>Built</SplitText>{" "}
           <SplitText
@@ -768,7 +773,7 @@ export function AnalyticsExpanded({ github }: { github: GithubData }) {
             </p>
             <p
               className="t-num text-[clamp(20px,5.5vw,28px)] lg:text-[clamp(20px,1.9vw,34px)] compact:text-[clamp(15px,1.5vw,22px)]"
-              style={{ fontWeight: 700, lineHeight: 1.15 }}
+              style={{ lineHeight: 1.15 }}
             >
               {typeof s.v === "number" ? <Counter to={s.v} /> : s.v}
             </p>

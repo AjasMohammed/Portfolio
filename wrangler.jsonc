@@ -1,0 +1,46 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "portfolio",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-08-01",
+	// nodejs_compat: the API routes declare `runtime = "nodejs"`.
+	// global_fetch_strictly_public: makes fetch() to our own origin go out over
+	// the internet instead of looping back into this worker.
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "portfolio"
+		}
+	],
+	// ISR / use-cache store. Create with:
+	//   npx wrangler r2 bucket create portfolio-inc-cache
+	"r2_buckets": [
+		{
+			"binding": "NEXT_INC_CACHE_R2_BUCKET",
+			"bucket_name": "portfolio-inc-cache"
+		}
+	],
+	// Backs revalidateTag(). Create with:
+	//   npx wrangler d1 create portfolio-tag-cache
+	// then paste the printed database_id below.
+	"d1_databases": [
+		{
+			"binding": "NEXT_TAG_CACHE_D1",
+			"database_name": "portfolio-tag-cache",
+			"database_id": "<PASTE_D1_DATABASE_ID>"
+		},
+		{
+			"binding": "portfolio_tag_cache",
+			"database_name": "portfolio-tag-cache",
+			"database_id": "3f5e0bdb-35b5-43ad-a5ba-e939ee48977b"
+		}
+	]
+}

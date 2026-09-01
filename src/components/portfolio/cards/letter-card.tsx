@@ -309,15 +309,16 @@ export function LetterExpanded() {
         >
             <AsciiSky />
             {/* Cutout leans on the bottom-left, under the letter column.
-                Desktop only — on mobile the text stacks into that space. */}
+                Tablets get a shorter one (text is right-aligned there, the
+                left half was empty); phones stack the text into that space. */}
             <Image
                 src={LETTER_PORTRAIT_IMG}
                 alt=""
                 width={1071}
                 height={1469}
-                sizes="34vw"
+                sizes="(min-width: 1280px) 34vw, 60vw"
                 aria-hidden
-                className="hidden lg:block pointer-events-none select-none absolute -bottom-[16%] -left-[3%] h-[110%] w-auto"
+                className="hidden md:block pointer-events-none select-none absolute -bottom-[16%] -left-[3%] h-[72%] lg:h-[110%] w-auto"
             />
             <div
                 className="relative z-10 h-full grid min-h-0 overflow-auto lg:overflow-hidden grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-rows-none lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(320px,46%,560px))]"
@@ -330,13 +331,11 @@ export function LetterExpanded() {
                     className="self-start min-w-0 col-start-1 row-start-1"
                     style={{ color: LETTER_INK }}
                 >
+                    {/* Words stack one per line (.split-line) — at 42px that
+                        was five near-full-width rows on a 360px phone. */}
                     <h2
-                        className="t-display"
-                        style={{
-                            fontSize: "clamp(42px,3.4vw,56px)",
-                            lineHeight: 0.95,
-                            color: LETTER_INK,
-                        }}
+                        className="t-display text-[clamp(32px,8.5vw,56px)] lg:text-[clamp(42px,3.4vw,56px)]"
+                        style={{ lineHeight: 0.95, color: LETTER_INK }}
                     >
                         <SplitText delay={0.1}>
                             From my desk to yours.

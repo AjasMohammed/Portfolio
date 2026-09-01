@@ -25,9 +25,16 @@ export async function rateLimit(
   }
 }
 
-/** Best-effort client IP — first hop of x-forwarded-for, set by Vercel/CDNs. */
+/**
+ * Best-effort client IP.
+ *
+ * cf-connecting-ip first: on Cloudflare it is set by the edge and cannot be
+ * forged by the client, whereas x-forwarded-for arrives as whatever the
+ * caller appended to it. The rest are fallbacks for other hosts and local dev.
+ */
 export function clientIp(request: Request): string {
   return (
+    request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "unknown"
