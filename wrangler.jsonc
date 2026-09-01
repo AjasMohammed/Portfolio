@@ -10,6 +10,17 @@
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
+	// Persisted, searchable runtime logs (3-day retention, free plan). Set
+	// explicitly rather than relying on the default: Cloudflare's guidance is
+	// that this file is the source of truth, and the docs do not say whether an
+	// absent key preserves a dashboard-enabled setting. Worth having because
+	// visits.ts and rate-limit.ts fail OPEN on a Redis error — they console.error
+	// and carry on, so without logs a broken counter looks exactly like a
+	// working one.
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
