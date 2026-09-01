@@ -1,8 +1,4 @@
-# Packages whose install scripts are allowed to run. workerd is the one that
-# matters: its postinstall downloads the Workers runtime binary, without which
-# `wrangler dev`/`deploy` can't start.
 allowBuilds:
-  esbuild: true
-  sharp: false
-  unrs-resolver: true
-  workerd: true
+  esbuild: set this to true or false
+  unrs-resolver: set this to true or false
+  workerd: set this to true or false

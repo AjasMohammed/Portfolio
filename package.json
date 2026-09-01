@@ -2,6 +2,7 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.11.1",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -31,5 +32,12 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.125.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "unrs-resolver",
+      "workerd"
+    ]
   }
 }
