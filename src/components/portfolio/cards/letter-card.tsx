@@ -318,7 +318,7 @@ export function LetterExpanded() {
                 height={1469}
                 sizes="(min-width: 1280px) 34vw, 60vw"
                 aria-hidden
-                className="hidden md:block pointer-events-none select-none absolute -bottom-[16%] -left-[3%] h-[72%] lg:h-[110%] w-auto"
+                className="hidden md:block pointer-events-none select-none absolute -bottom-[16%] -left-[1%] h-[72%] lg:h-[110%] w-auto"
             />
             <div
                 className="relative z-10 h-full grid min-h-0 overflow-auto lg:overflow-hidden grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-rows-none lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(320px,46%,560px))]"
