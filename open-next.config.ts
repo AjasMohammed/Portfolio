@@ -1,12 +1,14 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
-import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";
+import kvIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/kv-incremental-cache";
 import d1NextTagCache from "@opennextjs/cloudflare/overrides/tag-cache/d1-next-tag-cache";
 
 /**
  * Cloudflare Workers adapter config.
  *
- * `incrementalCache` backs the ISR store: `revalidate = 60` on the home page,
- * `unstable_cache` around the visit counter, and the `next: { revalidate }`
+ * `incrementalCache` is Workers KV, not R2: enabling R2 requires a payment
+ * method on the account even for its free tier. It backs the ISR store:
+ * `revalidate = 60` on the home page, `unstable_cache` around the visit
+ * counter, and the `next: { revalidate }`
  * fetches to Google Sheets and GitHub. Without it every request would refetch
  * both sheets and the GitHub API — and the unauthenticated GitHub limit is
  * 60/hr, so the contributions calendar would start failing under any traffic.
@@ -23,6 +25,6 @@ import d1NextTagCache from "@opennextjs/cloudflare/overrides/tag-cache/d1-next-t
  * NEXT_CACHE_DO_QUEUE durable object binding + migration in wrangler.jsonc.
  */
 export default defineCloudflareConfig({
-  incrementalCache: r2IncrementalCache,
+  incrementalCache: kvIncrementalCache,
   tagCache: d1NextTagCache,
 });

@@ -20,25 +20,22 @@
 			"service": "portfolio"
 		}
 	],
-	// ISR / use-cache store. Create with:
-	//   npx wrangler r2 bucket create portfolio-inc-cache
-	"r2_buckets": [
+	// ISR / use-cache store. KV rather than R2 because R2 needs a payment
+	// method on the account even for its free tier. KV is eventually
+	// consistent (~60s to propagate globally) and caps values at 25MB, both
+	// irrelevant here: the pages are small and already revalidate at 60s.
+	// Created with: npx wrangler kv namespace create NEXT_INC_CACHE_KV
+	"kv_namespaces": [
 		{
-			"binding": "NEXT_INC_CACHE_R2_BUCKET",
-			"bucket_name": "portfolio-inc-cache"
+			"binding": "NEXT_INC_CACHE_KV",
+			"id": "5c8656b1be4044a58abd7f5b2d733031"
 		}
 	],
-	// Backs revalidateTag(). Create with:
+	// Backs revalidateTag(). Created with:
 	//   npx wrangler d1 create portfolio-tag-cache
-	// then paste the printed database_id below.
 	"d1_databases": [
 		{
 			"binding": "NEXT_TAG_CACHE_D1",
-			"database_name": "portfolio-tag-cache",
-			"database_id": "<PASTE_D1_DATABASE_ID>"
-		},
-		{
-			"binding": "portfolio_tag_cache",
 			"database_name": "portfolio-tag-cache",
 			"database_id": "3f5e0bdb-35b5-43ad-a5ba-e939ee48977b"
 		}
