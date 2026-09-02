@@ -39,7 +39,7 @@ const fugaz = Fugaz_One({
 // — so it can't stand in for --font-mono, and its 0.038em pixel unit falls
 // below one device pixel under ~24px. Headlines only; see --font-pixel.
 const geistPixel = localFont({
-  src: "../../public/fonts/GeistPixel-Square.woff2",
+  src: "../../assets/fonts/GeistPixel-Square.woff2",
   variable: "--font-geist-pixel-square",
   weight: "500",
   adjustFontFallback: false,

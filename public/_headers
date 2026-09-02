@@ -1,0 +1,39 @@
+# Cloudflare Workers Static Assets header rules. Wrangler consumes this file
+# from the assets root (.open-next/assets/_headers) and never serves it.
+#
+# Without it every asset is served `public, max-age=0, must-revalidate`, so a
+# repeat visitor round-trips for all ~1MB of images on every load just to be
+# told 304.
+
+# Content-hashed by the build — the filename changes whenever the bytes do, so
+# these can never go stale.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# NOT content-hashed: these keep their filename across a re-export, so a long
+# max-age is how you end up staring at the old picture after swapping one in
+# place. One day hard, one week stale-while-revalidate — repeat visits are
+# instant, and a swap goes live within a day without a rename.
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/videos/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Resume + certificates: same reasoning, shorter. These get replaced with the
+# same filename more often than the art does.
+/*.pdf
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/dev_certificate/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# No CSP here: framer-motion writes inline styles on every animated node and
+# the JSON-LD block is an inline <script>, so a useful policy needs nonce
+# plumbing through the root layout rather than a static header. The four below
+# are the ones that cost nothing and break nothing.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()

@@ -66,7 +66,7 @@ export const profile = {
   location: "Kochi, India",
   email: "ajasmohammed09@gmail.com",
   phone: "+919567987785",
-  resumeUrl: "/ajasmohammed-python-developer.pdf",
+  resumeUrl: "/ajasmohammed-developer.pdf",
   social: {
     githubUser: "AjasMohammed",
     githubUrl: "https://github.com/AjasMohammed",
@@ -146,6 +146,7 @@ export const profile = {
       "uv",
       "Claude Code",
       "Cursor",
+      "Antigravity",
     ],
   },
 };

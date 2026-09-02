@@ -77,14 +77,18 @@ export function ImageInner() {
           transition={{ duration: 0.8, ease, delay: CONTENT_BASE_DELAY }}
         >
           <Image
-            src="/images/portrait.jpeg"
+            src="/images/portrait.webp"
             alt="Illustrated portrait of Ajas Mohammed"
             fill
-            // This variant is lg:hidden — on desktop viewports resolve it to a
-            // 16px source so the (still-issued) request costs ~1KB, not the
-            // full-size image. px-only sizes on purpose: any `vw` value makes
-            // Next drop the small imageSizes buckets from srcset, so the 16px
-            // stub would silently upgrade to w=640.
+            // `sizes` is inert while next.config sets images.unoptimized: no
+            // srcset is emitted, so every viewport gets the one full-size file
+            // and the 16px bucket below never applies. Kept for the day
+            // optimization comes back — px-only on purpose, since any `vw`
+            // value makes Next drop the small imageSizes buckets from srcset.
+            //
+            // `priority` stays: this is the mobile LCP element. It costs
+            // desktop a preload it does not render, which is the cheaper half
+            // of the trade.
             sizes="(min-width: 1280px) 16px, (min-width: 1024px) and (max-height: 800px) 16px, (min-width: 464px) 420px, 200px"
             priority
             className="object-cover object-top scale-[1.08] transition-transform duration-500 ease-out group-hover:scale-100"
@@ -116,12 +120,17 @@ export function ImageInner() {
               alt=""
               aria-hidden
               fill
-              // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
-              // stub instead of the full PNG. px-only sizes: a `vw` value would
-              // strip the 16px bucket from srcset (see portrait above).
+              // `sizes` is inert while next.config sets images.unoptimized —
+              // no srcset is emitted, so this only matters if optimization
+              // ever comes back. px-only on purpose: a `vw` value would strip
+              // the 16px bucket from srcset.
+              // No `priority`: it emits an unconditional <link rel=preload>,
+              // which phones honour for a layer that is `hidden lg:block` and
+              // never rendered. Lazy instead — a display:none image never
+              // intersects, so mobile skips it entirely, and on desktop the
+              // boot overlay covers the load.
               sizes="(min-width: 1920px) 660px, (min-width: 1280px) 500px, (min-width: 1024px) and (max-height: 800px) 360px, 16px"
-              priority
-              className="object-cover object-center scale-110 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                            className="object-cover object-center scale-110 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             />
           </motion.div>
         </motion.div>
@@ -166,12 +175,17 @@ export function ImageInner() {
               src="/images/foreground-2.webp"
               alt="Illustrated portrait of Ajas Mohammed"
               fill
-              // Desktop-only (hidden lg:block) — phones/tablets fetch a 16px
-              // stub instead of the full PNG. px-only sizes: a `vw` value would
-              // strip the 16px bucket from srcset (see portrait above).
+              // `sizes` is inert while next.config sets images.unoptimized —
+              // no srcset is emitted, so this only matters if optimization
+              // ever comes back. px-only on purpose: a `vw` value would strip
+              // the 16px bucket from srcset.
+              // No `priority`: it emits an unconditional <link rel=preload>,
+              // which phones honour for a layer that is `hidden lg:block` and
+              // never rendered. Lazy instead — a display:none image never
+              // intersects, so mobile skips it entirely, and on desktop the
+              // boot overlay covers the load.
               sizes="(min-width: 1920px) 780px, (min-width: 1280px) 580px, (min-width: 1024px) and (max-height: 800px) 420px, 16px"
-              priority
-              className="object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                            className="object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               style={{ transformOrigin: "50% 100%" }}
             />
           </div>
@@ -229,7 +243,7 @@ export function ImageExpanded() {
         {/* Mobile only — small round avatar at top-right above the details */}
         <div className="flex justify-end lg:hidden">
           <Image
-            src="/images/portrait.jpeg"
+            src="/images/portrait.webp"
             alt="Portrait of Ajas Mohammed"
             width={200}
             height={200}
@@ -405,7 +419,7 @@ export function ImageExpanded() {
       >
         {/* Portrait — desktop only (mobile already shows it in the collapsed card) */}
         <Image
-          src="/images/portrait.jpeg"
+          src="/images/portrait.webp"
           alt="Illustrated portrait"
           width={853}
           height={1280}

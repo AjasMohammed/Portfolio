@@ -30,19 +30,23 @@
       ]
     }
   },
+  // Next re-adds ".next/dev/types/**/*.ts" here on every build, so it is left
+  // in place and filtered out by `exclude` below instead.
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
     "**/*.mts",
-    ".next-after/types/**/*.ts",
-    ".next-after/dev/types/**/*.ts",
-    ".next-before/types/**/*.ts",
-    ".next-before/dev/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    // The dev server's scratch types. `next build` type-checks whatever this
+    // tsconfig selects (see next/docs .../05-config/02-typescript.md), so a dev
+    // server killed mid-write leaves a truncated validator.ts here and every
+    // production build fails on it. `.next/types`, written by the build itself,
+    // is the one that actually needs checking.
+    ".next/dev"
   ]
 }

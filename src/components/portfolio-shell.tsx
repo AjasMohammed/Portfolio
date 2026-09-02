@@ -7,7 +7,7 @@ import {
   motion,
   useReducedMotion,
 } from "framer-motion";
-import Lenis from "lenis";
+import type Lenis from "lenis";
 import type { GithubData } from "@/lib/github";
 import type { Testimonial } from "@/lib/testimonials";
 import type { ProjectItem } from "@/data/profile";
@@ -82,18 +82,27 @@ export function PortfolioShell({
   // ponytail: no lenis.css import — its `iframe { pointer-events: none }` rule
   // would kill the live site previews in the projects card, and the only other
   // rule that matters here (scroll-behavior) is never set on the section.
+  // ponytail: dynamic import. Lenis is ~20KB of the initial bundle for a
+  // scroller that only exists below lg (`autoToggle` idles it on desktop) and
+  // never runs under reduced motion. It is already effect-only, so deferring
+  // it costs one microtask and keeps it off the critical path. `cancelled`
+  // guards the unmount-before-resolve race.
   useEffect(() => {
     const wrapper = sectionRef.current;
     if (reduce || !wrapper) return;
-    const lenis = new Lenis({
-      wrapper,
-      autoRaf: true,
-      autoToggle: true,
-      allowNestedScroll: true,
+    let cancelled = false;
+    void import("lenis").then(({ default: Lenis }) => {
+      if (cancelled) return;
+      lenisRef.current = new Lenis({
+        wrapper,
+        autoRaf: true,
+        autoToggle: true,
+        allowNestedScroll: true,
+      });
     });
-    lenisRef.current = lenis;
     return () => {
-      lenis.destroy();
+      cancelled = true;
+      lenisRef.current?.destroy();
       lenisRef.current = null;
     };
   }, [reduce]);

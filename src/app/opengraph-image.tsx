@@ -17,7 +17,7 @@ export default async function Image() {
   const [roketto, gunterz, portrait] = await Promise.all([
     readFile(join(process.cwd(), "assets/og/Roketto.ttf")),
     readFile(join(process.cwd(), "assets/og/Gunterz-BlackItalic.ttf")),
-    readFile(join(process.cwd(), "public/images/portrait.jpeg")),
+    readFile(join(process.cwd(), "assets/og/portrait.jpeg")),
   ]);
   const portraitSrc = `data:image/jpeg;base64,${portrait.toString("base64")}`;
 

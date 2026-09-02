@@ -3,7 +3,11 @@ export const RADIUS = "clamp(8px, 0.9vw, 14px)";
 /* The one gutter. Page padding, header/bento/footer rows, and the tiles inside
    the bento all ride this value — change it here or the grid drifts apart. */
 export const GAP = "clamp(8px, 1.2svh, 14px)";
-export const LETTER_VIDEO = "/videos/letter-wind.mp4";
+// 540x960 h264 crf26 — the tile renders ~225x330 CSS, so this is still 2x.
+// Re-encoded from a 720x1280 1.6Mbps original (1964KB -> 372KB); the source
+// resolution was never reachable on screen. Filename carries the size because
+// a same-name swap does not bust the browser or CDN cache.
+export const LETTER_VIDEO = "/videos/letter-wind-540.mp4";
 export const LETTER_IMG = "/images/letter-flower.webp";
 export const CONTACT_IMG = "/images/contact-arches.webp";
 export const LETTER_PORTRAIT_IMG = "/images/letter-portrait-v3.webp";
