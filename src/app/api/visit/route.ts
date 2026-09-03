@@ -52,7 +52,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, count: count ?? 0, dev: true });
   }
 
-  if (!(await rateLimit("visit", clientIp(request), 10, 60))) {
+  const ip = clientIp(request);
+  if (!(await rateLimit("visit", ip, 10, 60))) {
     return NextResponse.json({ error: "too many requests" }, { status: 429 });
   }
 
@@ -74,7 +75,9 @@ export async function POST(request: Request) {
   // Narrowed to the three fields logged rather than pulling in
   // @cloudflare/workers-types — its globals redefine fetch/Response and turn
   // res.json() into `unknown` across the client components.
-  let cf: { country?: string; city?: string; region?: string } | undefined;
+  let cf:
+    | { country?: string; city?: string; region?: string; asOrganization?: string }
+    | undefined;
   try {
     cf = getCloudflareContext().cf as typeof cf;
   } catch {
@@ -94,9 +97,14 @@ export async function POST(request: Request) {
     if (c) meta[k] = c;
   };
   set("ts", new Date().toISOString());
+  // Personal data. The log is capped at 1000 rows (src/lib/visits.ts), which is
+  // the only retention policy there is.
+  set("ip", ip === "unknown" ? undefined : ip);
   set("country", country);
   set("city", city);
   set("region", region);
+  // Network owner ("Comcast", "Google Cloud") — hosting providers = bots.
+  set("isp", cf?.asOrganization);
   set("device", device);
   set("browser", browser);
   set("os", os);

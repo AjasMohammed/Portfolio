@@ -49,21 +49,20 @@ export async function logVisit(
   }
 }
 
-export async function getRecentVisits(limit = 50): Promise<unknown[]> {
+export type Visit = Record<string, string>;
+
+export async function getRecentVisits(limit = 50): Promise<Visit[]> {
   const redis = getRedis();
   if (!redis) return [];
   try {
-    const items = await redis.lrange(LOG_KEY, 0, Math.max(0, limit - 1));
-    return items
-      .map((raw) => {
-        if (typeof raw !== "string") return raw;
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return raw;
-        }
-      })
-      .filter(Boolean);
+    const items = await redis.lrange<Visit | string>(
+      LOG_KEY,
+      0,
+      Math.max(0, limit - 1),
+    );
+    // The client auto-deserializes JSON values; strings are the ones it
+    // couldn't parse.
+    return items.filter((v): v is Visit => typeof v === "object" && v !== null);
   } catch (e) {
     console.error("[visits] redis lrange threw", e);
     return [];
