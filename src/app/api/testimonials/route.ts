@@ -16,7 +16,7 @@ function trimAndCap(v: unknown, max: number): string {
 export async function POST(request: Request) {
   // Each accepted submission relays to the Google Form and emails the owner —
   // keep the per-IP volume low so the endpoint can't be used as a spam relay.
-  if (!(await rateLimit("testimonial", clientIp(request), 3, 600))) {
+  if (!(await rateLimit("testimonial", clientIp(request.headers), 3, 600))) {
     return NextResponse.json(
       { error: "too many submissions — try again later" },
       { status: 429 },

@@ -32,11 +32,11 @@ export async function rateLimit(
  * forged by the client, whereas x-forwarded-for arrives as whatever the
  * caller appended to it. The rest are fallbacks for other hosts and local dev.
  */
-export function clientIp(request: Request): string {
+export function clientIp(h: Headers): string {
   return (
-    request.headers.get("cf-connecting-ip") ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
+    h.get("cf-connecting-ip") ||
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
     "unknown"
   );
 }

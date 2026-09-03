@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, count: count ?? 0, dev: true });
   }
 
-  const ip = clientIp(request);
+  const ip = clientIp(request.headers);
   if (!(await rateLimit("visit", ip, 10, 60))) {
     return NextResponse.json({ error: "too many requests" }, { status: 429 });
   }

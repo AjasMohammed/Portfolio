@@ -39,7 +39,7 @@ function TipRow({ value, label }: { value: string; label: string }) {
   return (
     <>
       <span className="font-semibold tabular-nums text-cream">{value}</span>{" "}
-      <span className="text-cream-deep">{label}</span>
+      <span className="text-cream/70">{label}</span>
     </>
   );
 }
@@ -68,23 +68,23 @@ export function DailyChart({ data }: { data: DayPoint[] }) {
   return (
     <div className="flex gap-2">
       <Tip tip={tip} />
-      <div className="relative w-8 shrink-0 text-right text-[10px] tabular-nums text-cream-deep/70">
+      <div className="relative w-8 shrink-0 text-right text-[10px] tabular-nums text-cream/50">
         {ticks.map((t) => (
           <span
             key={t}
             className="absolute right-0 -translate-y-1/2"
-            style={{ top: `${(1 - t / max) * 160}px` }}
+            style={{ top: `${(1 - t / max) * 192}px` }}
           >
             {t}
           </span>
         ))}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="relative h-40" onMouseLeave={() => { hide(); setHover(null); }}>
+        <div className="relative h-48" onMouseLeave={() => { hide(); setHover(null); }}>
           {ticks.map((t) => (
             <div
               key={t}
-              className="absolute inset-x-0 border-t border-cream/10"
+              className="absolute inset-x-0 border-t border-cream/[0.07]"
               style={{ top: `${(1 - t / max) * 100}%` }}
             />
           ))}
@@ -108,7 +108,7 @@ export function DailyChart({ data }: { data: DayPoint[] }) {
               >
                 {hover === i && <span className="absolute inset-0 bg-cream/[0.07]" />}
                 {d.count === peak && d.count > 0 && (
-                  <span className="absolute -top-4 text-[10px] tabular-nums text-cream-deep">
+                  <span className="absolute -top-4 text-[10px] tabular-nums text-cream/70">
                     {d.count}
                   </span>
                 )}
@@ -124,7 +124,7 @@ export function DailyChart({ data }: { data: DayPoint[] }) {
           </div>
         </div>
         {/* Absolutely placed so a label is never squeezed by its bar's width. */}
-        <div className="relative mt-1 h-4 text-[10px] text-cream-deep/70">
+        <div className="relative mt-1 h-4 text-[10px] text-cream/50">
           {data.map((d, i) =>
             i % every === 0 || i === data.length - 1 ? (
               <span
@@ -162,7 +162,7 @@ export function HourGrid({ grid, weekdays }: { grid: number[][]; weekdays: strin
     <div className="overflow-x-auto">
       <Tip tip={tip} />
       <div
-        className="grid min-w-[560px] gap-[2px] text-[10px] text-cream-deep/70"
+        className="grid min-w-[560px] gap-[2px] text-[10px] text-cream/50"
         style={{ gridTemplateColumns: "2.5rem repeat(24, minmax(0, 1fr))" }}
         onMouseLeave={hide}
       >
@@ -193,7 +193,7 @@ export function HourGrid({ grid, weekdays }: { grid: number[][]; weekdays: strin
           </div>
         ))}
       </div>
-      <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-cream-deep/70">
+      <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-cream/50">
         <span>less</span>
         {LEVELS.map((c) => (
           <span key={c} className="h-2.5 w-2.5 rounded-[2px]" style={{ background: c }} />
@@ -216,9 +216,9 @@ export type BarItem = {
 export function Bars({ items, total }: { items: BarItem[]; total: number }) {
   const { tip, show, hide } = useTip();
   const max = Math.max(1, ...items.map((i) => i.value));
-  if (!items.length) return <p className="text-sm text-cream-deep/70">no data</p>;
+  if (!items.length) return <p className="text-sm text-cream/50">no data</p>;
   return (
-    <ul className="space-y-1.5 text-sm" onMouseLeave={hide}>
+    <ul className="space-y-1 text-[13px]" onMouseLeave={hide}>
       <Tip tip={tip} />
       {items.map((it) => {
         const pct = total ? Math.round((it.value / total) * 100) : 0;
@@ -227,7 +227,7 @@ export function Bars({ items, total }: { items: BarItem[]; total: number }) {
             <a
               href={it.href}
               className={
-                "group grid grid-cols-[7.5rem_1fr_4.5rem] items-center gap-2 rounded px-1 py-0.5 outline-none focus-visible:ring-1 focus-visible:ring-cream " +
+                "group grid grid-cols-[minmax(0,8rem)_1fr_4.5rem] items-center gap-3 rounded-md px-1.5 py-1 outline-none focus-visible:ring-1 focus-visible:ring-cream " +
                 (it.active ? "bg-cream/10" : "hover:bg-cream/5")
               }
               onMouseEnter={(e) =>
@@ -242,20 +242,22 @@ export function Bars({ items, total }: { items: BarItem[]; total: number }) {
               onFocus={(e) => show(e, <TipRow value={`${it.value} (${pct}%)`} label={it.name} />)}
               onBlur={hide}
             >
-              <span className="truncate text-cream-deep group-hover:text-cream">
+              <span className="truncate text-cream/70 group-hover:text-cream">
                 {it.active && <span className="mr-1 text-orange">✓</span>}
                 {it.name}
               </span>
-              <span
-                className={
-                  "h-2.5 rounded-r-[4px] transition-colors " +
-                  (it.active ? "bg-orange-soft" : "bg-orange group-hover:bg-orange-soft")
-                }
-                style={{ width: `${(it.value / max) * 100}%` }}
-              />
+              <span className="h-2 overflow-hidden rounded-[3px] bg-cream/[0.06]">
+                <span
+                  className={
+                    "block h-full rounded-[3px] transition-colors " +
+                    (it.active ? "bg-orange-soft" : "bg-orange group-hover:bg-orange-soft")
+                  }
+                  style={{ width: `${(it.value / max) * 100}%` }}
+                />
+              </span>
               <span className="text-right tabular-nums">
                 {it.value}
-                <span className="ml-1 text-cream-deep/60">{pct}%</span>
+                <span className="ml-1.5 text-cream/40">{pct}%</span>
               </span>
             </a>
           </li>
