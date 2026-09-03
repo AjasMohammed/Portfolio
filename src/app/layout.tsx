@@ -3,6 +3,7 @@ import { Fugaz_One, Instrument_Serif, Jost } from "next/font/google";
 import localFont from "next/font/local";
 import { CURRENT_ROLE, profile } from "@/data/profile";
 import "./globals.css";
+import { siteUrl } from "@/lib/site";
 
 // Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
 // (Futura PT itself is Adobe-licensed and can't be self-hosted; swap the src
@@ -44,9 +45,6 @@ const geistPixel = localFont({
   weight: "500",
   adjustFontFallback: false,
 });
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /* Person + WebSite structured data, derived from `profile`/`experiences` so it
    can't drift from what the tiles render.
