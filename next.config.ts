@@ -2,6 +2,21 @@ import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
+  // unauthorized() in app/admin/page.tsx. Gating there instead of in a proxy
+  // file: on Next 16 the proxy is Node-only, and on OpenNext that drags the
+  // whole app-page runtime into a second bundle — ~700 KB gzipped, which put
+  // the Worker over Cloudflare's 3 MiB free-plan cap.
+  experimental: { authInterrupts: true },
+  // Browsers only act on WWW-Authenticate when the status is 401, so sending
+  // it on every /admin response is harmless and saves a proxy.
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [{ key: "WWW-Authenticate", value: 'Basic realm="admin", charset="UTF-8"' }],
+      },
+    ];
+  },
   images: {
     // ponytail: unoptimized. The Workers runtime has no sharp, so next/image
     // optimization would have to route through the paid Cloudflare Images

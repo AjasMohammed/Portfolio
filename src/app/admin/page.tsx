@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { notFound, unauthorized } from "next/navigation";
 import Link from "next/link";
+import { timingSafeEqual } from "node:crypto";
 import { getRecentVisits, getVisitCount, type Visit } from "@/lib/visits";
 import { Bars, DailyChart, HourGrid, type BarItem, type DayPoint } from "./charts";
 
-// Gated by Basic auth in src/proxy.ts. Reads Redis on every request.
+// Reads Redis on every request.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -211,6 +214,29 @@ async function load(range: RangeKey, active: Partial<Record<Dim, string>>) {
   return { total, inRange, rows, daily, grid, busiest, visitors: groupByIp(rows) };
 }
 
+/* ───────────────────────── auth ───────────────────────── */
+
+/**
+ * HTTP Basic. The browser's native prompt is the whole login UI — no session,
+ * no cookie, no form; it resends the credentials on every request for the rest
+ * of the tab session. Username is ignored.
+ */
+async function requireAdmin() {
+  const expected = process.env.ADMIN_PASSWORD;
+  // Unset password = admin does not exist. 404 so the path gives nothing away.
+  if (!expected) notFound();
+
+  const [scheme, encoded] = ((await headers()).get("authorization") ?? "").split(" ");
+  if (scheme === "Basic" && encoded) {
+    const decoded = Buffer.from(encoded, "base64").toString();
+    const supplied = decoded.slice(decoded.indexOf(":") + 1);
+    const a = Buffer.from(supplied);
+    const b = Buffer.from(expected);
+    if (a.length === b.length && timingSafeEqual(a, b)) return;
+  }
+  unauthorized();
+}
+
 /* ───────────────────────── page ───────────────────────── */
 
 export default async function Admin({
@@ -218,6 +244,7 @@ export default async function Admin({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdmin();
   const sp = await searchParams;
   const one = (k: string) => (Array.isArray(sp[k]) ? sp[k][0] : sp[k]);
   const rangeParam = one("range");
