@@ -15,7 +15,7 @@ export const GLYPHS = "..:11000@@"; // per brightness digit 0-9
 export const ALPHAS = [0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.9, 0.96, 1];
 export const CHAR_ASPECT = 0.6;
 // Must stay a real monospace: CHAR_ASPECT below hard-codes the cell width, so a
-// proportional face (Geist Pixel included, despite its name) collides glyphs.
+// proportional face collides glyphs.
 export const FONT = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
 const SHADOW = [200, 220, 242]; // cool blue-grey on the unlit side
 

@@ -64,9 +64,9 @@ function PreviewFrame({
         // Own container so the fallback initial scales to the frame, not the grid.
         containerType: "inline-size",
         borderRadius: rounded ? "clamp(4px,0.4vw,8px)" : undefined,
-        border: rounded ? "1px solid rgba(192,68,15,0.22)" : undefined,
+        border: rounded ? "1px solid rgba(35,21,16,0.22)" : undefined,
         background:
-          "linear-gradient(135deg, rgba(192,68,15,0.16), rgba(192,68,15,0.04) 55%, rgba(192,68,15,0.12))",
+          "linear-gradient(135deg, rgba(35,21,16,0.16), rgba(35,21,16,0.04) 55%, rgba(35,21,16,0.12))",
       }}
     >
       <ProjectShot
@@ -146,14 +146,14 @@ function LivePreview({
       className={`w-full overflow-hidden ${fill ? "flex flex-col flex-1 min-h-0" : ""}`}
       style={{
         borderRadius: "clamp(6px,0.5vw,10px)",
-        border: "1px solid rgba(192,68,15,0.22)",
+        border: "1px solid rgba(35,21,16,0.22)",
       }}
     >
       {/* chrome bar */}
       <div
         ref={barRef}
         className="flex items-center gap-2 px-2 py-1.5 min-w-0"
-        style={{ background: "rgba(192,68,15,0.10)" }}
+        style={{ background: "rgba(35,21,16,0.10)" }}
       >
         <span className="flex gap-1 shrink-0">
           {["#e06c4a", "#e8b04b", "#7fb069"].map((c) => (
@@ -166,7 +166,7 @@ function LivePreview({
         </span>
         <span
           className="t-mono-xs truncate"
-          style={{ opacity: 0.6, fontSize: "clamp(9px,0.72vw,12px)" }}
+          style={{ opacity: 0.6, fontSize: "clamp(10px,0.72vw,12px)" }}
         >
           {host}
         </span>
@@ -177,7 +177,7 @@ function LivePreview({
             // Below md the card is too narrow to embed usefully — the
             // screenshot plus the `live ↗` link serves phones better.
             className="t-mono-xs ml-auto shrink-0 link-line cursor-pointer hidden md:inline"
-            style={{ fontSize: "clamp(9px,0.72vw,12px)", opacity: 0.75 }}
+            style={{ fontSize: "clamp(10px,0.72vw,12px)", opacity: 0.75 }}
           >
             {live ? "stop" : "load live"}
           </button>
@@ -230,10 +230,9 @@ function StackWireframe({ kind }: { kind: string }) {
       <p
         className="t-mono-xs"
         style={{
-          color: "var(--orange)",
+          color: "var(--orange-deep)",
           opacity: 0.75,
-          letterSpacing: "0.16em",
-          fontSize: "clamp(8px,0.62vw,11px)",
+          fontSize: "clamp(10px,0.62vw,11px)",
         }}
       >
         {kind}
@@ -242,7 +241,7 @@ function StackWireframe({ kind }: { kind: string }) {
         <span
           key={b}
           className="block rounded-full"
-          style={{ width: `${w}%`, height: 4, background: "rgba(192,68,15,0.18)" }}
+          style={{ width: `${w}%`, height: 4, background: "rgba(35,21,16,0.18)" }}
         />
       ))}
     </div>
@@ -260,13 +259,13 @@ export function ProjectsCollapsed({ items }: { items: ProjectItem[] }) {
       <div className="flex items-baseline justify-between gap-2">
         <p
           className="t-mono-xs shrink-0"
-          style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
+          style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,12px)" }}
         >
           my works
         </p>
         <p
           className="t-mono-xs shrink-0 flex items-center gap-1.5"
-          style={{ opacity: 0.6, fontSize: "clamp(10px,0.78vw,13px)" }}
+          style={{ opacity: 0.6, fontSize: "clamp(10px,0.78vw,12px)" }}
         >
           <span className="live-dot" style={{ color: "#7fb069" }} />
           in production
@@ -325,14 +324,14 @@ export function ProjectsCollapsed({ items }: { items: ProjectItem[] }) {
               // behind — the depth cue is the drop shadow, not transparency.
               zIndex: i + 1,
               borderRadius: 8,
-              border: "1px solid rgba(192,68,15,0.3)",
+              border: "1px solid rgba(35,21,16,0.3)",
               background: "var(--cream-soft)",
               boxShadow: "0 10px 30px rgba(35,21,16,0.20)",
             }}
           >
             <div
               className="flex gap-1 px-2 py-1.5 shrink-0"
-              style={{ background: "rgba(192,68,15,0.12)" }}
+              style={{ background: "rgba(35,21,16,0.12)" }}
             >
               {["#e06c4a", "#e8b04b", "#7fb069"].map((c) => (
                 <span
@@ -362,29 +361,16 @@ export function ProjectsCollapsed({ items }: { items: ProjectItem[] }) {
   );
 }
 
-/* ──────────────────── PROJECTS · EXPANDED (desktop OS) ─────────────────────
-   The expanded card is a little retro desktop: every build is a draggable
-   window scattered over a halftone wallpaper, a dock of launchers sits at the
-   bottom, and opening a window swaps to a focus view with the live embed.
-   The collapsed card's window cascade, made playable. Below md the same
-   windows stack vertically — no drag, no dock, details inline. */
+/* ─────────────────────── PROJECTS · EXPANDED (grid) ───────────────────────
+   The collapsed card's window stack is the tease; here every project sits
+   full size in a grid. Clicking a screenshot swaps to a focus view with
+   the live embed. */
 
-const TILE_LINKS = "clamp(10px,0.8vw,13px)";
+const TILE_LINKS = "clamp(10px,0.8vw,12px)";
 const CHROME_FONT = "clamp(9px,0.72vw,12px)";
 
-/* Where windows land on the desk (percent of desk, cycled past four). The
-   spots overlap on purpose — a tidy desktop reads as a grid with extra
-   steps; an untidy one invites dragging. */
-const DESK_SPOTS = [
-  { top: "3%", left: "2%", width: "44%" },
-  { top: "10%", left: "51%", width: "41%" },
-  { top: "46%", left: "10%", width: "38%" },
-  { top: "40%", left: "55%", width: "40%" },
-];
-
-/* "Salon site, North Paravur · freelance" → "freelance". Unlike the collapsed
-   card's decorative WORK_KINDS cycle, this label sits next to a real project
-   name, so it has to be true. */
+/* "Salon site, North Paravur · freelance" → "freelance". It sits next to a
+   real project name, so it's read from the data, never made up. */
 const kindOf = (p: ProjectItem) =>
   p.context.split(/[,·]/).at(-1)?.trim() ?? "";
 
@@ -418,19 +404,12 @@ function TileLinks({ project }: { project: ProjectItem }) {
   );
 }
 
-function WindowChromeBar({
-  project,
-  onOpen,
-}: {
-  project: ProjectItem;
-  /** Renders the `open ⤢` button; omit on mobile cards where details sit inline. */
-  onOpen?: () => void;
-}) {
+function WindowChromeBar({ project }: { project: ProjectItem }) {
   const host = hostOf(project.url);
   return (
     <div
       className="flex items-center gap-2 px-2 py-1.5 min-w-0 shrink-0"
-      style={{ background: "rgba(192,68,15,0.10)" }}
+      style={{ background: "rgba(35,21,16,0.10)" }}
     >
       <span className="flex gap-1 shrink-0">
         {["#e06c4a", "#e8b04b", "#7fb069"].map((c) => (
@@ -444,89 +423,11 @@ function WindowChromeBar({
       <span className="t-mono-xs truncate" style={{ opacity: 0.6, fontSize: CHROME_FONT }}>
         {host || kindOf(project)}
       </span>
-      {onOpen && (
-        <button
-          type="button"
-          onClick={onOpen}
-          className="t-mono-xs ml-auto shrink-0 link-line cursor-pointer"
-          style={{ fontSize: CHROME_FONT, opacity: 0.75 }}
-        >
-          open ⤢
-        </button>
-      )}
     </div>
   );
 }
 
-function DeskWindow({
-  project,
-  index,
-  zIndex,
-  deskRef,
-  onFront,
-  onOpen,
-}: {
-  project: ProjectItem;
-  index: number;
-  zIndex: number;
-  deskRef: React.RefObject<HTMLDivElement | null>;
-  onFront: () => void;
-  onOpen: () => void;
-}) {
-  const spot = DESK_SPOTS[index % DESK_SPOTS.length];
-  return (
-    <motion.article
-      drag
-      dragConstraints={deskRef}
-      dragMomentum={false}
-      dragElastic={0.06}
-      onPointerDown={onFront}
-      onDoubleClick={onOpen}
-      initial={{ opacity: 0, y: 28, rotate: index % 2 ? 1.6 : -1.6 }}
-      animate={{ opacity: 1, y: 0, rotate: 0 }}
-      // Tight: these only start once the card has finished FLIPping open, so
-      // a long stagger here is dead time tacked onto the end of the expand.
-      transition={{ duration: 0.42, delay: 0.04 + index * 0.05, ease }}
-      className="absolute flex flex-col min-w-0 overflow-hidden cursor-grab active:cursor-grabbing select-none"
-      style={{
-        ...spot,
-        zIndex,
-        borderRadius: "clamp(6px,0.5vw,10px)",
-        border: "1px solid rgba(192,68,15,0.28)",
-        background: "var(--cream-soft)",
-        boxShadow: "0 18px 44px rgba(35,21,16,0.22)",
-      }}
-    >
-      <WindowChromeBar project={project} onOpen={onOpen} />
-      <div className="relative aspect-video overflow-hidden">
-        <PreviewFrame project={project} sizes="45vw" rounded={false} />
-      </div>
-      {/* status bar — name plate under the page, like an old file window */}
-      <div
-        className="flex items-baseline gap-2 px-2.5 py-1.5 min-w-0"
-        style={{ borderTop: "1px solid rgba(192,68,15,0.18)" }}
-      >
-        <h3
-          className="t-display-med truncate"
-          style={{ fontSize: "clamp(13px,1.1vw,18px)", lineHeight: 1 }}
-        >
-          {project.name}
-        </h3>
-        <span
-          className="t-mono-xs shrink-0"
-          style={{ opacity: 0.55, fontSize: "clamp(8px,0.65vw,11px)", letterSpacing: "0.14em" }}
-        >
-          {kindOf(project)}
-        </span>
-        <span className="ml-auto shrink-0">
-          <TileLinks project={project} />
-        </span>
-      </div>
-    </motion.article>
-  );
-}
-
-/* Opening a window swaps the desk for this focus view: the live site (or its
+/* Opening a project swaps the grid for this focus view: the live site (or its
    screenshot when the site refuses framing) plus the write-up. */
 function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => void }) {
   const canEmbed = Boolean(project.url) && project.embeddable !== false;
@@ -549,7 +450,7 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
           className="t-mono link-line shrink-0 cursor-pointer"
           style={{ fontSize: TILE_LINKS }}
         >
-          ← desk
+          ← all work
         </button>
         <h3
           className="t-display truncate"
@@ -559,7 +460,7 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
         </h3>
         <span
           className="t-mono-xs truncate hidden lg:inline"
-          style={{ opacity: 0.55, fontSize: "clamp(8px,0.65vw,11px)", letterSpacing: "0.14em" }}
+          style={{ opacity: 0.55, fontSize: "clamp(10px,0.65vw,11px)" }}
         >
           {project.context}
         </span>
@@ -568,8 +469,8 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
         </span>
       </div>
 
-      {/* The write-up — the desk window only shows chrome, so the selling copy
-          lives here. Compact: three short rows above the embed. */}
+      {/* The write-up, repeated above the embed so it stays in view once
+          the grid is gone. Compact: three short rows above the embed. */}
       <div className="flex flex-col gap-1 min-w-0 shrink-0 compact:hidden">
         <p
           className="t-serif"
@@ -580,7 +481,7 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
         {project.highlights.length > 0 && (
           <p
             className="t-mono-xs"
-            style={{ opacity: 0.7, fontSize: "clamp(9px,0.72vw,12px)", lineHeight: 1.5, letterSpacing: "0.06em" }}
+            style={{ opacity: 0.7, fontSize: "clamp(10px,0.72vw,12px)", lineHeight: 1.5, letterSpacing: "0.06em" }}
           >
             {project.highlights.join("  ·  ")}
           </p>
@@ -598,60 +499,33 @@ function FocusView({ project, onBack }: { project: ProjectItem; onBack: () => vo
   );
 }
 
-/* The desk and the stacked cards are the same four projects rendered twice,
-   with CSS hiding one of them. `display: none` still costs the whole mount —
-   eight framer nodes and eight next/image components built, reconciled and
-   style-recalculated — and it all lands in the single commit that fires the
-   instant the expand animation finishes, which is exactly the frame that can
-   least afford it. Branching in JS builds one. Reading layout at mount is
-   safe here: this card only ever exists after a click. */
-function useIsDesk() {
-  const query = "(min-width: 768px)";
-  const [desk, setDesk] = useState(() => window.matchMedia(query).matches);
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const sync = () => setDesk(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-  return desk;
-}
-
 export function ProjectsExpanded({ items }: { items: ProjectItem[] }) {
-  const isDesk = useIsDesk();
   const [focused, setFocused] = useState<string | null>(null);
-  /* Draw order: clicking or dragging a window hands it the next z on top. */
-  const [z, setZ] = useState<Record<string, number>>({});
-  const topZ = useRef(items.length);
-  const deskRef = useRef<HTMLDivElement | null>(null);
 
   const focusedProject = items.find((p) => p.name === focused) ?? null;
-  const bringToFront = (name: string) =>
-    setZ((cur) => ({ ...cur, [name]: ++topZ.current }));
 
   return (
-    <div className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto md:overflow-y-hidden scrollbar-styled-ink gap-[clamp(10px,1.4svh,16px)]">
+    <div className="flex flex-col h-full min-w-0 overflow-x-hidden overflow-y-auto scrollbar-styled-ink gap-[clamp(10px,1.4svh,16px)]">
       {/* menu bar */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease }}
         className="flex items-center gap-3 min-w-0 shrink-0 pb-[clamp(6px,0.8svh,10px)]"
-        style={{ borderBottom: "1px solid rgba(192,68,15,0.22)" }}
+        style={{ borderBottom: "1px solid rgba(35,21,16,0.22)" }}
       >
         <span
           className="t-display-med shrink-0"
           style={{ fontSize: "clamp(14px,1.2vw,20px)", lineHeight: 1 }}
         >
           <span style={{ color: "var(--orange)" }}>● </span>
-          selected work
+          Selected work
         </span>
         <span
           className="t-mono-xs hidden md:inline truncate"
           style={{ opacity: 0.5, fontSize: CHROME_FONT }}
         >
-          {focusedProject ? "~/works/" + hostOf(focusedProject.url) : "drag the windows · double-click to open"}
+          {focusedProject ? "~/works/" + hostOf(focusedProject.url) : "click a site to open it live"}
         </span>
         <span
           className="t-mono-xs ml-auto shrink-0 flex items-center gap-1.5"
@@ -673,117 +547,69 @@ export function ProjectsExpanded({ items }: { items: ProjectItem[] }) {
         />
       ) : (
         <>
-          {/* the desk — md+ only; windows scatter and drag inside it */}
-          {isDesk && (
-          <div
-            ref={deskRef}
-            className="relative flex-1 min-h-0 hidden md:block overflow-hidden"
-            style={{
-              borderRadius: "clamp(6px,0.5vw,10px)",
-              border: "1px solid rgba(192,68,15,0.18)",
-              background:
-                "radial-gradient(rgba(192,68,15,0.13) 1px, transparent 1px) 0 0 / 14px 14px, var(--cream-soft)",
-            }}
-          >
+          {/* Every project at once, flat and full size — a screenshot you can
+              actually read, the pitch under it, and one click to the live
+              site. One column on phones, up to three on wide screens. */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[clamp(10px,1.2vw,16px)] pb-2">
             {items.map((p, i) => (
-              <DeskWindow
+              <motion.article
                 key={p.name}
-                project={p}
-                index={i}
-                zIndex={z[p.name] ?? i + 1}
-                deskRef={deskRef}
-                onFront={() => bringToFront(p.name)}
-                onOpen={() => setFocused(p.name)}
-              />
-            ))}
-
-            {/* dock */}
-            <div
-              className="absolute bottom-[clamp(8px,1.2svh,14px)] left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1.5"
-              style={{
-                zIndex: 999,
-                borderRadius: 12,
-                border: "1px solid rgba(192,68,15,0.28)",
-                background: "rgba(251,246,233,0.85)",
-                backdropFilter: "blur(6px)",
-              }}
-            >
-              <span
-                className="t-mono-xs pr-1"
-                style={{ opacity: 0.5, fontSize: CHROME_FONT, letterSpacing: "0.12em" }}
-              >
-                ~/works
-              </span>
-              {items.map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  title={p.name}
-                  onClick={() => bringToFront(p.name)}
-                  onDoubleClick={() => setFocused(p.name)}
-                  className="flex items-center justify-center cursor-pointer transition-transform duration-200 hover:-translate-y-1"
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: 8,
-                    border: "1px solid rgba(192,68,15,0.3)",
-                    background: "var(--cream)",
-                  }}
-                >
-                  <span
-                    className="t-display-med"
-                    style={{ color: "var(--orange)", fontSize: 14, lineHeight: 1 }}
-                  >
-                    {p.name.charAt(0)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-          )}
-
-          {!isDesk && (
-          <div className="flex flex-col gap-3 md:hidden pb-2">
-            {items.map((p) => (
-              <article
-                key={p.name}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                // Tight: this only starts once the card has finished FLIPping
+                // open, so a long stagger is dead time tacked onto the expand.
+                transition={{ duration: 0.4, delay: 0.04 + i * 0.05, ease }}
                 className="flex flex-col min-w-0 overflow-hidden"
                 style={{
                   borderRadius: "clamp(6px,0.5vw,10px)",
-                  border: "1px solid rgba(192,68,15,0.22)",
+                  border: "1px solid rgba(35,21,16,0.22)",
                   background: "var(--cream-soft)",
                 }}
               >
                 <WindowChromeBar project={p} />
-                <div className="relative aspect-video overflow-hidden">
-                  <PreviewFrame project={p} sizes="92vw" rounded={false} />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setFocused(p.name)}
+                  aria-label={`Open ${p.name}`}
+                  className="group relative block aspect-video overflow-hidden cursor-pointer"
+                >
+                  <PreviewFrame project={p} sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 92vw" rounded={false} />
+                  <span
+                    className="t-mono-xs absolute right-2 bottom-2 px-2 py-1 opacity-0 translate-y-1 transition-[opacity,transform] duration-200 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0"
+                    style={{
+                      fontSize: CHROME_FONT,
+                      borderRadius: 6,
+                      background: "rgba(251,246,233,0.92)",
+                      border: "1px solid rgba(35,21,16,0.22)",
+                    }}
+                  >
+                    open ⤢
+                  </span>
+                </button>
                 <div className="flex flex-col gap-1.5 p-3">
                   <p
                     className="t-mono-xs"
                     style={{
-                      color: "var(--orange)",
-                      letterSpacing: "0.18em",
-                      fontSize: "clamp(8px,0.65vw,11px)",
+                      color: "var(--orange-deep)",
+                      fontSize: "clamp(10px,0.65vw,11px)",
                     }}
                   >
                     {kindOf(p)}
                   </p>
-                  <h3 className="t-display" style={{ fontSize: "clamp(18px,5vw,26px)", lineHeight: 1 }}>
+                  <h3 className="t-display" style={{ fontSize: "clamp(18px,1.6vw,26px)", lineHeight: 1 }}>
                     {p.name}
                   </h3>
                   <p
                     className="t-serif"
-                    style={{ color: "var(--orange)", fontSize: "clamp(13px,3.5vw,16px)", lineHeight: 1.4 }}
+                    style={{ color: "var(--orange)", fontSize: "clamp(13px,1.05vw,16px)", lineHeight: 1.4 }}
                   >
                     {p.description}
                   </p>
                   <TileLinks project={p} />
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
-          )}
         </>
       )}
     </div>

@@ -20,7 +20,7 @@ export default function Error({
 
   return (
     <Fallback code="500" title="That broke.">
-      <p className="t-mono-xs" style={{ opacity: 0.6, letterSpacing: "0.14em" }}>
+      <p className="t-mono-xs" style={{ opacity: 0.6 }}>
         something threw on the way in — try again
       </p>
       <FallbackAction onClick={reset} label="retry →" />

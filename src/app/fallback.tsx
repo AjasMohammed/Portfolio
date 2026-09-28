@@ -19,7 +19,7 @@ export function Fallback({
       className="grain flex h-svh w-svw flex-col items-center justify-center gap-4 px-6 text-center"
       style={{ background: "var(--ink)", color: "var(--cream)" }}
     >
-      <p className="t-mono-xs" style={{ letterSpacing: "0.22em", opacity: 0.6 }}>
+      <p className="t-mono-xs" style={{ opacity: 0.6 }}>
         {code}
       </p>
       <h1

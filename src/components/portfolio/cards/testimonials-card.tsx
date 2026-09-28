@@ -38,13 +38,13 @@ export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
       <div className="flex items-baseline justify-between gap-2 min-w-0 shrink-0">
         <p
           className="t-mono-xs"
-          style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
+          style={{ opacity: 0.7, fontSize: "clamp(10px,0.78vw,12px)" }}
         >
           kind words
         </p>
         <p
           className="t-mono-xs shrink-0"
-          style={{ opacity: 0.55, fontSize: "clamp(10px,0.78vw,13px)", letterSpacing: "0.18em" }}
+          style={{ opacity: 0.55, fontSize: "clamp(10px,0.78vw,12px)" }}
         >
           {hasItems ? `${(idx % items.length) + 1} / ${items.length}` : "—"}
         </p>
@@ -77,7 +77,7 @@ export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
             </p>
             <figcaption
               className="t-mono"
-              style={{ fontSize: "clamp(10px,0.78vw,12px)", letterSpacing: "0.12em", opacity: 0.8 }}
+              style={{ fontSize: "clamp(10px,0.78vw,12px)", opacity: 0.8 }}
             >
               — {current.name}
               {current.role ? (
@@ -97,17 +97,17 @@ export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
               style={{
                 fontSize: "clamp(20px,2vw,32px)",
                 lineHeight: 1,
-                color: "var(--orange-deep)",
+                color: "var(--ink)",
               }}
             >
-              <SplitText delay={CONTENT_BASE_DELAY + 0.2}>kind words.</SplitText>
+              <SplitText delay={CONTENT_BASE_DELAY + 0.2}>Kind words.</SplitText>
             </p>
             <p
               className="t-body"
               style={{
                 fontSize: "clamp(11px,0.9vw,14px)",
                 lineHeight: 1.45,
-                color: "var(--orange-deep)",
+                color: "var(--ink)",
                 opacity: 0.75,
               }}
             >
@@ -121,7 +121,7 @@ export function TestimonialsCollapsed({ items }: { items: Testimonial[] }) {
         className="t-mono shrink-0"
         style={{
           letterSpacing: "0.08em",
-          fontSize: "clamp(10px,0.78vw,13px)",
+          fontSize: "clamp(10px,0.78vw,12px)",
           opacity: 0.85,
         }}
         initial={reduce ? false : { opacity: 0, y: 6 }}
@@ -160,8 +160,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
           className="t-mono-xs"
           style={{
             opacity: 0.65,
-            fontSize: "clamp(10px,2.6vw,14px)",
-            letterSpacing: "0.22em",
+            fontSize: "clamp(10px,2.6vw,12px)",
           }}
         >
           kind words · approved notes
@@ -171,7 +170,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
           style={{
             fontSize: "clamp(28px,4.6vw,64px)",
             lineHeight: 0.95,
-            color: "var(--orange-deep)",
+            color: "var(--ink)",
           }}
         >
           <SplitText delay={0.1}>What they said.</SplitText>
@@ -183,7 +182,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
             style={{
               fontSize: "clamp(13px,1vw,17px)",
               lineHeight: 1.55,
-              color: "var(--orange-deep)",
+              color: "var(--ink)",
               opacity: 0.7,
               maxWidth: "52ch",
             }}
@@ -205,7 +204,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
                   borderBottom:
                     i === items.length - 1
                       ? "none"
-                      : "1px solid rgba(192,68,15,0.18)",
+                      : "1px solid rgba(35,21,16,0.18)",
                 }}
               >
                 <p
@@ -223,8 +222,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
                 <p
                   className="t-mono"
                   style={{
-                    fontSize: "clamp(10px,0.78vw,13px)",
-                    letterSpacing: "0.14em",
+                    fontSize: "clamp(10px,0.78vw,12px)",
                     opacity: 0.78,
                   }}
                 >
@@ -247,8 +245,8 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
         <div
           className="flex flex-col gap-3 p-[clamp(14px,1.6vw,22px)] rounded-[clamp(8px,0.9vw,14px)]"
           style={{
-            background: "rgba(192,68,15,0.07)",
-            border: "1px solid rgba(192,68,15,0.22)",
+            background: "rgba(35,21,16,0.07)",
+            border: "1px solid rgba(35,21,16,0.22)",
           }}
         >
           <div>
@@ -257,7 +255,6 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
               style={{
                 opacity: 0.65,
                 fontSize: "clamp(10px,0.72vw,12px)",
-                letterSpacing: "0.22em",
               }}
             >
               leave a note
@@ -267,7 +264,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
               style={{
                 fontSize: "clamp(20px,2vw,32px)",
                 lineHeight: 1,
-                color: "var(--orange-deep)",
+                color: "var(--ink)",
               }}
             >
               for the wall.
@@ -277,7 +274,7 @@ export function TestimonialsExpanded({ items }: { items: Testimonial[] }) {
               style={{
                 fontSize: "clamp(11px,0.82vw,13px)",
                 lineHeight: 1.5,
-                color: "var(--orange-deep)",
+                color: "var(--ink)",
                 opacity: 0.72,
               }}
             >
@@ -339,7 +336,7 @@ function TestimonialForm() {
         className="t-body flex flex-col gap-2"
         style={{
           fontSize: "clamp(12px,0.9vw,15px)",
-          color: "var(--orange-deep)",
+          color: "var(--ink)",
           opacity: 0.9,
         }}
       >
@@ -354,7 +351,7 @@ function TestimonialForm() {
           type="button"
           onClick={() => setState({ kind: "idle" })}
           className="t-mono self-start mt-1 link-line"
-          style={{ fontSize: "clamp(10px,0.78vw,12px)", letterSpacing: "0.14em" }}
+          style={{ fontSize: "clamp(10px,0.78vw,12px)" }}
         >
           leave another →
         </button>
@@ -363,16 +360,15 @@ function TestimonialForm() {
   }
 
   const labelStyle: React.CSSProperties = {
-    fontSize: "clamp(9px,0.7vw,11px)",
-    letterSpacing: "0.18em",
+    fontSize: "clamp(10px,0.7vw,11px)",
     opacity: 0.7,
   };
   const fieldStyle: React.CSSProperties = {
     background: "transparent",
     border: "none",
-    borderBottom: "1px solid rgba(192,68,15,0.32)",
+    borderBottom: "1px solid rgba(35,21,16,0.32)",
     outline: "none",
-    color: "var(--orange-deep)",
+    color: "var(--ink)",
     fontSize: "clamp(13px,1vw,16px)",
     padding: "8px 2px",
     width: "100%",
@@ -455,7 +451,6 @@ function TestimonialForm() {
           style={{
             color: "var(--orange-deep)",
             opacity: 0.95,
-            letterSpacing: "0.12em",
             fontSize: "clamp(10px,0.72vw,12px)",
           }}
           role="alert"
@@ -469,8 +464,7 @@ function TestimonialForm() {
         disabled={state.kind === "sending"}
         className="t-mono self-start mt-1 transition-transform hover:scale-[1.02] active:scale-100 disabled:opacity-50"
         style={{
-          fontSize: "clamp(10px,0.82vw,13px)",
-          letterSpacing: "0.18em",
+          fontSize: "clamp(10px,0.82vw,12px)",
           padding: "10px 18px",
           background: "var(--orange-deep)",
           color: "var(--cream)",

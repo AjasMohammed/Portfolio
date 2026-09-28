@@ -151,7 +151,7 @@ function TypingTitle({
 const ACCENT = "rgba(192,68,15,0.55)";
 const ACCENT_SOFT = "rgba(192,68,15,0.32)";
 const ACCENT_FAINT = "rgba(192,68,15,0.18)";
-const RULE = "1px solid rgba(192,68,15,0.18)";
+const RULE = "1px solid rgba(35,21,16,0.18)";
 
 function Dot({ color }: { color: string }) {
   return (
@@ -206,7 +206,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
         <p
           className="t-mono-xs"
           style={{
-            fontSize: "clamp(9px,0.72vw,12px)",
+            fontSize: "clamp(10px,0.72vw,12px)",
             letterSpacing: "0.06em",
             opacity: 0.85,
           }}
@@ -217,8 +217,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
         <p
           className="t-mono-xs shrink-0 inline-flex items-baseline gap-[0.5ch]"
           style={{
-            fontSize: "clamp(9px,0.7vw,12px)",
-            letterSpacing: "0.16em",
+            fontSize: "clamp(10px,0.7vw,12px)",
             opacity: 0.6,
           }}
         >
@@ -245,7 +244,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
           <p
             className="t-mono-xs"
             style={{
-              fontSize: "clamp(10px,0.85vw,14px)",
+              fontSize: "clamp(10px,0.85vw,12px)",
               letterSpacing: "0.04em",
               opacity: 0.5,
             }}
@@ -256,10 +255,10 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
           <p
             className="t-body"
             style={{
-              fontSize: "clamp(14px,1.5vw,22px)",
+              fontSize: "clamp(14px,1.25vw,19px)",
               lineHeight: 1.45,
               letterSpacing: 0,
-              borderLeft: "1px solid rgba(192,68,15,0.22)",
+              borderLeft: "1px solid rgba(35,21,16,0.22)",
               marginLeft: "0.35em",
               paddingLeft: "0.85em",
               minHeight: "calc(1.45em * 3)",
@@ -276,10 +275,10 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
           <div
             className="t-mono"
             style={{
-              fontSize: "clamp(9px,0.78vw,12px)",
+              fontSize: "clamp(10px,0.78vw,12px)",
               lineHeight: 1.55,
               letterSpacing: "0.04em",
-              borderLeft: "1px solid rgba(192,68,15,0.22)",
+              borderLeft: "1px solid rgba(35,21,16,0.22)",
               marginLeft: "0.35em",
               paddingLeft: "0.85em",
               display: "grid",
@@ -328,7 +327,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
           <p
             className="t-mono-xs"
             style={{
-              fontSize: "clamp(10px,0.85vw,14px)",
+              fontSize: "clamp(10px,0.85vw,12px)",
               letterSpacing: "0.04em",
               opacity: 0.5,
             }}
@@ -352,7 +351,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
         <p
           className="t-mono-xs min-w-0 truncate inline-flex items-baseline gap-1"
           style={{
-            fontSize: "clamp(9px,0.7vw,12px)",
+            fontSize: "clamp(10px,0.7vw,12px)",
             letterSpacing: "0.04em",
             opacity: 0.75,
           }}
@@ -376,8 +375,7 @@ function WelcomeFull({ visits }: { visits?: number | null }) {
         <p
           className="t-mono-xs shrink-0 inline-flex items-center gap-[0.6ch]"
           style={{
-            fontSize: "clamp(9px,0.7vw,12px)",
-            letterSpacing: "0.16em",
+            fontSize: "clamp(10px,0.7vw,12px)",
             opacity: 0.7,
           }}
         >
@@ -407,8 +405,7 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
         <p
           className="t-mono-xs"
           style={{
-            fontSize: "clamp(9px,2.4vw,11px)",
-            letterSpacing: "0.14em",
+            fontSize: "clamp(10px,2.4vw,11px)",
             opacity: 0.7,
           }}
         >
@@ -443,11 +440,11 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
       <div
         className="t-mono shrink-0 flex flex-col"
         style={{
-          fontSize: "clamp(8px,2.2vw,11px)",
+          fontSize: "clamp(10px,2.2vw,11px)",
           letterSpacing: "0.04em",
           lineHeight: 1.5,
           gap: "clamp(2px,0.5vw,4px)",
-          borderLeft: "1px solid rgba(192,68,15,0.22)",
+          borderLeft: "1px solid rgba(35,21,16,0.22)",
           paddingLeft: "clamp(6px,1.6vw,10px)",
           marginLeft: "0.2em",
         }}
@@ -475,8 +472,7 @@ function WelcomeCompact({ visits }: { visits?: number | null }) {
       <div
         className="t-mono-xs shrink-0 flex items-baseline justify-between gap-2"
         style={{
-          fontSize: "clamp(8px,2.2vw,10px)",
-          letterSpacing: "0.16em",
+          fontSize: "clamp(10px,2.2vw,10px)",
           opacity: 0.55,
         }}
       >

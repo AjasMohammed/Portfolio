@@ -34,20 +34,21 @@ import { WelcomeCollapsed } from "@/components/portfolio/cards/welcome-card";
 import { usePerfTier } from "@/components/portfolio/use-perf-tier";
 
 /* The welcome tile sits full-bleed on the cosmos-wall art. It is already
-   landscape and mostly pale, so it needs no crop — just a thin cream veil to
-   lift the copy off the bloom and the shapes in the bottom-right. */
+   landscape and mostly pale, so it needs no crop — just a cream veil, heavier
+   over the copy (the orange bloom sits right behind it) and easing off at the
+   foot so the arcs in the bottom-right still show. */
 /* One `background` shorthand, not longhands: React warns (and can mis-style)
    when a rerender mixes shorthand and longhand background properties. */
 const WELCOME_SURFACE: React.CSSProperties = {
   background:
-    "linear-gradient(rgba(244,235,216,0.42), rgba(244,235,216,0.42)) center / cover no-repeat, url(/images/cosmos-wall.webp) center / cover no-repeat var(--cream)",
+    "linear-gradient(180deg, rgba(244,235,216,0.72) 0%, rgba(244,235,216,0.66) 62%, rgba(244,235,216,0.4) 100%) center / cover no-repeat, url(/images/cosmos-wall.webp) center / cover no-repeat var(--cream)",
 };
 
 /* The compact tile is half as tall and much wider, so `cover` centres the bloom
    straight on the headline — anchoring low lifts it up into the filename bar. */
 const WELCOME_SURFACE_COMPACT: React.CSSProperties = {
   background:
-    "linear-gradient(rgba(244,235,216,0.42), rgba(244,235,216,0.42)) center / cover no-repeat, url(/images/cosmos-wall.webp) center bottom / cover no-repeat var(--cream)",
+    "linear-gradient(180deg, rgba(244,235,216,0.72) 0%, rgba(244,235,216,0.66) 62%, rgba(244,235,216,0.4) 100%) center / cover no-repeat, url(/images/cosmos-wall.webp) center bottom / cover no-repeat var(--cream)",
 };
 
 export function PortfolioShell({
@@ -275,7 +276,7 @@ export function PortfolioShell({
                 style={{
                   borderRadius: RADIUS,
                   ...WELCOME_SURFACE_COMPACT,
-                  color: "var(--orange-deep)",
+                  color: "var(--ink)",
                   padding: "clamp(8px,2vw,14px) clamp(10px,2vw,16px)",
                 }}
               >
@@ -307,7 +308,7 @@ export function PortfolioShell({
                 style={{
                   borderRadius: RADIUS,
                   ...WELCOME_SURFACE,
-                  color: "var(--orange-deep)",
+                  color: "var(--ink)",
                   padding:
                     "clamp(14px,1.8svh,22px) clamp(14px,1.5vw,22px) clamp(18px,2.2svh,28px)",
                 }}
@@ -415,7 +416,7 @@ export function PortfolioShell({
                   style={{
                     background: letterOpen
                       ? "rgba(168,196,220,0.32)"
-                      : "rgba(192,68,15,0.32)",
+                      : "rgba(35,21,16,0.55)",
                     borderRadius: RADIUS,
                     transition: "background 0.45s cubic-bezier(0.22,1,0.36,1)",
                   }}
@@ -480,7 +481,7 @@ export function PortfolioShell({
             </motion.div>
             <motion.span
               className="t-mono-xs"
-              style={{ letterSpacing: "0.22em" }}
+             
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 0.7, y: 0 }}
               transition={{ duration: 0.4, ease, delay: 0.25 }}

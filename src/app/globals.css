@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  /* Two-tone palette extracted from portrait.jpeg, anchored on warm ink */
+  /* Palette from portrait.jpeg. Roles: cream = surface, ink = text,
+     orange = accent only (serif words, dots, CTAs, data). Small text in
+     orange must use --orange-deep — --orange is 2.97:1 on cream. */
   --orange: #ea5a1a;
   --orange-deep: #c0440f;
   --orange-soft: #f08047;
@@ -34,19 +36,11 @@
   --color-cream-deep: var(--cream-deep);
   --color-ink: var(--ink);
 
-  --font-sans: var(--font-futura);
-  --font-display: var(--font-fugaz);
-  --font-serif: var(--font-instrument-serif);
+  --font-sans: var(--font-grift);
   /* System monospace — JetBrains Mono was a ~90KB download for a 6%-opacity
      ASCII backdrop and two tiny code labels; ui-monospace is indistinguishable
      there. */
   --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
-  /* Geist Pixel (Square). Despite the name and the vendor's mono fallback list
-     it is PROPORTIONAL — '.' is 0.19em, '@' 0.836em — so it must never back
-     --font-mono or the ASCII grids warp. Display sizes only: the pixel unit is
-     0.038em, which turns to mush below ~24px. */
-  --font-pixel: var(--font-geist-pixel-square), var(--font-fugaz), sans-serif;
-  --font-secondary: var(--font-futura);
 }
 
 html,
@@ -58,6 +52,7 @@ body {
   overscroll-behavior: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -75,60 +70,47 @@ body {
   opacity: 0.35;
 }
 
-/* ── Typographic system — Geist Pixel headlines, Fugaz One copy, Archivo
-   numerals ──── */
-/* Top display tier — Geist Pixel.
-
-   The file is static: no weight axis, one cut, and next/font declares it at 500.
-   So 900 here is synthetic bold, and that is deliberate — the Square cut is a
-   monoline with open counters, so the browser's emboldening thickens it evenly
-   instead of filling it in. Every pixel tier below runs 900 for the same reason.
-   Any lighter cut (Grid/Circle/Triangle/Line) would break under this; they are
-   dotted, and the dots merge. */
+/* ── Typographic system — Grift throughout, Moisette italic accents ──── */
+/* Headlines, sentence case as written. */
 .t-display {
-  font-family: var(--font-pixel), sans-serif;
-  font-weight: 900;
-  -webkit-text-stroke: 0;
-  letter-spacing: 0.015em;
-  line-height: 0.95;
-  text-transform: uppercase;
-}
-
-/* Display medium — same pixel cut as .t-display, wider tracking so card/list
-   headings stay open at 14–20px. That is under the ~24px where the 0.038em dot
-   unit still resolves, so the strokes thin out; the extra tracking is what keeps
-   them apart. */
-.t-display-med {
-  font-family: var(--font-pixel), sans-serif;
-  font-weight: 900;
-  letter-spacing: 0.03em;
+  font-family: var(--font-grift), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
   line-height: 1;
-  text-transform: uppercase;
 }
 
-/* Serif — for italic accents inside display lines */
-.t-serif {
-  font-family: var(--font-serif), serif;
-  font-style: italic;
-  letter-spacing: -0.018em;
-  line-height: 0.92;
-}
-
-/* Small-caps UI labels — Jost (geometric, Futura-derived) Medium. Its x-height
-   sits lower than a grotesque's, so the floors are 1px up from the Hanken-era
-   values and tracking stays wide to keep the uppercase forms open. */
-.t-mono {
-  font-family: var(--font-futura), system-ui, sans-serif;
+/* Card/list items at 14–20px — one step lighter than the headlines so lists
+   don't compete with them; tracking eases toward neutral. */
+.t-display-med {
+  font-family: var(--font-grift), system-ui, sans-serif;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+/* Accent inside display lines — Moisette's serif italic against the Grift
+   headline. */
+.t-serif {
+  font-family: var(--font-moisette), var(--font-grift), serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* Small uppercase UI labels. */
+.t-mono {
+  font-family: var(--font-grift), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: clamp(11px, 0.72vw, 13px);
 }
 
 .t-mono-xs {
-  font-family: var(--font-futura), system-ui, sans-serif;
+  font-family: var(--font-grift), system-ui, sans-serif;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: clamp(10px, 0.65vw, 12px);
 }
@@ -141,47 +123,31 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-/* Main copy — Geist Pixel, and the only tier that runs it mixed-case. Lowercase
-   forms are shorter than the caps everywhere else, so the 0.038em pixel unit is
-   working with roughly half the height at the same font-size: this is the tier
-   that degrades first if sizes ever come down. Tracking is up from 0.02em for
-   that reason — the dots need air at x-height to stay separate. */
+/* Main copy. */
 .t-body {
-  font-family: var(--font-pixel), system-ui, sans-serif;
-  font-weight: 900;
+  font-family: var(--font-grift), system-ui, sans-serif;
+  font-weight: 400;
   font-size: clamp(14px, 1.05vw, 17px);
-  line-height: 1.7;
-  letter-spacing: 0.03em;
-  text-transform: none;
-}
-
-/* Numerals for stats. No font-stretch (the pixel face has no width axis) and no
-   "tnum" — it ships neither the feature nor uniform digit widths ('1' is 0.494em
-   against '4' at 0.684em).
-   ponytail: <Counter> count-ups therefore reflow a few px as digits change.
-   Only visible during the ~1s animation on 1–2 digit stats; give the element a
-   ch-based min-width if it ever lands on a longer number. */
-.t-num {
-  font-family: var(--font-pixel), sans-serif;
-  font-weight: 900;
+  line-height: 1.6;
   letter-spacing: 0;
-  line-height: 0.95;
-  text-transform: uppercase;
 }
 
-/* Huge stat numbers — the pixel cut at display size. Was Archivo Black italic.
-   Synthetic bold is fine on this face (see .t-display) but synthetic oblique is
-   not — a skewed dot grid is the one thing that reads as broken rather than
-   styled — so font-style stays pinned to normal. Tracking goes positive: the
-   negative value was closing up Archivo's wide Black cut. */
+/* Stat numerals — tabular figures, so <Counter> count-ups hold their width. */
+.t-num {
+  font-family: var(--font-grift), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Huge stat numbers. */
 .t-retro {
-  font-family: var(--font-pixel), sans-serif;
-  font-weight: 900;
-  font-style: normal;
-  letter-spacing: 0.01em;
-  line-height: 0.82;
-  text-transform: uppercase;
-  -webkit-text-stroke: 0;
+  font-family: var(--font-grift), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+  font-feature-settings: "tnum" 1;
 }
 
 /* Interactive utilities */
@@ -225,7 +191,7 @@ body {
 /* Inked variant — for cream-surfaced cards (bio) */
 .scrollbar-styled-ink {
   scrollbar-width: thin;
-  scrollbar-color: rgba(192, 68, 15, 0.35) transparent;
+  scrollbar-color: rgba(35, 21, 16, 0.35) transparent;
 }
 .scrollbar-styled-ink::-webkit-scrollbar {
   width: 6px;
@@ -235,12 +201,12 @@ body {
   background: transparent;
 }
 .scrollbar-styled-ink::-webkit-scrollbar-thumb {
-  background: rgba(192, 68, 15, 0.35);
+  background: rgba(35, 21, 16, 0.35);
   border-radius: 999px;
   transition: background 0.2s ease;
 }
 .scrollbar-styled-ink::-webkit-scrollbar-thumb:hover {
-  background: rgba(192, 68, 15, 0.6);
+  background: rgba(35, 21, 16, 0.6);
 }
 .scrollbar-styled-ink::-webkit-scrollbar-corner {
   background: transparent;
@@ -364,34 +330,6 @@ body {
   }
   .bento-card--hover:hover {
     box-shadow: var(--hover-shadow);
-  }
-}
-
-/* ── Bio tile watermark ────────────────────────────────────────────────
-   The dossier's seal: concentric guilloché rosettes that counter-rotate and
-   ink in when the tile is hovered — the document authenticating under the
-   cursor, the same "hover rewards the pointer" idea the works tile uses.
-   `--spin`, `--o`/`--oh` and `--d` are set per-ring on the element. */
-.bio-ring {
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-  transform: rotate(0deg);
-  opacity: var(--o);
-  transition:
-    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.55s ease-out;
-  transition-delay: var(--d, 0s);
-}
-.group:hover .bio-ring {
-  transform: rotate(var(--spin));
-  opacity: var(--oh);
-}
-@media (prefers-reduced-motion: reduce) {
-  .bio-ring {
-    transition: opacity 0.55s ease-out;
-  }
-  .group:hover .bio-ring {
-    transform: rotate(0deg);
   }
 }
 

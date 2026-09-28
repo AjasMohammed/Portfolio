@@ -10,7 +10,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { Contributions } from "@/lib/github";
 import { ease, CONTENT_BASE_DELAY } from "./constants";
 
-const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
+export const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   0: "rgba(192,68,15,0.08)",
   1: "rgba(240,128,71,0.40)",
   2: "rgba(234,90,26,0.65)",
@@ -92,6 +92,11 @@ export function ContributionHeatmap({
       });
     }
   });
+  // The window's first month is usually a partial one, only a column or two
+  // wide — drop its label (as GitHub does) or it collides with the next.
+  if (monthLabels.length > 1 && monthLabels[1].idx - monthLabels[0].idx < 3) {
+    monthLabels.shift();
+  }
 
   const labelGutter = showLabels ? 28 : 0;
   const monthGutter = showLabels ? 14 : 0;
@@ -140,7 +145,7 @@ export function ContributionHeatmap({
                 key={i}
                 className="t-mono-xs"
                 style={{
-                  fontSize: 9,
+                  fontSize: 10,
                   opacity: 0.5,
                   letterSpacing: "0.05em",
                   lineHeight: `${cellSize + gap}px`,

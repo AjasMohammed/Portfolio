@@ -1,49 +1,35 @@
 import type { Metadata } from "next";
-import { Fugaz_One, Instrument_Serif, Jost } from "next/font/google";
 import localFont from "next/font/local";
 import { CURRENT_ROLE, profile } from "@/data/profile";
 import "./globals.css";
 import { siteUrl } from "@/lib/site";
 
-// Small-text face — Jost, a geometric sans cut from the same Futura skeleton.
-// (Futura PT itself is Adobe-licensed and can't be self-hosted; swap the src
-// here if a licensed woff2 ever lands in public/fonts.) Variable weight axis,
-// so labels, body copy, and emphasis all come from one request.
-const jost = Jost({
-  variable: "--font-futura",
-  subsets: ["latin"],
+// Main face — Grift (Envato Elements licence), the
+// three weights the type scale uses. No italic cut: every italic on the page
+// is a .t-serif accent, which is Moisette.
+const grift = localFont({
+  src: [
+    { path: "../../assets/fonts/Grift-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../../assets/fonts/Grift-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../../assets/fonts/Grift-SemiBold.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-grift",
+  // Grift draws small on its em (x-height 0.47, Inter 0.546), and the type
+  // scale was tuned on Inter. 108% puts its advance widths back on Inter's, so
+  // no tile gets tighter, and lands its x-height on Moisette's (0.50) so the
+  // accents need no correction of their own. Scoped to this face, so the
+  // system-mono ASCII grids are untouched.
+  declarations: [{ prop: "size-adjust", value: "108%" }],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
+// Accent face — Moisette Italic, for the soft word in display lines and the
+// testimonial quotes. Subset to Latin-1 + typographic punctuation (54KB → 24KB);
+// anything outside that falls back to Grift.
+const moisette = localFont({
+  src: "../../assets/fonts/Moisette-Italic.woff2",
   weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-});
-
-// Title + running-copy face — Fugaz One. Single weight by design, so display
-// hierarchy comes from size and tracking; never request 700 or the browser
-// fakes it.
-const fugaz = Fugaz_One({
-  variable: "--font-fugaz",
-  weight: "400",
-  subsets: ["latin"],
-});
-
-// Headline face — Vercel's Geist Pixel, Square cut. SIL OFL, so the one woff2
-// is vendored rather than pulled from the `geist` package, which routes every
-// cut through one module and preloads all five (132KB) to use one.
-//
-// Square is the solidest of the five cuts; Grid/Circle/Triangle/Line are dotted
-// and go faint at headline weight. Despite the name and the vendor's monospace
-// fallback list it is a PROPORTIONAL display face — '.' is 0.19em, '@' 0.836em
-// — so it can't stand in for --font-mono, and its 0.038em pixel unit falls
-// below one device pixel under ~24px. Headlines only; see --font-pixel.
-const geistPixel = localFont({
-  src: "../../assets/fonts/GeistPixel-Square.woff2",
-  variable: "--font-geist-pixel-square",
-  weight: "500",
-  adjustFontFallback: false,
+  style: "italic",
+  variable: "--font-moisette",
 });
 
 /* Person + WebSite structured data, derived from `profile`/`experiences` so it
@@ -149,7 +135,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jost.variable} ${instrumentSerif.variable} ${fugaz.variable} ${geistPixel.variable} h-full antialiased`}
+      className={`${grift.variable} ${moisette.variable} h-full antialiased`}
     >
       <body className="h-full bg-ink text-cream">
         <script

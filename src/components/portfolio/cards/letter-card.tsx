@@ -178,7 +178,7 @@ export function SocialCard({
                         aria-expanded={false}
                         className="absolute inset-0 flex flex-col items-start justify-center gap-1 cursor-pointer text-left"
                         style={{
-                            color: "var(--orange-deep)",
+                            color: "var(--ink)",
                             padding: "clamp(10px,1.4svh,18px) clamp(14px,1.4vw,24px)",
                         }}
                         initial={reduce ? false : { opacity: 0, y: -8 }}
@@ -190,11 +190,11 @@ export function SocialCard({
                             className="t-display"
                             style={{ fontSize: "clamp(18px,1.6vw,28px)", lineHeight: 1 }}
                         >
-                            say hello
+                            Say hello
                         </span>
                         <span
                             className="t-mono-xs"
-                            style={{ letterSpacing: "0.18em", opacity: 0.75 }}
+                            style={{ opacity: 0.75 }}
                         >
                             click for contacts →
                         </span>
@@ -229,7 +229,7 @@ export function SocialCard({
                                 className="group relative flex overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-0.5"
                                 style={{
                                     background: "var(--cream)",
-                                    color: "var(--orange-deep)",
+                                    color: "var(--ink)",
                                     borderRadius: RADIUS,
                                     minWidth: 0,
                                     padding: "clamp(6px, 0.6svh, 12px) clamp(4px, 0.5vw, 10px)",
@@ -275,7 +275,7 @@ export function SocialMobileCells() {
                     className="relative flex flex-col items-center justify-center transition-transform active:scale-95"
                     style={{
                         background: "var(--cream)",
-                        color: "var(--orange-deep)",
+                        color: "var(--ink)",
                         borderRadius: RADIUS,
                         minWidth: 0,
                         minHeight: 0,
@@ -288,7 +288,7 @@ export function SocialMobileCells() {
                     <span
                         className="t-mono-xs truncate w-full text-center"
                         style={{
-                            fontSize: "clamp(8px, 1.4vw, 13px)",
+                            fontSize: "clamp(10px,1.4vw,12px)",
                             letterSpacing: "0.06em",
                             opacity: 0.75,
                         }}
@@ -352,7 +352,6 @@ export function LetterExpanded() {
                         style={{
                             fontSize: "clamp(13px,1vw,17px)",
                             lineHeight: 1.6,
-                            letterSpacing: "0.08em",
                             color: LETTER_INK,
                             maxWidth: "52ch",
                         }}
@@ -407,7 +406,7 @@ export function LetterExpanded() {
                                 color: LETTER_INK,
                             }}
                         >
-                            — ajas mohammed
+                            — Ajas Mohammed
                         </p>
                     </div>
                 </div>

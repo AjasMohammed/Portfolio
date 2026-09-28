@@ -234,7 +234,7 @@ export function ImageExpanded() {
       className="flex flex-col h-full overflow-y-auto scrollbar-styled lg:grid lg:overflow-hidden lg:grid-cols-[1fr_clamp(220px,20vw,320px)]"
       style={{
         gap: "clamp(16px,1.6svh,28px)",
-        color: "var(--orange-deep)",
+        color: "var(--ink)",
       }}
     >
       <div
@@ -253,7 +253,7 @@ export function ImageExpanded() {
               width: "clamp(64px, 18vw, 96px)",
               height: "clamp(64px, 18vw, 96px)",
               borderRadius: 9999,
-              border: "1px solid rgba(192,68,15,0.32)",
+              border: "1px solid rgba(35,21,16,0.32)",
             }}
           />
         </div>
@@ -266,7 +266,7 @@ export function ImageExpanded() {
               style={{
                 fontSize: "clamp(28px,5.4vw,58px)",
                 lineHeight: 0.95,
-                color: "var(--orange-deep)",
+                color: "var(--ink)",
               }}
             >
               <SplitText delay={0.1}>About me.</SplitText>
@@ -276,7 +276,7 @@ export function ImageExpanded() {
               className="flex-1 min-w-0"
               style={{
                 height: 1,
-                background: "rgba(192,68,15,0.32)",
+                background: "rgba(35,21,16,0.32)",
                 transform: "translateY(-0.35em)",
               }}
             />
@@ -284,9 +284,8 @@ export function ImageExpanded() {
               className="t-mono-xs shrink-0"
               style={{
                 opacity: 0.7,
-                fontSize: "clamp(9px,2.2vw,12px)",
-                letterSpacing: "0.18em",
-                color: "var(--orange)",
+                fontSize: "clamp(10px,2.2vw,12px)",
+                color: "var(--orange-deep)",
                 transform: "translateY(-0.35em)",
               }}
             >
@@ -300,7 +299,7 @@ export function ImageExpanded() {
               fontSize: "clamp(12px,2.8vw,17px)",
               lineHeight: 1.45,
               opacity: 0.85,
-              color: "var(--orange-deep)",
+              color: "var(--ink)",
               maxWidth: "44ch",
             }}
           >
@@ -321,17 +320,16 @@ export function ImageExpanded() {
               className="flex flex-col min-w-0"
               style={{
                 padding: "clamp(10px,1.4svh,18px) 0",
-                borderTop: "1px solid rgba(192,68,15,0.22)",
+                borderTop: "1px solid rgba(35,21,16,0.22)",
               }}
             >
               <p
                 className="t-mono-xs"
                 style={{
-                  fontSize: "clamp(9px,2vw,12px)",
-                  letterSpacing: "0.22em",
+                  fontSize: "clamp(10px,2vw,12px)",
                   opacity: 0.75,
                   textTransform: "uppercase",
-                  color: "var(--orange)",
+                  color: "var(--orange-deep)",
                 }}
               >
                 {row.k}
@@ -342,7 +340,7 @@ export function ImageExpanded() {
                   fontSize: "clamp(14px,3vw,20px)",
                   lineHeight: 1.3,
                   letterSpacing: "0.005em",
-                  color: "var(--orange-deep)",
+                  color: "var(--ink)",
                   overflowWrap: "break-word",
                   marginTop: "clamp(3px,0.5svh,6px)",
                 }}
@@ -356,7 +354,7 @@ export function ImageExpanded() {
         <div
           className="flex flex-col gap-[clamp(8px,1svh,14px)] min-w-0"
           style={{
-            borderTop: "1px solid rgba(192,68,15,0.22)",
+            borderTop: "1px solid rgba(35,21,16,0.22)",
             paddingTop: "clamp(12px,1.6svh,20px)",
           }}
         >
@@ -364,21 +362,19 @@ export function ImageExpanded() {
             className="max-w-prose"
             style={{
               opacity: 0.85,
-              fontFamily: "var(--font-futura), system-ui, sans-serif",
+              fontFamily: "var(--font-grift), system-ui, sans-serif",
               fontSize: "clamp(12px,2.6vw,15px)",
               lineHeight: 1.6,
-              letterSpacing: "0.05em",
-              color: "var(--orange-deep)",
+              color: "var(--ink)",
               maxWidth: "60ch",
             }}
           >
             <span
               className="t-mono-xs"
               style={{
-                color: "var(--orange)",
+                color: "var(--orange-deep)",
                 opacity: 0.9,
                 marginRight: "0.5em",
-                letterSpacing: "0.18em",
               }}
             >
               btw —
@@ -389,21 +385,19 @@ export function ImageExpanded() {
             className="max-w-prose"
             style={{
               opacity: 0.85,
-              fontFamily: "var(--font-futura), system-ui, sans-serif",
+              fontFamily: "var(--font-grift), system-ui, sans-serif",
               fontSize: "clamp(12px,2.6vw,15px)",
               lineHeight: 1.6,
-              letterSpacing: "0.05em",
-              color: "var(--orange-deep)",
+              color: "var(--ink)",
               maxWidth: "60ch",
             }}
           >
             <span
               className="t-mono-xs"
               style={{
-                color: "var(--orange)",
+                color: "var(--orange-deep)",
                 opacity: 0.9,
                 marginRight: "0.5em",
-                letterSpacing: "0.18em",
               }}
             >
               also —
@@ -427,7 +421,7 @@ export function ImageExpanded() {
           className="hidden lg:block h-auto w-full self-start"
           style={{
             borderRadius: "clamp(5px,0.5vw,9px)",
-            border: "1px solid rgba(192,68,15,0.22)",
+            border: "1px solid rgba(35,21,16,0.22)",
           }}
         />
 
@@ -438,16 +432,16 @@ export function ImageExpanded() {
                 className="t-mono"
                 style={{
                   opacity: 0.75,
-                  fontSize: "clamp(10px,2.6vw,14px)",
+                  fontSize: "clamp(10px,2.6vw,12px)",
                   letterSpacing: "0.08em",
-                  color: "var(--orange-deep)",
+                  color: "var(--ink)",
                 }}
               >
                 certificates · verified
               </p>
               <p
                 className="t-mono-xs opacity-60 shrink-0"
-                style={{ fontSize: "clamp(9px,2.4vw,12px)", color: "var(--orange-deep)" }}
+                style={{ fontSize: "clamp(10px,2.4vw,12px)", color: "var(--ink)" }}
               >
                 {String(certificates.length).padStart(2, "0")}
               </p>
@@ -462,9 +456,9 @@ export function ImageExpanded() {
                     className="flex items-center justify-between gap-3 transition-transform hover:-translate-y-0.5"
                     style={{
                       padding: "clamp(8px,2vw,12px) clamp(10px,2.4vw,14px)",
-                      border: "1px solid rgba(192,68,15,0.28)",
+                      border: "1px solid rgba(35,21,16,0.28)",
                       borderRadius: "clamp(4px,1vw,6px)",
-                      background: "rgba(192,68,15,0.04)",
+                      background: "rgba(35,21,16,0.04)",
                     }}
                   >
                     <div className="min-w-0">
@@ -473,7 +467,7 @@ export function ImageExpanded() {
                         style={{
                           fontSize: "clamp(12px,3vw,17px)",
                           lineHeight: 1.15,
-                          color: "var(--orange-deep)",
+                          color: "var(--ink)",
                         }}
                       >
                         {c.title}
@@ -481,7 +475,7 @@ export function ImageExpanded() {
                       <p
                         className="t-body truncate"
                         style={{
-                          color: "rgba(192,68,15,0.78)",
+                          color: "rgba(35,21,16,0.78)",
                           fontSize: "clamp(10px,2.4vw,13px)",
                           lineHeight: 1.2,
                         }}

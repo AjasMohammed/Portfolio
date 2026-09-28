@@ -18,7 +18,7 @@ import { TestimonialsExpanded } from "./cards/testimonials-card";
 /* ───────────────────────── CARDS ───────────────────────── */
 
 export function surfaceStyles(v: Variant) {
-  if (v === "cream") return { bg: "var(--cream)", fg: "var(--orange-deep)" };
+  if (v === "cream") return { bg: "var(--cream)", fg: "var(--ink)" };
   if (v === "sky") return { bg: SKY_BG, fg: "#0f1f3a" };
   return { bg: "var(--orange-deep)", fg: "var(--cream)" };
 }
@@ -44,6 +44,8 @@ const ENTER_OFFSET: Record<EnterFrom, { x?: string; y?: string }> = {
   top: { y: "-110vh" },
   bottom: { y: "110vh" },
 };
+
+const HOVER_TRANSITION = { duration: 0.35, ease };
 
 export function BentoCard({
   id,
@@ -82,6 +84,7 @@ export function BentoCard({
   const surface = surfaceStyles(variant);
   const interactive = !otherOpen && !isHidden;
   const reduce = useReducedMotion();
+  const [settled, setSettled] = useState(false);
 
   const preEnter = ENTER_OFFSET[enterFrom];
   // Bleed lets the portrait card's foreground escape above the tile. We only
@@ -97,9 +100,7 @@ export function BentoCard({
   // to a CSS class so the browser doesn't repaint on every hover frame.
   const hoverable =
     interactive &&
-    id !== "bio" &&
     id !== "letter" &&
-    id !== "skills" &&
     id !== "image";
 
   const hoverShadow =
@@ -117,14 +118,25 @@ export function BentoCard({
       // here too, but it fired on every tile at the exact moment the FLIP
       // started — it's a `.bento-dim` CSS transition now (see globals.css).
       animate={entered || reduce ? { x: 0, y: 0 } : preEnter}
-      whileHover={hoverable ? { scale: 1.012, y: -4 } : undefined}
-      whileTap={interactive && !reduce ? { scale: 0.988 } : undefined}
-      transition={{
-        duration: 0.8,
-        ease,
-        delay: enterDelay,
-        layout: LAYOUT_TRANSITION,
+      // Hover/tap carry their own quick transition. Without it they inherit
+      // the entrance one below — 0.8s plus the tile's stagger delay — so every
+      // hover waited ~0.3s before lifting, and again before settling back.
+      whileHover={hoverable ? { scale: 1.012, y: -4, transition: HOVER_TRANSITION } : undefined}
+      whileTap={
+        interactive && !reduce
+          ? { scale: 0.988, transition: { duration: 0.12, ease } }
+          : undefined
+      }
+      // Hover-out animates back to `animate` using this prop, so once the
+      // entrance has played it drops the delay too.
+      onAnimationComplete={() => {
+        if (entered && !settled) setSettled(true);
       }}
+      transition={
+        settled
+          ? { ...HOVER_TRANSITION, layout: LAYOUT_TRANSITION }
+          : { duration: 0.8, ease, delay: enterDelay, layout: LAYOUT_TRANSITION }
+      }
       style={{
         borderRadius: RADIUS,
         background: surface.bg,
@@ -294,7 +306,7 @@ export function ExpandedCard({
           borderRadius: 999,
           border: `1px solid ${
             variant === "cream"
-              ? "rgba(192,68,15,0.32)"
+              ? "rgba(35,21,16,0.32)"
               : isLetter
                 ? "rgba(15,31,58,0.4)"
                 : "rgba(244,235,216,0.32)"

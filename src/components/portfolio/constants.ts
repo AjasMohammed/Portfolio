@@ -32,15 +32,3 @@ export const langDots: Record<string, string> = {
   HTML: "#ea5a1a",
   CSS: "#8d4e2a",
 };
-
-/* Cycled when a language isn't in langDots — kept warm to match the palette. */
-export const langFallbackPalette: string[] = [
-  "#f4ebd8",
-  "#f08047",
-  "#e6d8b8",
-  "#c0440f",
-  "#f4d35e",
-  "#8d4e2a",
-  "#fbf6e9",
-  "#ea5a1a",
-];

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <Fallback code="404" title="Nothing here.">
-      <p className="t-mono-xs" style={{ opacity: 0.6, letterSpacing: "0.14em" }}>
+      <p className="t-mono-xs" style={{ opacity: 0.6 }}>
         this site is one page — that link has gone stale
       </p>
       <FallbackAction href="/" label="back to the start →" />
